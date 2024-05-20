@@ -1,6 +1,6 @@
 <svg width="447" height="120" viewBox="0 0 447 120" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<path d="M2.46627 57.4991C4.6068 58.5754 27.7926 59.6018 32.1112 59.8405C67.9975 61.8242 109.738 63.9567 145.501 63.5085C166.64 63.2436 185.604 62.0003 203.728 60.8382C231.443 59.0611 257.925 56.9864 286.285 55.362C315.505 53.6885 346.093 52.5368 379.814 52.466C401.45 52.4206 422.823 52.9771 444.795 53.4749" stroke="#FFCB25" stroke-width="3" stroke-linecap="round"/>
-<circle cx="223" cy="60" r="58" fill="url(#pattern0_311_3835)" stroke="#003FE0" stroke-width="4"/>
+<path d="M2.46627 57.4991C4.6068 58.5754 27.7926 59.6018 32.1112 59.8405C67.9975 61.8242 109.738 63.9567 145.501 63.5085C166.64 63.2436 185.604 62.0003 203.728 60.8382C231.443 59.0611 257.925 56.9864 286.285 55.362C315.505 53.6885 346.093 52.5368 379.814 52.466C401.45 52.4206 422.823 52.9771 444.795 53.4749" stroke="#FFCB25" strokeWidth="3" strokeLinecap="round"/>
+<circle cx="223" cy="60" r="58" fill="url(#pattern0_311_3835)" stroke="#003FE0" strokeWidth="4"/>
 <defs>
 <pattern id="pattern0_311_3835" patternContentUnits="objectBoundingBox" width="1" height="1">
 <use xlink:href="#image0_311_3835" transform="translate(-0.333333 0.0322581) scale(0.000433469)"/>
