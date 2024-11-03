@@ -43,11 +43,11 @@ interface CredentialSubject {
   achievement: Achievement[]
   duration: string
   portfolio: Portfolio[]
-  howKnow: string
-  recommendationText: string
-  qualifications: string
-  createdTime: string
-  evidenceLink: string
+  howKnow?: string
+  recommendationText?: string
+  qualifications?: string
+  createdTime?: string
+  evidenceLink?: string
 }
 
 interface ClaimDetail {
@@ -97,24 +97,32 @@ const ComprehensiveClaimDetails = () => {
 
   useEffect(() => {
     const fetchDriveData = async () => {
-      if (!accessToken || !fileID) return
-
+      if (!accessToken || !fileID) {
+        console.warn('Access token or fileID is missing.')
+        setLoading(false)
+        return
+      }
       try {
         const content = await getContent(fileID)
 
         if (content) {
-          setClaimDetail(content as any)
+          setClaimDetail(content)
+        } else {
+          console.warn('No content found for the given file ID.')
         }
 
         await fetchFileMetadata(fileID, '')
 
         const commentsData = await getComments(fileID)
         console.log(':  fetchDriveData  commentsData', commentsData)
-        if (commentsData) {
-          setComments(commentsData as any)
+        if (commentsData && commentsData.length > 0) {
+          setComments(commentsData)
+          console.log('Set comments:', commentsData)
+        } else {
+          console.warn('No comments found for the given file ID.')
         }
       } catch (error) {
-        console.error('Error fetching claim details:', error)
+        console.error('Error fetching drive data:', error)
         setErrorMessage('Failed to fetch claim details.')
       } finally {
         setLoading(false)
@@ -132,6 +140,7 @@ const ComprehensiveClaimDetails = () => {
   }
 
   if (loading || !claimDetail) {
+    console.log('Loading state is true.')
     return (
       <Box
         sx={{
@@ -147,6 +156,7 @@ const ComprehensiveClaimDetails = () => {
   }
 
   if (errorMessage) {
+    console.error('Error Message:', errorMessage)
     return (
       <Typography variant='h6' color='error' align='center' sx={{ mt: 4 }}>
         {errorMessage}
@@ -154,11 +164,7 @@ const ComprehensiveClaimDetails = () => {
     )
   }
 
-  const credentialSubject = claimDetail.credentialSubject
-  console.log(
-    '🚀 ~ ComprehensiveClaimDetails ~ credentialSubject:',
-    credentialSubject.evidenceLink
-  )
+  const credentialSubject = claimDetail?.credentialSubject
   const achievement = credentialSubject?.achievement[0]
 
   const hasValidEvidence =
@@ -182,17 +188,17 @@ const ComprehensiveClaimDetails = () => {
         {isAskForRecommendation && (
           <Box
             sx={{
-              width: credentialSubject.evidenceLink ? '30%' : '0',
-              marginRight: credentialSubject.evidenceLink ? '20px' : '15px',
+              width: credentialSubject?.evidenceLink ? '30%' : '0',
+              marginRight: credentialSubject?.evidenceLink ? '20px' : '15px',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
               overflow: 'hidden'
             }}
           >
-            {credentialSubject.evidenceLink ? (
-              <Image
-                src={credentialSubject.evidenceLink}
+            {claimDetail?.credentialSubject?.evidenceLink ? (
+              <img
+                src={claimDetail?.credentialSubject?.evidenceLink}
                 alt='Achievement Evidence'
                 width={500}
                 height={300}
@@ -257,7 +263,7 @@ const ComprehensiveClaimDetails = () => {
 
           {!isAskForRecommendation && (
             <>
-              {credentialSubject.evidenceLink && (
+              {claimDetail?.credentialSubject?.evidenceLink && (
                 <Box
                   sx={{
                     display: 'flex',
@@ -267,8 +273,8 @@ const ComprehensiveClaimDetails = () => {
                     justifyContent: 'center'
                   }}
                 >
-                  <Image
-                    src={credentialSubject.evidenceLink}
+                  <img
+                    src={claimDetail?.credentialSubject?.evidenceLink}
                     alt='Achievement Evidence'
                     width={180}
                     height={150}
@@ -297,7 +303,7 @@ const ComprehensiveClaimDetails = () => {
 
               {achievement?.criteria?.narrative && (
                 <Box sx={{ mt: 2 }}>
-                  <Typography>Earning criteria:</Typography>
+                  <Typography>What does that entail?:</Typography>
                   <ul style={{ marginLeft: '25px' }}>
                     <li>
                       <span
@@ -416,7 +422,7 @@ const ComprehensiveClaimDetails = () => {
           ) : comments && comments.length > 0 ? (
             <List sx={{ p: 0, m: 0 }}>
               {comments.map((comment: ClaimDetail, index: number) => (
-                <React.Fragment key={index}>
+                <React.Fragment key={comment.id || index}>
                   <Box
                     sx={{
                       display: 'flex',

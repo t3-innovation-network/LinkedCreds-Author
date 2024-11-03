@@ -1,47 +1,36 @@
-'use client'
-
-import React from 'react'
-import { Box, Typography, Button, Tooltip } from '@mui/material'
-import { UseFormWatch, UseFormSetValue } from 'react-hook-form'
-import { FormData } from '../../../../credentialForm/form/types/Types'
-import { SVGFolder, SVGSinfo } from '../../../../Assets/SVGs'
+import React, { useState } from 'react'
+import { Box, Button, Typography, Tooltip } from '@mui/material'
 import { signIn, useSession } from 'next-auth/react'
-import { useStepContext } from '../../../../credentialForm/form/StepContext'
+import { SVGFolder, SVGSinfo } from '../../../Assets/SVGs'
+import LoadingOverlay from '../../../components/Loading/LoadingOverlay'
 
-interface Step1Props {
-  watch: UseFormWatch<FormData>
-  setValue: UseFormSetValue<FormData>
-  handleNext: () => void
-}
-
-const Step1: React.FC<Step1Props> = ({ handleNext }) => {
+export function Step0() {
   const { data: session } = useSession()
-  const { setUploadImageFn } = useStepContext()
+  const [loading, setLoading] = useState(false)
 
   const connectToGoogleDrive = async () => {
     if (session?.accessToken) {
-      handleNext()
+      setLoading(true)
+      window.location.hash = '#step1'
       return
     }
 
     try {
+      // Initiate Google sign-in
       await signIn('google', {
         callbackUrl: `${window.location.origin}/credentialForm#step1`
       })
+
+      // After successful sign-in, update the hash to step1
+
+      setLoading(true)
+      setTimeout(() => {
+        window.location.hash = '#step1'
+      }, 500)
     } catch (error) {
       console.error('Error connecting to Google Drive:', error)
     }
   }
-
-  // Determine tooltip text based on authentication status
-  const tooltipTitle = session?.accessToken
-    ? 'You are connected to Google Drive. This is where your recommendation will be saved.'
-    : 'You must have a Google Drive account and be able to login. This is where your recommendation will be saved.'
-
-  // Determine main text based on authentication status
-  const mainText = session?.accessToken
-    ? ''
-    : 'You must have a Google Drive account and be able to login. This is where your recommendation will be saved.'
 
   return (
     <Box
@@ -52,6 +41,7 @@ const Step1: React.FC<Step1Props> = ({ handleNext }) => {
         justifyContent: 'center',
         gap: 3,
         textAlign: 'center',
+        height: '60vh',
         mt: 4
       }}
     >
@@ -60,7 +50,6 @@ const Step1: React.FC<Step1Props> = ({ handleNext }) => {
         sx={{
           width: 100,
           height: 100,
-          backgroundColor: '#e0e0e0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -69,14 +58,16 @@ const Step1: React.FC<Step1Props> = ({ handleNext }) => {
         <SVGFolder />
       </Box>
 
+      {/* Main text */}
       <Typography
         sx={{
           fontSize: 24
         }}
       >
-        {mainText}
+        First, connect to Google Drive so you can save your data.
       </Typography>
 
+      {/* Connect to Google Drive Button */}
       <Button
         variant='contained'
         color='primary'
@@ -88,33 +79,30 @@ const Step1: React.FC<Step1Props> = ({ handleNext }) => {
           fontSize: '16px',
           borderRadius: 5,
           textTransform: 'none',
-          backgroundColor: '#003FE0',
-          display: 'flex',
-          alignItems: 'center'
+          backgroundColor: '#003FE0'
         }}
       >
-        Connect to Google Drive
-        <Tooltip title={tooltipTitle}>
+        Connect to Google Drive{' '}
+        <Tooltip title='You must have a Google Drive account and be able to login. This is where your credentials will be saved.'>
           <Box sx={{ ml: 2, mt: '2px' }}>
             <SVGSinfo />
           </Box>
         </Tooltip>
       </Button>
-
       <Button
         variant='text'
         color='primary'
-        onClick={() => handleNext()}
+        onClick={() => (window.location.hash = '#step1')}
         sx={{
           fontSize: '14px',
+          fontWeight: 600,
           textDecoration: 'underline',
           textTransform: 'none'
         }}
       >
         Continue without Saving
       </Button>
+      <LoadingOverlay text='Connecting...' open={loading} />
     </Box>
   )
 }
-
-export default Step1
