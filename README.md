@@ -2,7 +2,14 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
+### Initial Setup
+
+```bash
+npm install --legacy-peer-deps
+cp example.env .env.local
+```
+
+### Run Development Server
 
 ```bash
 npm run dev
@@ -18,7 +25,28 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+### Enabling Login with NextAuth and Google Drive Integration
+
+Set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and `NEXT_PUBLIC_GOOGLE_CLIENT_SECRET` in .env.local from a Google Cloud project with Drive integration and test user enabled. If you don't already have access to this, follow these steps starting at https://console.cloud.google.com/:
+
+* Create a new project from project menu, open the new project
+* Open Main Menu (upper-left) -> APIs & Services -> Library
+* Open "Google Drive API" in center card view, then click "Enable" button
+* Open "Oauth consent screen" in left menu, click "get started"
+* Enter App name, User support email, pick Audience -> External, ..., create
+* Under "Test users" click "+ Add users" and add your Gmail account
+* Open "Clients" in left menu, add Web Application type
+* Add `http://localhost:3000` to "Authorized JavaScript origins"
+* Add `http://localhost:3000/api/auth/callback/google` to "Authorized Redirect URIs"
+* Copy the "Client ID" and "Client secret" to the variables in `.env.local`
+
+### Custom Font
+
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+
+### Setting up Google Cloud Project with Drive Integration
+
+Create a project 
 
 ## Learn More
 
