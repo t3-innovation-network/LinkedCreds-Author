@@ -41,5 +41,11 @@ def extract_skills(request: TextRequest):
     return {"skills": list(skills)}
 
 
-# Run the app using this command: uvicorn main:app --reload --port 8000
+# Run the app using these commands:
+#> python -m venv venv
+#> venv/bin/pip install -r requirements.txt
+#> venv/bin/python -m spacy download en_core_web_lg
+#> venv/bin/uvicorn main:app --reload --port 8000
 # http://localhost:8000/extract -> responds with skills when we provide text as input.
+# example:
+#> curl localhost:8000/extract --json '{"text":"skills text with python and sql"}'
