@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import { Box, Tooltip, Snackbar, Alert, Button } from '@mui/material'
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
 import { useStepContext } from '../StepContext'
 import { SVGBack, SVGCompleteStep } from '../../../Assets/SVGs'
 import { useSession } from 'next-auth/react'
@@ -95,31 +97,20 @@ export function StepTrackShape() {
         justifyContent: 'center'
       }}
     >
+      {/*<Stepper activeStep={activeStep}>
+        <Step key={1}/>
+        <Step key={2}/>
+        <Step key={3}/>
+        <Step key={4}/>
+      </Stepper>*/}
+
+      ● ● ● ● &nbsp; Step {activeStep} of 4
       {activeStep >= 2 && activeStep <= 4 && (
         <Button
           onClick={handleBack}
           sx={{ textTransform: 'capitalize', p: '0', mr: '5px' }}
         >
-          Back
-        </Button>
-      )}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: '15px',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
-        {Array.from({ length: TOTAL_STEPS }, (_, index) => renderStepBox(index))}
-      </Box>
-
-      {activeStep === 3 && (
-        <Button
-          onClick={handleSkip}
-          sx={{ textTransform: 'capitalize', p: '0', mr: '5px' }}
-        >
-          Skip
+          ← Previous
         </Button>
       )}
 

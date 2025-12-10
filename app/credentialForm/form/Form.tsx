@@ -36,6 +36,7 @@ const Form = ({ onStepChange }: any) => {
   const [image, setImage] = useState('')
   const [selectedFiles, setSelectedFiles] = useState<any[]>([])
   const [res, setRes] = useState<any>(null)
+  const [skills, setSkills] = useState([])
 
   const characterLimit = 294
   const { data: session } = useSession()
@@ -316,11 +317,9 @@ const Form = ({ onStepChange }: any) => {
                   <Step2
                     register={register}
                     watch={watch}
-                    handleTextEditorChange={value =>
-                      setValue('credentialDescription', value ?? '')
-                    }
                     errors={errors}
                     control={control}
+                    setSkills={setSkills}
                   />
                 </Box>
               </Slide>
@@ -404,7 +403,7 @@ const Form = ({ onStepChange }: any) => {
             alignSelf: { xs: 'stretch', md: 'auto' }
           }}
         >
-          <CredentialTracker formData={watch()} selectedFiles={selectedFiles} />
+          <CredentialTracker formData={watch()} selectedFiles={selectedFiles} skills={skills}/>
         </Box>
       )}
     </Box>
