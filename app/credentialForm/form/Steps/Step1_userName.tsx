@@ -16,7 +16,7 @@ import {
 import { FormData } from '../types/Types'
 import { useSession } from 'next-auth/react'
 import { SVGSProfileName } from '../../../Assets/SVGs'
-import { StepTrackShape } from '../fromTexts & stepTrack/StepTrackShape'
+import { StepTrackShape } from '../widgets/StepTrackShape'
 interface Step1Props {
   register: UseFormRegister<FormData>
   errors: FieldErrors<FormData>
@@ -45,18 +45,19 @@ export function Step1({ register, errors, handleNext }: Readonly<Step1Props>) {
         mt: '20px',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'left',
         gap: '32px'
       }}
     >
-      <SVGSProfileName />
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '24px', fontWeight: 400 }}>
-        Step 1
-      </Typography>
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '24px', fontWeight: 400 }}>
-        please confirm your name
-      </Typography>
-      <StepTrackShape />
+      <Box sx={{ display: 'flex' }}>
+        <SVGSProfileName />
+        <Box>
+          <Typography sx={{ fontSize: '24px', fontWeight: 400 }}>
+            Confirm Your Name
+          </Typography>
+          <StepTrackShape />
+        </Box>
+      </Box>
       <Box sx={{ width: '100%' }}>
         <FormLabel sx={formLabelStyles} id='name-label'>
           Name (required)

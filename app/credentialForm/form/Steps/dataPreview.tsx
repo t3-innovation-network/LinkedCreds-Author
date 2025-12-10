@@ -11,7 +11,7 @@ import {
   commonBoxStyles,
   evidenceListStyles
 } from '../../../components/Styles/appStyles'
-import { StepTrackShape } from '../fromTexts & stepTrack/StepTrackShape'
+import { StepTrackShape } from '../widgets/StepTrackShape'
 
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 const isPDF = (fileName: string) => fileName.toLowerCase().endsWith('.pdf')

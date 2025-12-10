@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import {
   FormLabel,
   Autocomplete,
@@ -19,15 +19,15 @@ import {
 } from '../../../components/Styles/appStyles'
 import { UseFormRegister, FieldErrors, Controller } from 'react-hook-form'
 import { FormData } from '../types/Types'
-import { StepTrackShape } from '../fromTexts & stepTrack/StepTrackShape'
-import { SVGDescribeBadge, SVGSparkles } from '../../../Assets/SVGs'
+import { StepTrackShape } from '../widgets/StepTrackShape'
+import { SVGDescribeBadge } from '../../../Assets/SVGs'
 
 interface Step2Props {
   register: UseFormRegister<FormData>
   watch: (field: string) => any
-  handleTextEditorChange: (value: any) => void
   errors: FieldErrors<FormData>
   control: any
+  setSkills: (s: string[]) => any
 }
 
 // Example list of skills for auto-search
@@ -38,30 +38,42 @@ const skillsList = [
   'Software Development'
 ]
 
-export function Step2({ register, watch, control, errors }: Readonly<Step2Props>) {
+export function Step2({ register, watch, control, errors, setSkills }: Readonly<Step2Props>) {
+  const [wordCount, setWordCount] = useState(0)
+
+  const skillsDict = {}
+  var s:string = ''
+  skillsEx.forEach(s => skillsDict[s.toLowerCase()] = true)
+
+  function extractSkills(text: string) {
+    var words = text.toLowerCase().split(' ')
+    var newCount = words.length
+    if(newCount == wordCount) return
+
+    setWordCount(newCount)
+    var skills = []
+    words.forEach(s =>{
+      if(skillsDict[s]) skills.push(s)
+    })
+    setSkills(skills)
+  }
+
   return (
     <Box
-      sx={{ display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center' }}
+      sx={{ display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'left' }}
     >
-      <SVGDescribeBadge />
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '24px', fontWeight: 400 }}>
-        Step 2
-      </Typography>
-      <Typography
-        sx={{
-          fontFamily: 'Lato',
-          fontSize: '16px',
-          fontWeight: 400,
-          maxWidth: '360px',
-          textAlign: 'center'
-        }}
-      >
-        Now take a moment to describe the skill or experience you want to document.{' '}
-      </Typography>
-      <StepTrackShape />
+      <Box sx={{ display: 'flex' }}>
+        <SVGDescribeBadge />
+        <Box>
+          <Typography sx={{ fontSize: '24px', fontWeight: 400 }}>
+            Document Your Skill
+          </Typography>
+          <StepTrackShape />
+        </Box>
+      </Box>
       <Box sx={{ width: '100%' }}>
         <FormLabel sx={formLabelStyles} id='name-label'>
-          Skill Name (required):
+          What skill do you want to claim? (required) ⓘ
         </FormLabel>
 
         <Controller
@@ -100,6 +112,25 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
         />
       </Box>
 
+      <Box sx={{ width: '100%' }}>
+        <FormLabel sx={formLabelStyles} id='duration-label'>
+          Time spent acquiring this skill:{' '}
+        </FormLabel>
+        <TextField
+          {...register('credentialDuration')}
+          placeholder='Example: 3 years'
+          variant='outlined'
+          sx={TextFieldStyles}
+          aria-labelledby='duration-label'
+          inputProps={{
+            'aria-label': 'weight',
+            style: inputPropsStyles
+          }}
+          error={!!errors.credentialDuration}
+          helperText={errors.credentialDuration?.message}
+        />
+      </Box>
+
       <Box position='relative' width='100%'>
         <FormLabel sx={formLabelStyles} id='description-label'>
           Skill description (required):{' '}
@@ -125,62 +156,11 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
               ? `${errors.credentialDescription.message}`
               : `${watch('credentialDescription').length}/${294} characters`
           }
-        />
-        <Box sx={{ display: 'flex', gap: '5px' }}>
-          <SVGSparkles />
-          <Tooltip title='Under development' arrow>
-            <FormLabel sx={UseAIStyles} id='ai-description-label'>
-              Use AI to generate a description.
-            </FormLabel>
-          </Tooltip>
-        </Box>
-      </Box>
-      <Box position='relative' width='100%'>
-        <FormLabel sx={formLabelStyles} id='description-label'>
-          Describe how you earned this skill (required):{' '}
-        </FormLabel>
-        <CustomTextField
-          {...register('description', {
-            required: 'Description is required'
-          })}
-          sx={customTextFieldStyles}
-          multiline
-          rows={11}
-          variant='outlined'
-          placeholder={
-            'Example:\nI have been a weekly volunteer at the Beloved NC garden for the past 3 years in addition to caring for my own personal garden.'
-          }
-          FormHelperTextProps={{
-            className: 'MuiFormHelperText-root'
-          }}
-          inputProps={{ maxLength: 294 }}
-          error={!!errors.description}
-          helperText={
-            errors.description?.message
-              ? `${errors.description.message}`
-              : `${watch('description').length}/${294} characters`
-          }
-        />
-      </Box>
-
-      <Box sx={{ width: '100%' }}>
-        <FormLabel sx={formLabelStyles} id='duration-label'>
-          Time spent acquiring this skill:{' '}
-        </FormLabel>
-        <TextField
-          {...register('credentialDuration')}
-          placeholder='Example: 3 years'
-          variant='outlined'
-          sx={TextFieldStyles}
-          aria-labelledby='duration-label'
-          inputProps={{
-            'aria-label': 'weight',
-            style: inputPropsStyles
-          }}
-          error={!!errors.credentialDuration}
-          helperText={errors.credentialDuration?.message}
+          onChange={e => extractSkills(e.target.value)}
         />
       </Box>
     </Box>
   )
 }
+
+const skillsEx: string[] = ['Python', 'CSS', 'React', 'TypeScript', 'UX', 'Scrum', 'Git', 'GCS', 'Next.js']

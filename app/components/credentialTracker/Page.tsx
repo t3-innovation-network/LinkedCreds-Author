@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {
   Box,
+  Button,
   Typography,
   Paper,
   Container,
@@ -14,6 +15,7 @@ import { Logo } from '../../Assets/SVGs'
 import Image from 'next/image'
 import { commonTypographyStyles, evidenceListStyles } from '../Styles/appStyles'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
+import { SVGDescribeBadge, SVGSparkles } from '../../Assets/SVGs'
 
 // Set up PDF.js worker
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
@@ -81,39 +83,6 @@ const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
     })
   })
 }
-
-// Styled components
-const HeaderContainer = styled(Paper)(({ theme }) => ({
-  width: '100%',
-  maxWidth: '720px',
-  padding: theme.breakpoints.down('sm') ? '18px' : '30px',
-  borderRadius: '20px 20px 0 0',
-  borderLeft: '1px solid #d1e4ff',
-  borderRight: '1px solid #d1e4ff',
-  borderBottom: '1px solid #d1e4ff',
-  display: 'flex',
-  alignItems: 'center'
-}))
-
-const MainContentContainer = styled(Box)(({ theme }) => ({
-  width: '100%',
-  maxWidth: '720px',
-  padding: theme.breakpoints.down('sm') ? '24px 8px' : '45px 30px',
-  backgroundColor: '#87abe4',
-  borderRadius: '0 0 20px 20px',
-  borderTop: '1px solid #d1e4ff',
-  borderLeft: '1px solid #d1e4ff',
-  borderRight: '1px solid #d1e4ff',
-  margin: '0 auto'
-}))
-
-const SkillCard = styled(Card)(({ theme }) => ({
-  padding: theme.breakpoints.down('sm') ? '10px 8px' : '15px 30px',
-  backgroundColor: '#fff',
-  borderRadius: '10px',
-  border: '1px solid #003fe0',
-  width: '100%'
-}))
 
 const FieldLabel = styled(Typography)(({ theme }) => ({
   fontFamily: 'Inter',
@@ -184,11 +153,13 @@ interface CredentialTrackerProps {
     url: string
     isFeatured?: boolean
   }[]
+  skills: string[]
 }
 
 const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   formData,
-  selectedFiles = []
+  selectedFiles = [],
+  skills = ['Python', 'SQL', 'React'],
 }) => {
   const [pdfThumbnails, setPdfThumbnails] = useState<Record<string, string>>({})
   const [videoThumbnails, setVideoThumbnails] = useState<Record<string, string>>({})
@@ -233,206 +204,203 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   const featuredFile = selectedFiles.find(f => f.isFeatured)
 
   return (
-    <Box sx={{ p: 0, width: '100%', maxWidth: { xs: '100%', md: '720px' } }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          margin: '0 auto',
-          boxSizing: 'border-box'
-        }}
-      >
-        {/* Header Section */}
-        <HeaderContainer elevation={0}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
-            <Logo />
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography
-                variant='h5'
-                sx={{
-                  fontFamily: 'Lato',
-                  fontSize: '32px',
-                  fontWeight: 700,
-                  lineHeight: '38px',
-                  color: '#202e5b'
-                }}
-              >
-                Here&apos;s what you&apos;re building
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: 'Inter',
-                  fontSize: '16px',
-                  fontWeight: 400,
-                  lineHeight: '24px',
-                  color: '#202e5b',
-                  letterSpacing: '0.08px'
-                }}
-              >
-                {formData?.fullName || 'User'} - just now
-              </Typography>
-            </Box>
+    <Paper>
+      {/* Header Section */}
+      <Card elevation={0}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+          <SVGDescribeBadge />
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography
+              variant='h5'
+              sx={{
+                fontFamily: 'Lato',
+                fontSize: '32px',
+                fontWeight: 700,
+                lineHeight: '38px',
+                color: '#202e5b'
+              }}
+            >
+              Preview
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: 'Inter',
+                fontSize: '16px',
+                fontWeight: 400,
+                lineHeight: '24px',
+                color: '#202e5b',
+                letterSpacing: '0.08px'
+              }}
+            >
+              {formData?.fullName || 'User'} - just now
+            </Typography>
           </Box>
-        </HeaderContainer>
+        </Box>
+      </Card>
 
-        {/* Main Content Section */}
-        <MainContentContainer>
-          <Box sx={{ width: '100%', mb: 6 }}>
-            <SkillCard>
-              <CardContent sx={{ p: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                  <Field label='Skill Name' value={formData?.credentialName} />
-                  <Field
-                    label='Skill Description'
-                    value={formData?.credentialDescription as string}
-                    isHtml={true}
-                  />
-                  {/* Enhanced Media Section with PDF support */}
-                  <MediaContainer>
-                    <Media hasImage={!!featuredFile || !!formData?.evidenceLink}>
-                      {featuredFile ? (
-                        // Handle different file types with proper thumbnails
-                        <>
-                          {isPDF(featuredFile.name) ? (
-                            <Image
-                              width={160}
-                              height={153}
-                              style={{
-                                borderRadius: '10px',
-                                objectFit: 'cover'
-                              }}
-                              src={
-                                pdfThumbnails[featuredFile.id] ??
-                                '/fallback-pdf-thumbnail.svg'
-                              }
-                              alt='PDF Preview'
-                            />
-                          ) : isMP4(featuredFile.name) ? (
-                            <Image
-                              width={160}
-                              height={153}
-                              style={{
-                                borderRadius: '10px',
-                                objectFit: 'cover'
-                              }}
-                              src={
-                                videoThumbnails[featuredFile.id] ?? '/fallback-video.png'
-                              }
-                              alt='Video Thumbnail'
-                            />
-                          ) : (
-                            <Image
-                              src={featuredFile.url}
-                              alt='Featured Media'
-                              width={160}
-                              height={153}
-                              style={{
-                                borderRadius: '10px',
-                                objectFit: 'cover'
-                              }}
-                            />
-                          )}
-                        </>
-                      ) : formData?.evidenceLink ? (
-                        <Image
-                          src={formData.evidenceLink}
-                          alt='Featured Media'
-                          width={160}
-                          height={153}
-                          style={{
-                            borderRadius: '10px',
-                            objectFit: 'cover'
-                          }}
-                        />
-                      ) : (
-                        <Image
-                          src='/images/SkillMedia.svg'
-                          alt='Media placeholder'
-                          width={160}
-                          height={153}
-                          style={{
-                            borderRadius: '10px',
-                            objectFit: 'contain'
-                          }}
-                        />
-                      )}
-                    </Media>
-                    <Typography
-                      sx={{
-                        fontFamily: 'Inter',
-                        fontSize: '16px',
-                        fontWeight: 500,
-                        lineHeight: '24px',
-                        color: '#6b7280',
-                        letterSpacing: '0.08px',
-                        mt: 1
+      {/* Main Content Section */}
+      <CardContent sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Field label='Skill Name' value={formData?.credentialName} />
+          <Field
+            label='Skill Description'
+            value={formData?.credentialDescription as string}
+            isHtml={true}
+          />
+
+          <FieldLabel>
+            <SVGSparkles /> &nbsp;Detected Skills
+          </FieldLabel>
+          <Box>
+            {skills.map(s =>
+              <Button
+                variant='nextButton'
+                style={{'font-size':'small', height:'1.2ex', 'margin-right':'1ex'}}
+              >{s}</Button>
+            )}
+          </Box>
+
+          {/* Enhanced Media Section with PDF support */}
+          <MediaContainer>
+            <Media hasImage={!!featuredFile || !!formData?.evidenceLink}>
+              {featuredFile ? (
+                // Handle different file types with proper thumbnails
+                <>
+                  {isPDF(featuredFile.name) ? (
+                    <Image
+                      width={160}
+                      height={153}
+                      style={{
+                        borderRadius: '10px',
+                        objectFit: 'cover'
                       }}
-                    >
-                      Media (optional)
-                    </Typography>
-                  </MediaContainer>
-
-                  {/* Evidence Section (matches dataPreview.tsx) */}
-                  {hasValidEvidence && (
-                    <Box sx={commonTypographyStyles}>
-                      <FieldLabel sx={{ display: 'block' }}>
-                        Supporting Documentation:
-                      </FieldLabel>
-                      <ul style={evidenceListStyles}>
-                        {formData.evidenceLink &&
-                          shouldDisplayUrl(formData.evidenceLink) && (
-                            <li
-                              style={{
-                                cursor: 'pointer',
-                                width: 'fit-content',
-                                color: '#003fe0',
-                                textDecoration: 'underline'
-                              }}
-                              key={formData.evidenceLink}
-                              onClick={() =>
-                                handleNavigate(formData.evidenceLink, '_blank')
-                              }
-                            >
-                              {formData.evidenceLink}
-                            </li>
-                          )}
-                        {Array.isArray(formData.portfolio) &&
-                          formData.portfolio.map(
-                            (porto: { name: string; url: string }) =>
-                              porto.name &&
-                              porto.url && (
-                                <li
-                                  style={{
-                                    cursor: 'pointer',
-                                    width: 'fit-content',
-                                    color: '#003fe0',
-                                    textDecoration: 'underline'
-                                  }}
-                                  key={porto.url}
-                                  onClick={() => handleNavigate(porto.url, '_blank')}
-                                >
-                                  {porto.name || porto.url}
-                                </li>
-                              )
-                          )}
-                      </ul>
-                    </Box>
+                      src={
+                        pdfThumbnails[featuredFile.id] ??
+                        '/fallback-pdf-thumbnail.svg'
+                      }
+                      alt='PDF Preview'
+                    />
+                  ) : isMP4(featuredFile.name) ? (
+                    <Image
+                      width={160}
+                      height={153}
+                      style={{
+                        borderRadius: '10px',
+                        objectFit: 'cover'
+                      }}
+                      src={
+                        videoThumbnails[featuredFile.id] ?? '/fallback-video.png'
+                      }
+                      alt='Video Thumbnail'
+                    />
+                  ) : (
+                    <Image
+                      src={featuredFile.url}
+                      alt='Featured Media'
+                      width={160}
+                      height={153}
+                      style={{
+                        borderRadius: '10px',
+                        objectFit: 'cover'
+                      }}
+                    />
                   )}
+                </>
+              ) : formData?.evidenceLink ? (
+                <Image
+                  src={formData.evidenceLink}
+                  alt='Featured Media'
+                  width={160}
+                  height={153}
+                  style={{
+                    borderRadius: '10px',
+                    objectFit: 'cover'
+                  }}
+                />
+              ) : (
+                <Image
+                  src='/images/SkillMedia.svg'
+                  alt='Media placeholder'
+                  width={160}
+                  height={153}
+                  style={{
+                    borderRadius: '10px',
+                    objectFit: 'contain'
+                  }}
+                />
+              )}
+            </Media>
+            <Typography
+              sx={{
+                fontFamily: 'Inter',
+                fontSize: '16px',
+                fontWeight: 500,
+                lineHeight: '24px',
+                color: '#6b7280',
+                letterSpacing: '0.08px',
+                mt: 1
+              }}
+            >
+              Media (optional)
+            </Typography>
+          </MediaContainer>
 
-                  <Field
-                    label='Earning Criteria'
-                    value={formData?.description as string}
-                    isHtml={true}
-                  />
-                  <Field label='Duration' value={formData?.credentialDuration} />
-                </Box>
-              </CardContent>
-            </SkillCard>
-          </Box>
-        </MainContentContainer>
-      </Box>
-    </Box>
+          {/* Evidence Section (matches dataPreview.tsx) */}
+          {hasValidEvidence && (
+            <Box sx={commonTypographyStyles}>
+              <FieldLabel sx={{ display: 'block' }}>
+                Supporting Documentation:
+              </FieldLabel>
+              <ul style={evidenceListStyles}>
+                {formData.evidenceLink &&
+                  shouldDisplayUrl(formData.evidenceLink) && (
+                    <li
+                      style={{
+                        cursor: 'pointer',
+                        width: 'fit-content',
+                        color: '#003fe0',
+                        textDecoration: 'underline'
+                      }}
+                      key={formData.evidenceLink}
+                      onClick={() =>
+                        handleNavigate(formData.evidenceLink, '_blank')
+                      }
+                    >
+                      {formData.evidenceLink}
+                    </li>
+                  )}
+                {Array.isArray(formData.portfolio) &&
+                  formData.portfolio.map(
+                    (porto: { name: string; url: string }) =>
+                      porto.name &&
+                      porto.url && (
+                        <li
+                          style={{
+                            cursor: 'pointer',
+                            width: 'fit-content',
+                            color: '#003fe0',
+                            textDecoration: 'underline'
+                          }}
+                          key={porto.url}
+                          onClick={() => handleNavigate(porto.url, '_blank')}
+                        >
+                          {porto.name || porto.url}
+                        </li>
+                      )
+                  )}
+              </ul>
+            </Box>
+          )}
+
+          <Field
+            label='Earning Criteria'
+            value={formData?.description as string}
+            isHtml={true}
+          />
+          <Field label='Duration' value={formData?.credentialDuration} />
+        </Box>
+      </CardContent>
+    </Paper>
   )
 }
 
