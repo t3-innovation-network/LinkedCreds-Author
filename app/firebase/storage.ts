@@ -1,5 +1,8 @@
-import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc, onSnapshotsInSync } from 'firebase/firestore'
+import { withTimeout } from '../utils/withTimeout'
 import { db } from './config/firebase'
+
+export { db, doc, setDoc, getDoc, onSnapshotsInSync }
 
 interface FileTokens {
   accessToken: string
@@ -56,7 +59,7 @@ export const storeFileTokens = async ({
     if (!tokens.accessToken || !tokens.refreshToken) {
       throw new Error('Invalid tokens object')
     }
-    await setDoc(
+    await withTimeout(setDoc(
       doc(db, 'files', googleFileId),
       {
         createdAt: Date.now(),
@@ -66,7 +69,7 @@ export const storeFileTokens = async ({
       {
         merge: true
       }
-    )
+    ), { timeoutMs: 10000 })
 
     console.log(`Tokens stored for file ${googleFileId}`)
   } catch (error) {
