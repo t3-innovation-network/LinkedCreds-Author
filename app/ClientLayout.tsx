@@ -1,15 +1,16 @@
 'use client'
 
 import { ThemeProvider, CssBaseline, Box } from '@mui/material'
+import { usePathname } from 'next/navigation'
+
 import NavBar from './components/navbar/NavBar'
 import Footer from './components/footer/Footer'
-import Theme from './theme'
-import { StepProvider } from './credentialForm/form/StepContext'
-import { usePathname } from 'next/navigation'
-import background from './Assets/Images/Background.svg'
 import Providers from './components/signing/Providers'
 import AppDidInitializer from './components/AppDidInitializer'
 import { AppDidProvider } from './contexts/AppDidContext'
+import Theme from './theme'
+import background from './Assets/Images/Background.svg'
+import { StepProvider } from './credentialForm/StepContext'
 
 export default function ClientLayout({
   children
@@ -30,7 +31,6 @@ export default function ClientLayout({
         <CssBaseline />
         <Providers>
           <AppDidProvider>
-            <StepProvider>
               <NavBar />
               <Box
                 component='main'
@@ -53,10 +53,11 @@ export default function ClientLayout({
                 }}
               >
                 <AppDidInitializer />
-                {children}
+                <StepProvider>
+                  {children}
+                </StepProvider>
               </Box>
               <Footer />
-            </StepProvider>
           </AppDidProvider>
         </Providers>
       </ThemeProvider>
