@@ -3,20 +3,22 @@
 import React from 'react'
 import { FormLabel, TextField, Box, Typography } from '@mui/material'
 import {
-  formLabelStyles,
-  TextFieldStyles,
-  textFieldInputProps
-} from '../../../components/Styles/appStyles'
-import {
   UseFormRegister,
   FieldErrors,
   UseFormWatch,
   UseFormSetValue
 } from 'react-hook-form'
-import { FormData } from '../types/Types'
 import { useSession } from 'next-auth/react'
-import { SVGSProfileName } from '../../../Assets/SVGs'
-import { StepTrackShape } from '../widgets/StepTrackShape'
+
+import { FormData } from '../types'
+import { StepTrackShape } from './StepNav'
+import {
+  formLabelStyles,
+  TextFieldStyles,
+  textFieldInputProps
+} from '@/components/Styles/appStyles'
+import { SVGSProfileName } from '@/Assets/SVGs'
+
 interface Step1Props {
   register: UseFormRegister<FormData>
   errors: FieldErrors<FormData>

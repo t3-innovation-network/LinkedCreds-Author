@@ -2,11 +2,10 @@
 
 import React, { useState } from 'react'
 import { Box, Tooltip, Snackbar, Alert, Button } from '@mui/material'
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import { useStepContext } from '../StepContext'
-import { SVGBack, SVGCompleteStep } from '../../../Assets/SVGs'
 import { useSession } from 'next-auth/react'
+
+import { useStepContext } from '../StepContext'
+import { SVGBack, SVGCompleteStep } from '@/Assets/SVGs'
 
 export function StepTrackShape() {
   const { activeStep, setActiveStep, handleBack, handleSkip } = useStepContext()
@@ -89,29 +88,17 @@ export function StepTrackShape() {
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        gap: '10px',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      {/*<Stepper activeStep={activeStep}>
-        <Step key={1}/>
-        <Step key={2}/>
-        <Step key={3}/>
-        <Step key={4}/>
-      </Stepper>*/}
-
-      ● ● ● ● &nbsp; Step {activeStep} of 4
+    <Box sx={{ display: 'flex' }}>
+      <span style={{color:'#2563eb'}}>●</span>&nbsp;
+      <span style={{color:'#2563eb'}}>●</span>&nbsp;
+      <span>●</span>&nbsp;
+      <span>●</span>&nbsp;
+      &nbsp; &nbsp;
       {activeStep >= 2 && activeStep <= 4 && (
         <Button
           onClick={handleBack}
           sx={{ textTransform: 'capitalize', p: '0', mr: '5px' }}
-        >
-          ← Previous
-        </Button>
+        >← Previous</Button>
       )}
 
       <Snackbar

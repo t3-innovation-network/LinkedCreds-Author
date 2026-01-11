@@ -28,8 +28,11 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
-# vercel
 .vercel
+.firebaserc
+firebase.json
+dataconnect-generated/
+dataconnect/
 
 # typescript
 *.tsbuildinfo

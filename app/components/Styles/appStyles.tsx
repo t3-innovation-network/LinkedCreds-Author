@@ -1,6 +1,16 @@
 import { styled, TextField, Theme } from '@mui/material'
 import { SxProps } from '@mui/material/styles'
 
+export const iconStyle = {
+  marginRight: '.7em',
+}
+
+export const cardStyle = {
+  borderRadius: '25px',
+  padding: '32px',
+  backgroundColor: '#fff',
+}
+
 export const CustomTextField = styled(TextField)({
   '& .MuiInputBase-root': {
     position: 'relative',
