@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import {
   FormLabel,
   Autocomplete,
@@ -9,18 +10,19 @@ import {
   Typography,
   Tooltip
 } from '@mui/material'
+import { UseFormRegister, FieldErrors, Controller } from 'react-hook-form'
+
 import {
   inputPropsStyles,
+  iconStyle,
   TextFieldStyles,
   formLabelStyles,
   CustomTextField,
   customTextFieldStyles,
   UseAIStyles
-} from '../../../components/Styles/appStyles'
-import { UseFormRegister, FieldErrors, Controller } from 'react-hook-form'
-import { FormData } from '../types/Types'
-import { StepTrackShape } from '../widgets/StepTrackShape'
-import { SVGDescribeBadge } from '../../../Assets/SVGs'
+} from '@/components/Styles/appStyles'
+import { FormData } from '../types'
+import { StepTrackShape } from './StepNav'
 
 interface Step2Props {
   register: UseFormRegister<FormData>
@@ -63,7 +65,7 @@ export function Step2({ register, watch, control, errors, setSkills }: Readonly<
       sx={{ display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'left' }}
     >
       <Box sx={{ display: 'flex' }}>
-        <SVGDescribeBadge />
+        <Image style={iconStyle} src='/images/describe-icon.png' width={56} height={56}/>
         <Box>
           <Typography sx={{ fontSize: '24px', fontWeight: 400 }}>
             Document Your Skill

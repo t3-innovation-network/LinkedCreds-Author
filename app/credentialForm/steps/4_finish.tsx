@@ -14,6 +14,8 @@ import {
   Tooltip,
   Alert
 } from '@mui/material'
+import { useRouter } from 'next/navigation'
+
 import {
   GlobalSVG,
   HeartSVG,
@@ -21,12 +23,12 @@ import {
   NewCopy,
   NewLinkedin,
   SVGEmail
-} from '../../../Assets/SVGs'
-import LoadingOverlay from '../../../components/Loading/LoadingOverlay'
-import { FormData } from '../../../credentialForm/form/types/Types'
-import { copyFormValuesToClipboard } from '../../../utils/formUtils'
+} from '@/Assets/SVGs'
+import LoadingOverlay from '@/components/Loading/LoadingOverlay'
+import { FormData } from '../types'
+import { copyFormValuesToClipboard } from '@/utils/formUtils'
+
 import { useStepContext } from '../StepContext'
-import { useRouter } from 'next/navigation'
 
 interface SuccessPageProps {
   setActiveStep: (step: number) => void //NOSONAR

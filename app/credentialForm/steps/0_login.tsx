@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Box, Button, Typography, Tooltip } from '@mui/material'
 import { signIn, useSession } from 'next-auth/react'
-import { SVGFolder, SVGSinfo } from '../../../Assets/SVGs'
-import LoadingOverlay from '../../../components/Loading/LoadingOverlay'
+
+import { SVGFolder, SVGSinfo } from '@/Assets/SVGs'
+import LoadingOverlay from '@/components/Loading/LoadingOverlay'
 import { useStepContext } from '../StepContext'
 
 export function Step0() {

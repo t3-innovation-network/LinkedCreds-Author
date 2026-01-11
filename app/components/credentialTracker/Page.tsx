@@ -13,7 +13,7 @@ import {
 import { FormData } from '../../credentialForm/form/types/Types'
 import { Logo } from '../../Assets/SVGs'
 import Image from 'next/image'
-import { commonTypographyStyles, evidenceListStyles } from '../Styles/appStyles'
+import { commonTypographyStyles, evidenceListStyles, iconStyle, cardStyle } from '../Styles/appStyles'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import { SVGDescribeBadge, SVGSparkles } from '../../Assets/SVGs'
 
@@ -204,36 +204,16 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   const featuredFile = selectedFiles.find(f => f.isFeatured)
 
   return (
-    <Paper>
+    <Paper sx={cardStyle}>
       {/* Header Section */}
       <Card elevation={0}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
-          <SVGDescribeBadge />
+          <Image style={{marginRight:'.7em'}} src='/images/describe-icon.png' width={56} height={56}/>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography
-              variant='h5'
-              sx={{
-                fontFamily: 'Lato',
-                fontSize: '32px',
-                fontWeight: 700,
-                lineHeight: '38px',
-                color: '#202e5b'
-              }}
-            >
-              Preview
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: 'Inter',
-                fontSize: '16px',
-                fontWeight: 400,
-                lineHeight: '24px',
-                color: '#202e5b',
-                letterSpacing: '0.08px'
-              }}
-            >
+            <Typography>Preview</Typography>
+            <FieldValue>
               {formData?.fullName || 'User'} - just now
-            </Typography>
+            </FieldValue>
           </Box>
         </Box>
       </Card>

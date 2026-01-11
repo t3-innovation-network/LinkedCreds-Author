@@ -4,14 +4,16 @@
 import React, { useState, useEffect } from 'react'
 import { useTheme } from '@mui/material/styles'
 import { Box, Typography, useMediaQuery, Theme } from '@mui/material'
-import { FormData } from '../types/Types'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
+
 import {
   commonTypographyStyles,
   commonBoxStyles,
   evidenceListStyles
-} from '../../../components/Styles/appStyles'
-import { StepTrackShape } from '../widgets/StepTrackShape'
+} from '@/components/Styles/appStyles'
+
+import { StepTrackShape } from './StepNav'
+import { FormData } from '../types'
 
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 const isPDF = (fileName: string) => fileName.toLowerCase().endsWith('.pdf')
