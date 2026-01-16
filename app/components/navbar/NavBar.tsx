@@ -29,6 +29,8 @@ const NavBar = () => {
   return (
     <Box
       sx={{
+        flexGrow: 0,
+        flexShrink: 0,
         width: '100vw',
         height: { xs: '27px', md: '100px' },
         display: 'flex',
@@ -202,7 +204,9 @@ const NavBar = () => {
               </Box>
             </Link>
             <Link href='/help' passHref>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Box
+                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+              >
                 <Typography
                   sx={{
                     fontSize: '16px',
@@ -214,7 +218,14 @@ const NavBar = () => {
                   Help & FAQ
                 </Typography>
                 {isActive('/help') && (
-                  <Box sx={{ height: '2px', width: '100%', mt: '5px', backgroundColor: '#003FE0' }} />
+                  <Box
+                    sx={{
+                      height: '2px',
+                      width: '100%',
+                      mt: '5px',
+                      backgroundColor: '#003FE0'
+                    }}
+                  />
                 )}
               </Box>
             </Link>

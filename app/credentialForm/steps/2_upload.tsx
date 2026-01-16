@@ -376,84 +376,86 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
     }
   }
 
-  return (<>
-    {/* Add Links Section */}
+  return (
+    <>
+      {/* Add Links Section */}
 
-    <CardStyle variant='outlined' onClick={() => setShowLinkAdder(true)}>
-      {showLinkAdder && (
-        <Box mb={3} width='100%'>
-          <LinkAdder
-            fields={links}
-            onAdd={handleAddLink}
-            onRemove={handleRemoveLink}
-            onNameChange={(index, value) => handleLinkChange(index, 'name', value)}
-            onUrlChange={(index, value) => handleLinkChange(index, 'url', value)}
-            maxLinks={5}
-            nameLabel='Name'
-            urlLabel='URL'
-            namePlaceholder='(e.g., LinkedIn profile, github repo, etc.)'
-            urlPlaceholder='https://'
-          />{' '}
-        </Box>
-      )}
-      <SVGUplaodLink />
-      <Typography variant='body1' color='primary' align='center'>
-        + Add links
-        <br />
-        (social media, articles, your website, etc.)
-      </Typography>
-    </CardStyle>
-
-    {/* Add Media Section */}
-    <Box width='100%'>
-      <CardStyle variant='outlined' {...getRootProps()} isDragActive={isDragActive}>
-        <input {...getInputProps()} />
-        <FileListDisplay
-          files={[...selectedFiles]}
-          onDelete={handleDelete}
-          onNameChange={handleNameChange}
-          onSetAsFeatured={setAsFeatured}
-          onReorder={handleReorder}
-        />
-
-        <Box onClick={open} sx={{ textAlign: 'center', cursor: 'pointer' }}>
-          <SVGUploadMedia />
-          <Typography variant='body1' color='primary' align='center'>
-            {isDragActive ? (
-              'Drop files here...'
-            ) : (
-              <>
-                + Add media
-                <br />
-                (images, documents, video)
-              </>
-            )}
-          </Typography>
-        </Box>
+      <CardStyle variant='outlined' onClick={() => setShowLinkAdder(true)}>
+        {showLinkAdder && (
+          <Box mb={3} width='100%'>
+            <LinkAdder
+              fields={links}
+              onAdd={handleAddLink}
+              onRemove={handleRemoveLink}
+              onNameChange={(index, value) => handleLinkChange(index, 'name', value)}
+              onUrlChange={(index, value) => handleLinkChange(index, 'url', value)}
+              maxLinks={5}
+              nameLabel='Name'
+              urlLabel='URL'
+              namePlaceholder='(e.g., LinkedIn profile, github repo, etc.)'
+              urlPlaceholder='https://'
+            />{' '}
+          </Box>
+        )}
+        <SVGUplaodLink />
+        <Typography variant='body1' color='primary' align='center'>
+          + Add links
+          <br />
+          (social media, articles, your website, etc.)
+        </Typography>
       </CardStyle>
-    </Box>
 
-    <LoadingOverlay text='Uploading files...' open={loading} />
-  </>)
+      {/* Add Media Section */}
+      <Box width='100%'>
+        <CardStyle variant='outlined' {...getRootProps()} isDragActive={isDragActive}>
+          <input {...getInputProps()} />
+          <FileListDisplay
+            files={[...selectedFiles]}
+            onDelete={handleDelete}
+            onNameChange={handleNameChange}
+            onSetAsFeatured={setAsFeatured}
+            onReorder={handleReorder}
+          />
+
+          <Box onClick={open} sx={{ textAlign: 'center', cursor: 'pointer' }}>
+            <SVGUploadMedia />
+            <Typography variant='body1' color='primary' align='center'>
+              {isDragActive ? (
+                'Drop files here...'
+              ) : (
+                <>
+                  + Add media
+                  <br />
+                  (images, documents, video)
+                </>
+              )}
+            </Typography>
+          </Box>
+        </CardStyle>
+      </Box>
+
+      <LoadingOverlay text='Uploading files...' open={loading} />
+    </>
+  )
 }
-const CardStyle = styled(Card)<{ isDragActive?: boolean }>(
-  ({ isDragActive = false }) => ({
-    padding: '40px 20px',
-    cursor: 'default',
-    width: '100%',
-    transition: 'all 0.3s ease',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    p: 4,
-    borderRadius: 2,
-    gap: 2,
-    border: isDragActive ? '2px dashed #2563EB' : '2px dashed #ccc',
-    backgroundColor: isDragActive ? '#f0f9ff' : 'transparent',
-    '&:hover': {
-      borderColor: '#2563EB'
-    }
-  })
-)
+const CardStyle = styled(Card, { shouldForwardProp: prop => prop !== 'isDragActive' })<{
+  isDragActive?: boolean
+}>(({ isDragActive = false }) => ({
+  padding: '40px 20px',
+  cursor: 'default',
+  width: '100%',
+  transition: 'all 0.3s ease',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  p: 4,
+  borderRadius: 2,
+  gap: 2,
+  border: isDragActive ? '2px dashed #2563EB' : '2px dashed #ccc',
+  backgroundColor: isDragActive ? '#f0f9ff' : 'transparent',
+  '&:hover': {
+    borderColor: '#2563EB'
+  }
+}))
 
 export default FileUploadAndList

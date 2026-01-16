@@ -124,7 +124,7 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
     appInstanceDid,
     hasZcap,
     storage: storage as GoogleDriveStorage,
-    useWas: true,
+    useWas: true
   })
   const handleAddLink = useCallback(() => {
     setLinks(prev => [...prev, { id: crypto.randomUUID(), name: '', url: '' }])
@@ -419,24 +419,24 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
     </Box>
   )
 }
-const CardStyle = styled(Card)<{ isDragActive?: boolean }>(
-  ({ isDragActive = false }) => ({
-    padding: '40px 20px',
-    cursor: 'default',
-    width: '100%',
-    transition: 'all 0.3s ease',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    p: 4,
-    borderRadius: 2,
-    gap: 2,
-    border: isDragActive ? '2px dashed #2563EB' : '2px dashed #ccc',
-    backgroundColor: isDragActive ? '#f0f9ff' : 'transparent',
-    '&:hover': {
-      borderColor: '#2563EB'
-    }
-  })
-)
+const CardStyle = styled(Card, { shouldForwardProp: prop => prop !== 'isDragActive' })<{
+  isDragActive?: boolean
+}>(({ isDragActive = false }) => ({
+  padding: '40px 20px',
+  cursor: 'default',
+  width: '100%',
+  transition: 'all 0.3s ease',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  p: 4,
+  borderRadius: 2,
+  gap: 2,
+  border: isDragActive ? '2px dashed #2563EB' : '2px dashed #ccc',
+  backgroundColor: isDragActive ? '#f0f9ff' : 'transparent',
+  '&:hover': {
+    borderColor: '#2563EB'
+  }
+}))
 
 export default FileUploadAndList

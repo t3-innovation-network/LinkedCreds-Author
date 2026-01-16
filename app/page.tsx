@@ -2,6 +2,7 @@
 import React from 'react'
 import { Box, Button, Typography, useTheme, useMediaQuery, Theme } from '@mui/material'
 import Link from 'next/link'
+import backgroundSvg from './Assets/Images/Background.svg'
 import Card from './components/cards'
 interface SectionProps {
   theme: Theme //NOSONAR
@@ -118,6 +119,7 @@ const LinkedCreds_FEATURES = [
 const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCards }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
   return (
     <Box
       sx={{
@@ -315,7 +317,7 @@ const MobileLinkedCredsSection: React.FC<SectionProps> = ({ theme }) => (
 )
 
 const StepsSection: React.FC<SectionProps> = ({ theme }) => (
-  <Box sx={{ maxWidth: '1400px', mr: 'auto', ml: 'auto' }}>
+  <Box sx={{ maxWidth: '1400px', mr: 'auto', ml: 'auto', pb: '60px' }}>
     <Box
       sx={{
         display: 'flex',
@@ -434,19 +436,27 @@ const Page = () => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        background:
-          'url(/Background.png) lightgray 50% / contain no-repeat, rgba(255, 255, 255, 0.5)',
-        backgroundSize: 'contain',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        flexGrow: 1,
+        background: `rgba(255, 255,255, 0.85) url(${backgroundSvg.src}) no-repeat center center`,
+        backgroundBlendMode: 'overlay'
       }}
     >
-      <HeroSection showCards={!isMobile} theme={theme} />
-      {isMobile && <MobileLinkedCredsSection theme={theme} />}
-      <StepsSection theme={theme} />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          background:
+            'url(/Background.png) lightgray 50% / contain no-repeat, rgba(255, 255, 255, 0.5)',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <HeroSection showCards={!isMobile} theme={theme} />
+        {isMobile && <MobileLinkedCredsSection theme={theme} />}
+        <StepsSection theme={theme} />
+      </Box>
     </Box>
   )
 }

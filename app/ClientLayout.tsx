@@ -1,65 +1,43 @@
 'use client'
 
-import { ThemeProvider, CssBaseline, Box } from '@mui/material'
+import { CssBaseline, Stack } from '@mui/material'
 import NavBar from './components/navbar/NavBar'
 import Footer from './components/footer/Footer'
-import Theme from './theme'
 import { StepProvider } from './credentialForm/StepContext'
-import { usePathname } from 'next/navigation'
-import background from './Assets/Images/Background.svg'
 import Providers from './components/signing/Providers'
-import AppDidInitializer from './components/AppDidInitializer'
-import { AppDidProvider } from './contexts/AppDidContext'
+import { useEffect } from 'react'
+import { getOrCreateAppInstanceDid } from '@cooperation/vc-storage'
 
 export default function ClientLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
-  const pathname = usePathname()
+  useEffect(() => {
+    const initializeAppDid = async () => {
+      const did = await getOrCreateAppInstanceDid()
+      console.log('App DID ready', did)
+    }
+
+    initializeAppDid().catch(console.error)
+  }, [])
 
   return (
-    <body
-      style={{
-        margin: 0,
-        padding: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh'
-      }}
-    >
-      <ThemeProvider theme={Theme}>
+    <body>
+      <Providers>
         <CssBaseline />
-        <Providers>
-          <AppDidProvider>
-            <NavBar />
-            <Box
-              component='main'
-              sx={{
-                flexGrow: 1,
-                minHeight: `calc(100vh - 315px)`,
-                backgroundImage: pathname === '/' ? `url(${background.src})` : 'none',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                pb: '60px',
-                backgroundBlendMode: pathname === '/' ? 'overlay' : 'normal',
-                backgroundColor:
-                  pathname === '/'
-                    ? {
-                        xs: 'rgba(255, 255, 255, 0.8)',
-                        md: 'rgba(255, 255, 255, 0.85)'
-                      }
-                    : '#F0F4F8'
-              }}
-            >
-              <AppDidInitializer />
-              <StepProvider>
-                {children}
-              </StepProvider>
-            </Box>
-            <Footer />
-          </AppDidProvider>
-        </Providers>
-      </ThemeProvider>
+
+        <Stack minHeight='100vh' width='100vw' direction='column' spacing={0}>
+          <NavBar />
+          <Stack
+            style={{
+              flexGrow: 1,
+              backgroundColor: '#F0F4F8'
+            }}
+          >
+            <StepProvider>{children}</StepProvider>
+          </Stack>
+          <Footer />
+        </Stack>
+      </Providers>
     </body>
   )
 }

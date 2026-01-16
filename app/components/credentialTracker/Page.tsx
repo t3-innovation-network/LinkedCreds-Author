@@ -13,7 +13,12 @@ import {
 import { FormData } from '../../credentialForm/form/types/Types'
 import { Logo } from '../../Assets/SVGs'
 import Image from 'next/image'
-import { commonTypographyStyles, evidenceListStyles, iconStyle, cardStyle } from '../Styles/appStyles'
+import {
+  commonTypographyStyles,
+  evidenceListStyles,
+  iconStyle,
+  cardStyle
+} from '../Styles/appStyles'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import { SVGDescribeBadge, SVGSparkles } from '../../Assets/SVGs'
 
@@ -114,7 +119,9 @@ const MediaContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column'
 }))
 
-const Media = styled(Box)<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
+const Media = styled(Box, { shouldForwardProp: prop => prop !== 'hasImage' })<{
+  hasImage?: boolean
+}>(({ hasImage, theme }) => ({
   width: theme.breakpoints.down('sm') ? '100px' : '160.506px',
   height: theme.breakpoints.down('sm') ? '90px' : '153.129px',
   position: 'relative',
@@ -159,7 +166,7 @@ interface CredentialTrackerProps {
 const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   formData,
   selectedFiles = [],
-  skills = ['Python', 'SQL', 'React'],
+  skills = ['Python', 'SQL', 'React']
 }) => {
   const [pdfThumbnails, setPdfThumbnails] = useState<Record<string, string>>({})
   const [videoThumbnails, setVideoThumbnails] = useState<Record<string, string>>({})
@@ -208,12 +215,16 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
       {/* Header Section */}
       <Card elevation={0}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
-          <Image style={{marginRight:'.7em'}} src='/images/describe-icon.png' width={56} height={56}/>
+          <Image
+            alt='Describe Icon'
+            style={{ marginRight: '.7em' }}
+            src='/images/describe-icon.png'
+            width={56}
+            height={56}
+          />
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography>Preview</Typography>
-            <FieldValue>
-              {formData?.fullName || 'User'} - just now
-            </FieldValue>
+            <FieldValue>{formData?.fullName || 'User'} - just now</FieldValue>
           </Box>
         </Box>
       </Card>
@@ -232,12 +243,15 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
             <SVGSparkles /> &nbsp;Detected Skills
           </FieldLabel>
           <Box>
-            {skills.map(s =>
+            {skills.map(s => (
               <Button
+                key={s}
                 variant='nextButton'
-                style={{'font-size':'small', height:'1.2ex', 'margin-right':'1ex'}}
-              >{s}</Button>
-            )}
+                style={{ fontSize: 'small', height: '1.2ex', marginRight: '1ex' }}
+              >
+                {s}
+              </Button>
+            ))}
           </Box>
 
           {/* Enhanced Media Section with PDF support */}
@@ -255,8 +269,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                         objectFit: 'cover'
                       }}
                       src={
-                        pdfThumbnails[featuredFile.id] ??
-                        '/fallback-pdf-thumbnail.svg'
+                        pdfThumbnails[featuredFile.id] ?? '/fallback-pdf-thumbnail.svg'
                       }
                       alt='PDF Preview'
                     />
@@ -268,9 +281,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                         borderRadius: '10px',
                         objectFit: 'cover'
                       }}
-                      src={
-                        videoThumbnails[featuredFile.id] ?? '/fallback-video.png'
-                      }
+                      src={videoThumbnails[featuredFile.id] ?? '/fallback-video.png'}
                       alt='Video Thumbnail'
                     />
                   ) : (
@@ -328,27 +339,22 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
           {/* Evidence Section (matches dataPreview.tsx) */}
           {hasValidEvidence && (
             <Box sx={commonTypographyStyles}>
-              <FieldLabel sx={{ display: 'block' }}>
-                Supporting Documentation:
-              </FieldLabel>
+              <FieldLabel sx={{ display: 'block' }}>Supporting Documentation:</FieldLabel>
               <ul style={evidenceListStyles}>
-                {formData.evidenceLink &&
-                  shouldDisplayUrl(formData.evidenceLink) && (
-                    <li
-                      style={{
-                        cursor: 'pointer',
-                        width: 'fit-content',
-                        color: '#003fe0',
-                        textDecoration: 'underline'
-                      }}
-                      key={formData.evidenceLink}
-                      onClick={() =>
-                        handleNavigate(formData.evidenceLink, '_blank')
-                      }
-                    >
-                      {formData.evidenceLink}
-                    </li>
-                  )}
+                {formData.evidenceLink && shouldDisplayUrl(formData.evidenceLink) && (
+                  <li
+                    style={{
+                      cursor: 'pointer',
+                      width: 'fit-content',
+                      color: '#003fe0',
+                      textDecoration: 'underline'
+                    }}
+                    key={formData.evidenceLink}
+                    onClick={() => handleNavigate(formData.evidenceLink, '_blank')}
+                  >
+                    {formData.evidenceLink}
+                  </li>
+                )}
                 {Array.isArray(formData.portfolio) &&
                   formData.portfolio.map(
                     (porto: { name: string; url: string }) =>

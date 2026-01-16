@@ -98,6 +98,8 @@ const Footer: React.FC = () => {
   return (
     <Box
       sx={{
+        flexGrow: 0,
+        flexShrink: 0,
         width: '100%',
         bgcolor: '#252C41',
         py: { xs: 2, sm: 2, md: 2 },

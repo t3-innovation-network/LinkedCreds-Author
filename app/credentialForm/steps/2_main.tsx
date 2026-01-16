@@ -40,22 +40,28 @@ const skillsList = [
   'Software Development'
 ]
 
-export function Step2({ register, watch, control, errors, setSkills }: Readonly<Step2Props>) {
+export function Step2({
+  register,
+  watch,
+  control,
+  errors,
+  setSkills
+}: Readonly<Step2Props>) {
   const [wordCount, setWordCount] = useState(0)
 
   const skillsDict = {}
-  var s:string = ''
-  skillsEx.forEach(s => skillsDict[s.toLowerCase()] = true)
+  var s: string = ''
+  skillsEx.forEach(s => (skillsDict[s.toLowerCase()] = true))
 
   function extractSkills(text: string) {
     var words = text.toLowerCase().split(' ')
     var newCount = words.length
-    if(newCount == wordCount) return
+    if (newCount == wordCount) return
 
     setWordCount(newCount)
     var skills = []
-    words.forEach(s =>{
-      if(skillsDict[s]) skills.push(s)
+    words.forEach(s => {
+      if (skillsDict[s]) skills.push(s)
     })
     setSkills(skills)
   }
@@ -65,7 +71,13 @@ export function Step2({ register, watch, control, errors, setSkills }: Readonly<
       sx={{ display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'left' }}
     >
       <Box sx={{ display: 'flex' }}>
-        <Image style={iconStyle} src='/images/describe-icon.png' width={56} height={56}/>
+        <Image
+          alt='Ribbon With Star'
+          style={iconStyle}
+          src='/images/describe-icon.png'
+          width={56}
+          height={56}
+        />
         <Box>
           <Typography sx={{ fontSize: '24px', fontWeight: 400 }}>
             Document Your Skill
@@ -165,4 +177,14 @@ export function Step2({ register, watch, control, errors, setSkills }: Readonly<
   )
 }
 
-const skillsEx: string[] = ['Python', 'CSS', 'React', 'TypeScript', 'UX', 'Scrum', 'Git', 'GCS', 'Next.js']
+const skillsEx: string[] = [
+  'Python',
+  'CSS',
+  'React',
+  'TypeScript',
+  'UX',
+  'Scrum',
+  'Git',
+  'GCS',
+  'Next.js'
+]

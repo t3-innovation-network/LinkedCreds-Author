@@ -2,13 +2,13 @@ import { styled, TextField, Theme } from '@mui/material'
 import { SxProps } from '@mui/material/styles'
 
 export const iconStyle = {
-  marginRight: '.7em',
+  marginRight: '.7em'
 }
 
-export const cardStyle = {
+export const cardStyle: React.CSSProperties = {
   borderRadius: '25px',
   padding: '32px',
-  backgroundColor: '#fff',
+  backgroundColor: '#fff'
 }
 
 export const CustomTextField = styled(TextField)({
