@@ -1,72 +1,86 @@
 import { styled, TextField, Theme } from '@mui/material'
 import { SxProps } from '@mui/material/styles'
 
+const spacing = '1rem'
+
 export const iconStyle = {
   marginRight: '.7em',
 }
 
 export const cardStyle = {
-  borderRadius: '25px',
+  borderRadius: '15px',
   padding: '32px',
   backgroundColor: '#fff',
 }
+export const cardStyleSm = {
+  borderRadius: '15px',
+  backgroundColor: '#fff',
+  padding: '24px',
+}
+
+export const infoBoxStyle = {
+  marginBottom: '1.5rem',
+  borderRadius: '10px',
+  border: '1px solid #bedbff',
+  backgroundColor: 'oklch(.97 .014 254.604)',
+  padding: spacing,
+  display: 'flex',
+  gap: '.75rem',
+  '& .icon': { flexShrink: 0 },
+}
+
+export const dividerStyle = {
+  height: '2rem',
+  marginTop: '2rem',
+  border: '1px solid #e2e8f0',
+  borderWidth: '1px 0 0 0',
+}
 
 export const CustomTextField = styled(TextField)({
-  '& .MuiInputBase-root': {
-    position: 'relative',
-    paddingRight: '50px',
-    width: '100%',
-    height: '275px',
-    marginTop: '3px'
-  },
+  '& .MuiInputBase-root': { position: 'relative' },
   '& .MuiFormHelperText-root': {
     position: 'absolute',
     bottom: 8,
     right: 16,
     fontSize: '0.75rem',
-    borderRadius: '28px'
   }
 })
 
 export const formLabelStyles = {
-  color: 't3BodyText',
-  fontFamily: 'Lato',
-  fontSize: '16px',
-  fontWeight: 600,
-  letterSpacing: '0.08px',
-  mb: '7px',
-  '&.Mui-focused': {
-    color: 't3Black'
-  }
+  color: 'black',
+  '& *': { verticalAlign: 'middle' },
+}
+
+export const parenStyle = {
+  color: '#a1a1a1',
+  fontSize: '.75rem',
+}
+
+export const subheadStyle = {
+  color: '#6a7282',
+  fontSize: '.875rem',
+}
+
+export const smallButtonStyle = {
+  fontSize: 'small',
+  height:'1.2ex',
+  marginRight: '1ex',
+  padding: '10px',
 }
 
 export const TextFieldStyles = {
-  bgcolor: '#FFF',
-  width: '100%',
-  mt: '3px',
-  '& .MuiOutlinedInput-root': {
-    borderRadius: '8px'
-  }
 }
+
+export const tooltipStyle = { '& .MuiTooltip-tooltip': {
+  backgroundColor: 'black',
+  color: 'white',
+} }
 
 export const inputPropsStyles = {
   color: 'black',
   fontSize: '15px',
   fontStyle: 'italic',
   letterSpacing: '0.075px'
-}
-
-export const UseAIStyles = {
-  color: 't3BodyText',
-  fontFamily: 'Lato',
-  fontSize: '13px',
-  textDecorationLine: 'underline',
-  lineHeight: '24px',
-  letterSpacing: '0.065px',
-  fontWeight: 400,
-  '&.Mui-focused': {
-    color: '#000'
-  }
 }
 
 export const commonTypographyStyles = {
@@ -108,12 +122,6 @@ export const textFieldInputProps = {
     fontStyle: 'italic',
     letterSpacing: '0.075px'
   }
-}
-
-export const customTextFieldStyles = {
-  width: '100%',
-  marginBottom: '3px',
-  textAlign: 'left'
 }
 
 export const addAnotherButtonStyles = (theme: Theme) => ({

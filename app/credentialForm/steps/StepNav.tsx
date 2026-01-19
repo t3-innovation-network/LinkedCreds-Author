@@ -4,8 +4,10 @@ import React, { useState } from 'react'
 import { Box, Tooltip, Snackbar, Alert, Button } from '@mui/material'
 import { useSession } from 'next-auth/react'
 
-import { useStepContext } from '../StepContext'
 import { SVGBack, SVGCompleteStep } from '@/Assets/SVGs'
+import { parenStyle } from '@/components/Styles/appStyles'
+
+import { useStepContext } from '../StepContext'
 
 export function StepTrackShape() {
   const { activeStep, setActiveStep, handleBack, handleSkip } = useStepContext()
@@ -88,16 +90,16 @@ export function StepTrackShape() {
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <span style={{color:'#2563eb'}}>●</span>&nbsp;
-      <span style={{color:'#2563eb'}}>●</span>&nbsp;
-      <span>●</span>&nbsp;
-      <span>●</span>&nbsp;
-      &nbsp; &nbsp;
+    <Box sx={{ display: 'flex', alignItems: 'center'}}>
+      {[...Array(TOTAL_STEPS)].map((_, i) =>
+        <span key={i} {...(i + 1 <= activeStep && {style: {color:'#2563eb'}})}>● &nbsp;</span>
+      )}
+      <span style={parenStyle}>Step {activeStep} of {TOTAL_STEPS}</span>
+      &nbsp; &nbsp; &nbsp;
       {activeStep >= 2 && activeStep <= 4 && (
         <Button
           onClick={handleBack}
-          sx={{ textTransform: 'capitalize', p: '0', mr: '5px' }}
+          sx={{ textTransform: 'capitalize', p: '0' }}
         >← Previous</Button>
       )}
 

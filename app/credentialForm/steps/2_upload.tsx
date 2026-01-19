@@ -13,7 +13,8 @@ import LinkAdder from '@/components/LinkAdder'
 import { useHandleUpload } from '@/hooks/handleUpload'
 import { useStorageBackend } from '@/hooks/useStorageBackend'
 import { uploadEvidenceWithStorage } from '@/utils/uploadEvidence'
-import { TasksVector, SVGUplaodLink, SVGUploadMedia } from '@/Assets/SVGs'
+import { SVGUplaodLink, SVGUploadMedia, SVGInfoIcon } from '@/Assets/SVGs'
+import { dividerStyle, infoBoxStyle, subheadStyle } from '@/components/Styles/appStyles'
 
 import { StepTrackShape } from './StepNav'
 import { FileItem } from '../types'
@@ -377,8 +378,47 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
   }
 
   return (<>
-    {/* Add Links Section */}
+    <Box sx={dividerStyle} />
 
+    <Box sx={infoBoxStyle} >
+      <SVGInfoIcon/>
+      <div>
+        <strong>Optional step:</strong> Adding evidence helps others verify your skills, you can
+        skip this step, but will not be able to add evidence later.
+      </div>
+    </Box>
+
+    {/* Add Media Section */}
+    <Box width='100%'>
+      <CardStyle variant='outlined' {...getRootProps()} isDragActive={isDragActive}>
+        <input {...getInputProps()} />
+        <FileListDisplay
+          files={[...selectedFiles]}
+          onDelete={handleDelete}
+          onNameChange={handleNameChange}
+          onSetAsFeatured={setAsFeatured}
+          onReorder={handleReorder}
+        />
+
+        <Box onClick={open} sx={{ textAlign: 'center', cursor: 'pointer' }}>
+          <SVGUploadMedia />
+          <Typography variant='body1' align='center'>
+            {isDragActive ? (
+              'Drop files here...'
+            ) : (
+              <>
+                Click to upload or drag and drop<br />
+                <span style={subheadStyle}>
+                  Images, documents, or video (max {maxFiles}MB each)
+                </span>
+              </>
+            )}
+          </Typography>
+        </Box>
+      </CardStyle>
+    </Box><br/>
+
+    {/* Add Links Section */}
     <CardStyle variant='outlined' onClick={() => setShowLinkAdder(true)}>
       {showLinkAdder && (
         <Box mb={3} width='100%'>
@@ -404,35 +444,6 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
       </Typography>
     </CardStyle>
 
-    {/* Add Media Section */}
-    <Box width='100%'>
-      <CardStyle variant='outlined' {...getRootProps()} isDragActive={isDragActive}>
-        <input {...getInputProps()} />
-        <FileListDisplay
-          files={[...selectedFiles]}
-          onDelete={handleDelete}
-          onNameChange={handleNameChange}
-          onSetAsFeatured={setAsFeatured}
-          onReorder={handleReorder}
-        />
-
-        <Box onClick={open} sx={{ textAlign: 'center', cursor: 'pointer' }}>
-          <SVGUploadMedia />
-          <Typography variant='body1' color='primary' align='center'>
-            {isDragActive ? (
-              'Drop files here...'
-            ) : (
-              <>
-                + Add media
-                <br />
-                (images, documents, video)
-              </>
-            )}
-          </Typography>
-        </Box>
-      </CardStyle>
-    </Box>
-
     <LoadingOverlay text='Uploading files...' open={loading} />
   </>)
 }
@@ -446,7 +457,7 @@ const CardStyle = styled(Card)<{ isDragActive?: boolean }>(
     flexDirection: 'column',
     alignItems: 'center',
     p: 4,
-    borderRadius: 2,
+    borderRadius: '10px',
     gap: 2,
     border: isDragActive ? '2px dashed #2563EB' : '2px dashed #ccc',
     backgroundColor: isDragActive ? '#f0f9ff' : 'transparent',

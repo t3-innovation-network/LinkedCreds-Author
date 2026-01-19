@@ -10,12 +10,12 @@ import {
   CardContent,
   Divider
 } from '@mui/material'
-import { FormData } from '../../credentialForm/form/types/Types'
-import { Logo } from '../../Assets/SVGs'
 import Image from 'next/image'
-import { commonTypographyStyles, evidenceListStyles, iconStyle, cardStyle } from '../Styles/appStyles'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
-import { SVGDescribeBadge, SVGSparkles } from '../../Assets/SVGs'
+
+import { FormData } from '@/credentialForm/types'
+import { commonTypographyStyles, evidenceListStyles, iconStyle, cardStyleSm, smallButtonStyle } from '@/components/Styles/appStyles'
+import { SVGDescribeBadge, SVGSparkles, Logo, SVGClose } from '@/Assets/SVGs'
 
 // Set up PDF.js worker
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
@@ -154,12 +154,14 @@ interface CredentialTrackerProps {
     isFeatured?: boolean
   }[]
   skills: string[]
+  removeSkill: (i: number)=> void
 }
 
 const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   formData,
   selectedFiles = [],
-  skills = ['Python', 'SQL', 'React'],
+  skills = [],
+  removeSkill,
 }) => {
   const [pdfThumbnails, setPdfThumbnails] = useState<Record<string, string>>({})
   const [videoThumbnails, setVideoThumbnails] = useState<Record<string, string>>({})
@@ -204,7 +206,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   const featuredFile = selectedFiles.find(f => f.isFeatured)
 
   return (
-    <Paper sx={cardStyle}>
+    <Paper sx={cardStyleSm}>
       {/* Header Section */}
       <Card elevation={0}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
@@ -212,7 +214,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography>Preview</Typography>
             <FieldValue>
-              {formData?.fullName || 'User'} - just now
+              Live preview of your credential
             </FieldValue>
           </Box>
         </Box>
@@ -220,7 +222,9 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
 
       {/* Main Content Section */}
       <CardContent sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: .5 }}>
+          <Field label='Credential Recipient' value={formData?.fullName || 'User'} />
+
           <Field label='Skill Name' value={formData?.credentialName} />
           <Field
             label='Skill Description'
@@ -232,11 +236,13 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
             <SVGSparkles /> &nbsp;Detected Skills
           </FieldLabel>
           <Box>
-            {skills.map(s =>
+            {skills.map((s, i) =>
               <Button
+                onClick={()=> removeSkill(i)}
                 variant='nextButton'
-                style={{'font-size':'small', height:'1.2ex', 'margin-right':'1ex'}}
-              >{s}</Button>
+                sx={smallButtonStyle}
+              >{s} &nbsp; <SVGClose/>
+              </Button>
             )}
           </Box>
 

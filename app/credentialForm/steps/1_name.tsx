@@ -3,10 +3,11 @@
 import React from 'react'
 import { FormLabel, TextField, Box, Typography } from '@mui/material'
 import {
+  Controller,
   UseFormRegister,
   FieldErrors,
   UseFormWatch,
-  UseFormSetValue
+  UseFormSetValue,
 } from 'react-hook-form'
 import { useSession } from 'next-auth/react'
 
@@ -14,12 +15,15 @@ import { FormData } from '../types'
 import { StepTrackShape } from './StepNav'
 import {
   formLabelStyles,
+  iconStyle,
   TextFieldStyles,
-  textFieldInputProps
+  parenStyle,
+  subheadStyle,
 } from '@/components/Styles/appStyles'
 import { SVGSProfileName } from '@/Assets/SVGs'
 
 interface Step1Props {
+  control: any
   register: UseFormRegister<FormData>
   errors: FieldErrors<FormData>
   watch: UseFormWatch<FormData>
@@ -27,7 +31,7 @@ interface Step1Props {
   handleNext: () => void
 }
 
-export function Step1({ register, errors, handleNext }: Readonly<Step1Props>) {
+export function Step1({ control, register, errors, handleNext }: Readonly<Step1Props>) {
   const { data: session } = useSession()
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -52,7 +56,7 @@ export function Step1({ register, errors, handleNext }: Readonly<Step1Props>) {
       }}
     >
       <Box sx={{ display: 'flex' }}>
-        <SVGSProfileName />
+        <Box sx={iconStyle}><SVGSProfileName /></Box>
         <Box>
           <Typography sx={{ fontSize: '24px', fontWeight: 400 }}>
             Confirm Your Name
@@ -62,23 +66,28 @@ export function Step1({ register, errors, handleNext }: Readonly<Step1Props>) {
       </Box>
       <Box sx={{ width: '100%' }}>
         <FormLabel sx={formLabelStyles} id='name-label'>
-          Name (required)
+          Name:
+          &nbsp; <span style={parenStyle}>(required)</span> &nbsp;
         </FormLabel>
-        <TextField
-          {...register('fullName', {
-            required: 'Full name is required'
-          })}
-          placeholder={
-            session?.user?.name ?? 'e.g., Maria Fernández or Kumar Enterprises'
-          }
-          variant='outlined'
-          sx={TextFieldStyles}
-          aria-labelledby='name-label'
-          inputProps={textFieldInputProps}
-          error={!!errors.fullName}
-          helperText={errors.fullName?.message}
-          onKeyDown={handleKeyDown}
+
+        <Controller
+          control={control}
+          name='fullName'
+          render={({field})=>(
+            <TextField
+              {...register('fullName', {
+                required: 'Full name is required'
+              })}
+              placeholder='e.g., Maria Fernández or Kumar Enterprises'
+              variant='outlined'
+              sx={TextFieldStyles}
+              error={!!errors.fullName}
+              helperText={errors.fullName?.message}
+              onKeyDown={handleKeyDown}
+            />
+          )}
         />
+        <span style={subheadStyle}>This name will appear on your credential as the recipient.</span>
       </Box>
     </Box>
   )

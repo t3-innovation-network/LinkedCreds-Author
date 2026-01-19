@@ -16,6 +16,7 @@ interface ButtonsProps {
 
 export function Buttons({
   activeStep,
+  handleBack,
   handleNext,
   handleSign,
   isValid,
@@ -33,21 +34,18 @@ export function Buttons({
         justifyContent: 'center'
       }}
     >
-      {activeStep !== 0 && (
+      {activeStep > 1 && (
+        <Button variant='actionButton' onClick={handleBack}>Back</Button>
+      )}
+      {activeStep > 0 && (<>
         <Button
           sx={{ minWidth: '130px' }}
           onClick={handleSaveSession}
-          color='secondary'
-          variant='finishButton'
+          variant='actionButton'
         >
           Save & Exit
         </Button>
-      )}
-      {activeStep === 3 && (
-        <Button variant='finishButton' onClick={handleSkip} color='secondary'>
-          Skip
-        </Button>
-      )}
+      </>)}
       {(activeStep === 1 || (activeStep !== 4 && activeStep !== 0)) && (
         <Button
           onClick={handleNext}

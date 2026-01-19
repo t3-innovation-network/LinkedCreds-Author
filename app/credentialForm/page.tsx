@@ -2,12 +2,12 @@
 
 import React, { useCallback, useRef, useEffect, useState, useMemo } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { FormControl, Box, Slide, Button, Typography } from '@mui/material'
+import { FormControl, Box, Slide, Button, Typography, Paper } from '@mui/material'
 import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
 import dynamic from 'next/dynamic'
 
 import CredentialTracker from '@/components/credentialTracker/Page'
-import { cardStyle } from '@/components/Styles/appStyles'
+import { cardStyle, cardStyleSm, smallButtonStyle } from '@/components/Styles/appStyles'
 import { storeFileTokens } from '@/firebase/storage'
 import { handleSign } from '@/utils/formUtils'
 import { saveSession } from '@/utils/saveSession'
@@ -42,7 +42,6 @@ const FormComponent = () => {
     useStepContext()
   const [link, setLink] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string>('')
-  const fooElementRef = useRef(null)
   const [hasSignedIn, setHasSignedIn] = useState(false)
   const [snackMessage, setSnackMessage] = useState('')
   const [userSessions, setUserSessions] = useState<{}[]>([])
@@ -70,7 +69,6 @@ const FormComponent = () => {
   } = useForm<FormData>({
     defaultValues: {
       storageOption: 'Google Drive',
-      fullName: session?.user?.name ?? '',
       persons: '',
       credentialName: '',
       credentialDuration: '',
@@ -81,6 +79,11 @@ const FormComponent = () => {
     },
     mode: 'onChange'
   })
+  // Manually set name, because useForm is called before session is initialized
+  useEffect(()=> {
+    if(session)
+      reset({fullName: session.user?.name})
+  }, [session, reset])
 
   const handleFetchinguserSessions = async () => {
     try {
@@ -242,11 +245,24 @@ const FormComponent = () => {
   }
 
   const [skills, setSkills] = useState<string[]>([])
+  const [removedSkills, setRemovedSkills] = useState<string[]>([])
+
+  const removeSkill = (i: number)=>{
+    setRemovedSkills([...removedSkills, skills[i]])
+    setSkills(skills.filter((_i, j) => i != j))
+  }
+
+  const unremoveSkill = (s: string) =>{
+    setRemovedSkills(removedSkills.filter(s2 => s != s2))
+    setSkills([...skills, s])
+  }
 
   const prevStep = useRef(0)
   const direction = useRef('left')
   const [slideTrigger, setSlideTrigger] = useState(true)
   useEffect(() => {
+    if(activeStep == 0) return
+
     setSlideTrigger(false)
     direction.current = activeStep > prevStep.current ? 'left' : 'right'
     setTimeout(() => setSlideTrigger(true), 0)
@@ -256,6 +272,7 @@ const FormComponent = () => {
   const steps: JSX.Element[] = [
     <Step0/>,
     <Step1
+        control={control}
         watch={watch}
         setValue={setValue}
         register={register}
@@ -269,6 +286,7 @@ const FormComponent = () => {
         errors={errors}
         control={control}
         setSkills={setSkills}
+        removedSkills={removedSkills}
       />
       <FileUploadAndList
         watch={watch}
@@ -299,7 +317,6 @@ const FormComponent = () => {
           m: { xs: '24px auto', sm: '40px auto', md: '120px auto' },
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
-          gap: { xs: 3, md: '30px' },
           alignItems: { xs: 'stretch', md: 'flex-start' },
           justifyContent: 'center',
           width: '100%',
@@ -308,7 +325,7 @@ const FormComponent = () => {
         }}
       >
         <form onSubmit={handleFormSubmit} style={{overflow: 'hidden'}}>
-          <Box sx={[{width: '720px'}, cardStyle]}>
+          <Box sx={[{width: '100%', minWidth: '870px', maxWidth: '100%'}, cardStyle]}>
             <FormControl sx={{ width: '100%' }}>
               <Slide
                 in={slideTrigger} container={formRef.current} direction={direction.current}
@@ -347,17 +364,39 @@ const FormComponent = () => {
           </Box>
         </form>
 
-        {activeStep < 4 && (
-          <Box
-            sx={{
-              width: { xs: '100%', md: '420px' },
-              mt: { xs: 4, md: 0 },
-              alignSelf: { xs: 'stretch', md: 'auto' }
-            }}
-          >
-            <CredentialTracker formData={watch()} selectedFiles={selectedFiles} skills={skills}/>
-          </Box>
-        )}
+        <Box>
+          {activeStep < 4 && (
+            <Box
+              sx={{
+                width: { xs: '100%', md: '420px' },
+                mt: { xs: 4, md: 0 },
+                alignSelf: { xs: 'stretch', md: 'auto' },
+                marginLeft: '2rem',
+              }}
+            >
+              <CredentialTracker
+                formData={watch()} selectedFiles={selectedFiles} skills={skills}
+                removeSkill={removeSkill}
+              />
+            </Box>
+          )}
+
+          {activeStep == 2 && (
+            <Paper sx={[cardStyleSm, {
+              margin: '2rem 0 0 2rem',
+              width: { xs: '100%', md: '420px' }
+            }]}>
+              Removed Skills<br/><br/>
+              {removedSkills.map(s =>
+                <Button
+                  onClick={()=> unremoveSkill(s)}
+                  variant='actionButton'
+                  sx={smallButtonStyle}
+                ><s>{s}</s> &nbsp; ↺</Button>
+              )}
+            </Paper>
+          )}
+        </Box>
       </Box>
   )
 }

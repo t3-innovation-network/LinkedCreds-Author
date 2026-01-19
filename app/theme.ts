@@ -100,12 +100,8 @@ declare module '@mui/material/Button' {
 
 const Theme = createTheme({
   palette: {
-    primary: {
-      main: '#2563EB'
-    },
-    secondary: {
-      main: '#FFFFFF'
-    },
+    primary: { main: '#2563EB' },
+    secondary: { main: '#FFFFFF' },
     t3White: '#ffffff',
     t3Black: '#000000',
     t3BodyText: '#202e5b',
@@ -138,6 +134,7 @@ const Theme = createTheme({
     t3Lavender: '#d1e3ff',
     t3Red: '#f81414'
   },
+
   typography: palette => ({
     fontFamily: 'Lato, Roboto, Inter, Poppins',
     formTextStep: {
@@ -167,23 +164,26 @@ const Theme = createTheme({
       lineHeight: 'normal'
     }
   }),
+
   components: {
     MuiButton: {
       variants: [
         {
           props: { variant: 'actionButton' },
           style: {
-            padding: '10px 40px',
-            borderRadius: '100px',
+            padding: '10px 24px',
+            borderRadius: '8px',
             textTransform: 'capitalize',
-            fontFamily: 'sans-serif',
-            fontWeight: '600',
+            fontFamily: 'Roboto',
             lineHeight: '20px',
-            fontSize: '16px',
-            backgroundColor: '#003FE0',
-            color: '#FFFFFF',
+            border: '1px solid #0000001a',
+            fontSize: '14px',
+            width: 'fit-content',
+
+            backgroundColor: '#fff',
+            color: '#000',
             '&:hover': {
-              backgroundColor: '#003FE0'
+              backgroundColor: '#e9ebef'
             },
             '&.Mui-disabled': {
               backgroundColor: '#d1d5db',
@@ -191,30 +191,32 @@ const Theme = createTheme({
             }
           }
         },
+
         {
           props: { variant: 'nextButton' },
           style: {
             padding: '10px 24px',
-            borderRadius: '100px',
+            borderRadius: '8px',
             textTransform: 'capitalize',
             fontFamily: 'Roboto',
-            fontWeight: '600',
             lineHeight: '20px',
-            backgroundColor: '#003FE0',
-            color: '#FFFFFF',
-            flexGrow: 8,
+            border: '1px solid #0000001a',
             fontSize: '14px',
             width: 'fit-content',
-            maxWidth: '230px',
+
+            backgroundColor: '#155dfc',
+            color: '#FFFFFF',
+            flexGrow: 1,
             '&:hover': {
-              backgroundColor: '#003FE0'
+              backgroundColor: '#1447e6'
             },
             '&.Mui-disabled': {
-              backgroundColor: '#d1d5db', // using t3Disabled color
+              backgroundColor: '#d1d5db',
               color: '#3D4048'
             }
           }
         },
+
         {
           props: { variant: 'finishButton' },
           style: {
@@ -237,8 +239,42 @@ const Theme = createTheme({
           }
         }
       ]
+    },
+
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          borderRadius: '20px'
+        },
+      }
+    },
+
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          width: '100%',
+          backgroundColor: '#fff',
+          margin: '.5rem 0',
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '10px',
+            borderColor: '#ebe6e7',
+          }
+        },
+      }
+    },
+
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: '#000',
+          fontSize: '1rem',
+          borderRadius: '8px',
+          padding: '.5rem 1rem',
+        }
+      },
     }
   },
+
   breakpoints: {
     values: {
       xs: 0,

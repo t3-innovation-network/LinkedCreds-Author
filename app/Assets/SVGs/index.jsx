@@ -46,6 +46,7 @@ export const SVGLogo = () => {
     </div>
   )
 }
+
 export const SVGBadgeCheck = () => {
   return (
     // blue badge with a checkmark.svg
@@ -80,6 +81,7 @@ export const SVGBadgeCheck = () => {
     </div>
   )
 }
+
 export const SVGHeart = () => {
   return (
     // blue badge with a checkmark.svg
@@ -103,6 +105,7 @@ export const SVGHeart = () => {
     </div>
   )
 }
+
 export const SVGEmail = () => {
   return (
     // blue badge with a checkmark.svg
@@ -126,6 +129,7 @@ export const SVGEmail = () => {
     </div>
   )
 }
+
 export const SVGCopy = () => {
   return (
     // blue badge with a checkmark.svg
@@ -149,6 +153,7 @@ export const SVGCopy = () => {
     </div>
   )
 }
+
 export const SVGLinkedIn = () => {
   return (
     // blue badge with a checkmark.svg
@@ -179,6 +184,7 @@ export const SVGLinkedIn = () => {
     </div>
   )
 }
+
 export const SVGExport = () => {
   return (
     // blue badge with a checkmark.svg
@@ -202,6 +208,7 @@ export const SVGExport = () => {
     </div>
   )
 }
+
 export const SVGMobile = () => {
   return (
     // black outlined smartphone.svg
@@ -229,6 +236,7 @@ export const SVGMobile = () => {
     </div>
   )
 }
+
 export const SVGTrush = () => {
   return (
     // black outlined smartphone.svg
@@ -253,6 +261,7 @@ export const SVGTrush = () => {
     </div>
   )
 }
+
 export const SVGInMobile = () => {
   return (
     // yellow swoosh.svg
@@ -274,6 +283,7 @@ export const SVGInMobile = () => {
     </div>
   )
 }
+
 export const SVGCheckMark = () => {
   return (
     // light gray arrow.svg
@@ -293,6 +303,7 @@ export const SVGCheckMark = () => {
     </div>
   )
 }
+
 export const SVGFolder = () => {
   return (
     // light gray arrow.svg
@@ -350,6 +361,7 @@ export const SVGFolder = () => {
     </div>
   )
 }
+
 export const SVGCheckMarks = () => {
   return (
     // dark blue circular checkmark.svg
@@ -379,6 +391,7 @@ export const SVGCheckMarks = () => {
     </div>
   )
 }
+
 export const SVGCompleteStep = () => {
   return (
     // dark blue circular checkmark.svg
@@ -415,6 +428,7 @@ export const SVGCompleteStep = () => {
     </div>
   )
 }
+
 export const SVGSparkles = () => {
   return (
     // black sparkle.svg
@@ -439,6 +453,7 @@ export const SVGSparkles = () => {
     </svg>
   )
 }
+
 export const SVGSinfo = () => {
   return (
     // black sparkle.svg
@@ -472,111 +487,16 @@ export const SVGSinfo = () => {
     </div>
   )
 }
-export const SVGUploadMedia = () => {
-  return (
-    <div>
-      <svg
-        width='70'
-        height='52'
-        viewBox='0 0 70 52'
-        fill='none'
-        xmlns='http://www.w3.org/2000/svg'
-      >
-        <path
-          d='M6.05172 8.86805L17.2131 7.00781V40.8603L12.3018 41.8942C9.01306 42.5866 5.79705 40.4429 5.17081 37.1409L1.14319 15.9044C0.515988 12.5973 2.73148 9.42142 6.05172 8.86805Z'
-          stroke='#2563EB'
-          strokeWidth='2'
-        />
-        <path
-          d='M63.9483 8.86805L52.7869 7.00781V40.8603L57.6982 41.8942C60.9869 42.5866 64.203 40.4429 64.8292 37.1409L68.8568 15.9044C69.484 12.5973 67.2685 9.42142 63.9483 8.86805Z'
-          stroke='#2563EB'
-          strokeWidth='2'
-        />
-        <g filter='url(#filter0_dd_65_4275)'>
-          <rect
-            x='17.0664'
-            y='1.12305'
-            width='35.8689'
-            height='42.7541'
-            rx='5'
-            stroke='#2563EB'
-            strokeWidth='2'
-            shapeRendering='crispEdges'
-          />
-        </g>
-        <path
-          d='M47.9353 43.8767H22.0664C19.305 43.8767 17.0664 41.6381 17.0664 38.8767L17.0664 35.4156L29.4732 22.2677L38.9834 33.2117C39.7841 34.1331 41.2162 34.1285 42.011 33.202L47.2464 27.0991L52.9353 33.2204V38.8767C52.9353 41.6381 50.6967 43.8767 47.9353 43.8767Z'
-          fill='#EFF6FF'
-          stroke='#2563EB'
-          strokeWidth='2'
-        />
-        <circle
-          cx='39.5897'
-          cy='14.4676'
-          r='4.16393'
-          fill='#EFF6FF'
-          stroke='#2563EB'
-          strokeWidth='2'
-        />
-        <defs>
-          <filter
-            id='filter0_dd_65_4275'
-            x='13.0664'
-            y='0.123047'
-            width='43.8691'
-            height='51.7539'
-            filterUnits='userSpaceOnUse'
-            colorInterpolationFilters='sRGB'
-          >
-            <feFlood floodOpacity='0' result='BackgroundImageFix' />
-            <feColorMatrix
-              in='SourceAlpha'
-              type='matrix'
-              values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'
-              result='hardAlpha'
-            />
-            <feOffset dy='2' />
-            <feGaussianBlur stdDeviation='1' />
-            <feComposite in2='hardAlpha' operator='out' />
-            <feColorMatrix
-              type='matrix'
-              values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'
-            />
-            <feBlend
-              mode='normal'
-              in2='BackgroundImageFix'
-              result='effect1_dropShadow_65_4275'
-            />
-            <feColorMatrix
-              in='SourceAlpha'
-              type='matrix'
-              values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'
-              result='hardAlpha'
-            />
-            <feOffset dy='4' />
-            <feGaussianBlur stdDeviation='1.5' />
-            <feComposite in2='hardAlpha' operator='out' />
-            <feColorMatrix
-              type='matrix'
-              values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.07 0'
-            />
-            <feBlend
-              mode='normal'
-              in2='effect1_dropShadow_65_4275'
-              result='effect2_dropShadow_65_4275'
-            />
-            <feBlend
-              mode='normal'
-              in='SourceGraphic'
-              in2='effect2_dropShadow_65_4275'
-              result='shape'
-            />
-          </filter>
-        </defs>
-      </svg>
-    </div>
-  )
-}
+
+export const SVGUploadMedia = () =>
+  <svg width='55' height='55' fill="none" style={{backgroundColor: '#f9f3f4', borderRadius:'100px', padding: '10px'}} viewBox="0 0 28 28">
+    <g>
+      <path d="M14 3.5V17.5" stroke="#62748E" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.33333"/>
+      <path d="M19.8333 9.33333L14 3.5L8.16667 9.33333" stroke="#62748E" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.33333"/>
+      <path d="M24.5 17.5V22.1667C24.5 22.7855 24.2542 23.379 23.8166 23.8166C23.379 24.2542 22.7855 24.5 22.1667 24.5H5.83333C5.21449 24.5 4.621 24.2542 4.18342 23.8166C3.74583 23.379 3.5 22.7855 3.5 22.1667V17.5" stroke="#62748E" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.33333"/>
+    </g>
+  </svg>
+
 export const SVGUplaodLink = () => {
   return (
     <div>
@@ -651,45 +571,41 @@ export const SVGUplaodLink = () => {
     </div>
   )
 }
-export const SVGSProfileName = () => {
-  return (
-    // black sparkle.svg
-    <div>
-      <svg
-        xmlns='http://www.w3.org/2000/svg'
-        width='100'
-        height='100'
-        viewBox='0 0 100 100'
-        fill='none'
-      >
-        <path
-          d='M87.1723 22.9926V55.9496C84.9676 79.8242 64.2736 84.8877 53.5383 96.0332C51.5963 98.0494 48.4021 98.0494 46.4602 96.0332C35.7248 84.8877 15.0309 79.8242 12.8262 55.9498V22.9928C12.8262 20.4355 14.7961 18.3523 17.3416 18.107C28.8676 16.9963 38.7777 12.7924 46.3607 4.09589C48.2715 1.90468 51.727 1.90468 53.6377 4.09589C61.2207 12.7926 71.1309 16.9963 82.6568 18.107C85.2023 18.3521 87.1723 20.4353 87.1723 22.9926Z'
-          fill='#94C1FF'
-        />
-        <path
-          d='M71.1816 49.9857C71.1816 56.8887 67.8834 62.999 62.7959 66.8596C59.2678 69.5695 54.8193 71.1547 50.0127 71.1547C45.2062 71.1547 40.7578 69.5695 37.2039 66.8596C32.1162 62.999 28.8184 56.8887 28.8184 49.9857C28.8184 38.3275 38.3035 28.8426 50.0127 28.8426C61.6965 28.8426 71.1816 38.3275 71.1816 49.9857Z'
-          fill='#D7E9FF'
-        />
-        <path
-          d='M55.8535 46.058C55.8535 49.2824 53.2236 51.9123 49.9992 51.9123C46.752 51.9123 44.1449 49.2824 44.1449 46.058C44.1449 42.8107 46.752 40.2037 49.9992 40.2037C53.2236 40.2037 55.8535 42.8107 55.8535 46.058ZM62.7951 66.8596C59.267 69.5695 54.8186 71.1547 50.0119 71.1547C45.2055 71.1547 40.757 69.5695 37.2031 66.8596C39.5041 61.951 44.3617 58.6017 50.0119 58.6017C55.6365 58.6017 60.4941 61.951 62.7951 66.8596Z'
-          fill='white'
-        />
-        <path
-          d='M82.8045 16.5795C70.8699 15.4299 61.7078 11.0166 54.7939 3.08711C52.2734 0.199415 47.7307 0.19336 45.2049 3.08711C38.291 11.0166 29.1289 15.4299 17.1943 16.5795C13.8303 16.9045 11.293 19.6613 11.293 22.9924L11.299 56.0902C12.9287 73.7359 24.3346 81.5814 34.3969 88.5029C38.4814 91.3129 42.3412 93.967 45.3564 97.0975C47.9057 99.7428 52.0936 99.7414 54.6443 97.0975C57.658 93.967 61.5178 91.3129 65.6023 88.5029C75.6646 81.5814 87.0705 73.7359 88.7061 55.9494V22.9924C88.7059 19.6611 86.1686 16.9045 82.8045 16.5795ZM63.8646 85.9754C59.6469 88.876 55.6641 91.6154 52.4348 94.9689C51.1377 96.3141 48.8596 96.3141 47.5654 94.9689C44.3346 91.6154 40.352 88.8758 36.1342 85.9754C26.1633 79.1162 15.8508 72.0232 14.3605 55.9494V22.9924C14.3605 21.2496 15.7057 19.8051 17.4879 19.6336C30.2402 18.4047 40.0629 13.6521 47.5176 5.10332C48.8168 3.61231 51.1848 3.61543 52.4813 5.10332C59.9359 13.6521 69.7586 18.4047 82.5109 19.6336C84.2934 19.8051 85.6383 21.2498 85.6383 22.9924L85.6443 55.8088C84.148 72.0232 73.8355 79.1162 63.8646 85.9754Z'
-          fill='#116FFF'
-        />
-        <path
-          d='M50.0129 27.309C37.4807 27.309 27.2852 37.4822 27.2852 49.9859C27.2852 62.684 37.5637 72.6883 50.0129 72.6883C62.5584 72.6883 72.7168 62.56 72.7168 49.9859C72.7168 37.4822 62.5316 27.309 50.0129 27.309ZM39.2135 66.3945C41.5039 62.5149 45.5236 60.1357 50.0129 60.1357C54.4898 60.1357 58.502 62.5162 60.7906 66.3981C57.6242 68.5047 53.9289 69.6207 50.0129 69.6207C46.1057 69.6207 42.4027 68.5047 39.2135 66.3945ZM63.2254 64.4809C60.3541 59.8719 55.457 57.0684 50.0129 57.0684C44.5551 57.0684 39.6494 59.8721 36.7766 64.4814C32.6842 60.7639 30.3525 55.583 30.3525 49.9859C30.3525 39.1732 39.1717 30.3766 50.0129 30.3766C60.8406 30.3766 69.6492 39.1732 69.6492 49.9859C69.6492 55.5805 67.3197 60.7594 63.2254 64.4809Z'
-          fill='#116FFF'
-        />
-        <path
-          d='M50 38.6699C45.926 38.6699 42.6113 41.9838 42.6113 46.0578C42.6113 50.1318 45.926 53.4457 50 53.4457C54.074 53.4457 57.3887 50.1318 57.3887 46.0578C57.3887 41.9838 54.074 38.6699 50 38.6699ZM50 50.3783C47.617 50.3783 45.6789 48.4402 45.6789 46.0578C45.6789 43.6754 47.617 41.7373 50 41.7373C52.383 41.7373 54.3213 43.6754 54.3213 46.0578C54.3213 48.4402 52.383 50.3783 50 50.3783Z'
-          fill='#116FFF'
-        />
-      </svg>
-    </div>
-  )
-}
+
+export const SVGSProfileName = () =>
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    width='60'
+    height='60'
+    viewBox='0 0 100 100'
+    fill='none'
+  >
+    <path
+      d='M87.1723 22.9926V55.9496C84.9676 79.8242 64.2736 84.8877 53.5383 96.0332C51.5963 98.0494 48.4021 98.0494 46.4602 96.0332C35.7248 84.8877 15.0309 79.8242 12.8262 55.9498V22.9928C12.8262 20.4355 14.7961 18.3523 17.3416 18.107C28.8676 16.9963 38.7777 12.7924 46.3607 4.09589C48.2715 1.90468 51.727 1.90468 53.6377 4.09589C61.2207 12.7926 71.1309 16.9963 82.6568 18.107C85.2023 18.3521 87.1723 20.4353 87.1723 22.9926Z'
+      fill='#94C1FF'
+    />
+    <path
+      d='M71.1816 49.9857C71.1816 56.8887 67.8834 62.999 62.7959 66.8596C59.2678 69.5695 54.8193 71.1547 50.0127 71.1547C45.2062 71.1547 40.7578 69.5695 37.2039 66.8596C32.1162 62.999 28.8184 56.8887 28.8184 49.9857C28.8184 38.3275 38.3035 28.8426 50.0127 28.8426C61.6965 28.8426 71.1816 38.3275 71.1816 49.9857Z'
+      fill='#D7E9FF'
+    />
+    <path
+      d='M55.8535 46.058C55.8535 49.2824 53.2236 51.9123 49.9992 51.9123C46.752 51.9123 44.1449 49.2824 44.1449 46.058C44.1449 42.8107 46.752 40.2037 49.9992 40.2037C53.2236 40.2037 55.8535 42.8107 55.8535 46.058ZM62.7951 66.8596C59.267 69.5695 54.8186 71.1547 50.0119 71.1547C45.2055 71.1547 40.757 69.5695 37.2031 66.8596C39.5041 61.951 44.3617 58.6017 50.0119 58.6017C55.6365 58.6017 60.4941 61.951 62.7951 66.8596Z'
+      fill='white'
+    />
+    <path
+      d='M82.8045 16.5795C70.8699 15.4299 61.7078 11.0166 54.7939 3.08711C52.2734 0.199415 47.7307 0.19336 45.2049 3.08711C38.291 11.0166 29.1289 15.4299 17.1943 16.5795C13.8303 16.9045 11.293 19.6613 11.293 22.9924L11.299 56.0902C12.9287 73.7359 24.3346 81.5814 34.3969 88.5029C38.4814 91.3129 42.3412 93.967 45.3564 97.0975C47.9057 99.7428 52.0936 99.7414 54.6443 97.0975C57.658 93.967 61.5178 91.3129 65.6023 88.5029C75.6646 81.5814 87.0705 73.7359 88.7061 55.9494V22.9924C88.7059 19.6611 86.1686 16.9045 82.8045 16.5795ZM63.8646 85.9754C59.6469 88.876 55.6641 91.6154 52.4348 94.9689C51.1377 96.3141 48.8596 96.3141 47.5654 94.9689C44.3346 91.6154 40.352 88.8758 36.1342 85.9754C26.1633 79.1162 15.8508 72.0232 14.3605 55.9494V22.9924C14.3605 21.2496 15.7057 19.8051 17.4879 19.6336C30.2402 18.4047 40.0629 13.6521 47.5176 5.10332C48.8168 3.61231 51.1848 3.61543 52.4813 5.10332C59.9359 13.6521 69.7586 18.4047 82.5109 19.6336C84.2934 19.8051 85.6383 21.2498 85.6383 22.9924L85.6443 55.8088C84.148 72.0232 73.8355 79.1162 63.8646 85.9754Z'
+      fill='#116FFF'
+    />
+    <path
+      d='M50.0129 27.309C37.4807 27.309 27.2852 37.4822 27.2852 49.9859C27.2852 62.684 37.5637 72.6883 50.0129 72.6883C62.5584 72.6883 72.7168 62.56 72.7168 49.9859C72.7168 37.4822 62.5316 27.309 50.0129 27.309ZM39.2135 66.3945C41.5039 62.5149 45.5236 60.1357 50.0129 60.1357C54.4898 60.1357 58.502 62.5162 60.7906 66.3981C57.6242 68.5047 53.9289 69.6207 50.0129 69.6207C46.1057 69.6207 42.4027 68.5047 39.2135 66.3945ZM63.2254 64.4809C60.3541 59.8719 55.457 57.0684 50.0129 57.0684C44.5551 57.0684 39.6494 59.8721 36.7766 64.4814C32.6842 60.7639 30.3525 55.583 30.3525 49.9859C30.3525 39.1732 39.1717 30.3766 50.0129 30.3766C60.8406 30.3766 69.6492 39.1732 69.6492 49.9859C69.6492 55.5805 67.3197 60.7594 63.2254 64.4809Z'
+      fill='#116FFF'
+    />
+    <path
+      d='M50 38.6699C45.926 38.6699 42.6113 41.9838 42.6113 46.0578C42.6113 50.1318 45.926 53.4457 50 53.4457C54.074 53.4457 57.3887 50.1318 57.3887 46.0578C57.3887 41.9838 54.074 38.6699 50 38.6699ZM50 50.3783C47.617 50.3783 45.6789 48.4402 45.6789 46.0578C45.6789 43.6754 47.617 41.7373 50 41.7373C52.383 41.7373 54.3213 43.6754 54.3213 46.0578C54.3213 48.4402 52.383 50.3783 50 50.3783Z'
+      fill='#116FFF'
+    />
+  </svg>
+
 export const SVGDescribeBadge = () => {
   return (
     // black sparkle.svg
@@ -1164,6 +1080,7 @@ export const TwitterSVG = () => {
     </Box>
   )
 }
+
 export const InstagramSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1201,6 +1118,7 @@ export const InstagramSVG = () => {
     </Box>
   )
 }
+
 export const LinkedinSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1238,6 +1156,7 @@ export const LinkedinSVG = () => {
     </Box>
   )
 }
+
 export const MessageCircleSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1258,6 +1177,7 @@ export const MessageCircleSVG = () => {
     </Box>
   )
 }
+
 export const CheckMarkSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1279,6 +1199,7 @@ export const CheckMarkSVG = () => {
     </Box>
   )
 }
+
 export const QuoteSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1297,6 +1218,7 @@ export const QuoteSVG = () => {
     </Box>
   )
 }
+
 export const LineSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1316,6 +1238,7 @@ export const LineSVG = () => {
     </Box>
   )
 }
+
 export const HamburgerMenuSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1333,6 +1256,7 @@ export const HamburgerMenuSVG = () => {
     </Box>
   )
 }
+
 export const CopySVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1366,6 +1290,7 @@ export const CopySVG = () => {
     </Box>
   )
 }
+
 export const ArrowRightSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1392,6 +1317,7 @@ export const ArrowRightSVG = () => {
     </Box>
   )
 }
+
 export const TwoPhonesTabletSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1594,6 +1520,7 @@ export const TwoPhonesTabletSVG = () => {
     </Box>
   )
 }
+
 export const TwoPhonesMobileSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1692,6 +1619,7 @@ export const TwoPhonesMobileSVG = () => {
     </Box>
   )
 }
+
 export const TwoPhonesDesktopSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1896,6 +1824,7 @@ export const TwoPhonesDesktopSVG = () => {
     </Box>
   )
 }
+
 export const ShieldIcon = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1922,6 +1851,7 @@ export const ShieldIcon = () => {
     </Box>
   )
 }
+
 export const Logo = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2034,6 +1964,7 @@ export const Logo = () => {
     </Box>
   )
 }
+
 export const GlobalSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2076,6 +2007,7 @@ export const GlobalSVG = () => {
     </Box>
   )
 }
+
 export const NewCopy = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2098,6 +2030,7 @@ export const NewCopy = () => {
     </Box>
   )
 }
+
 export const NewLinkedin = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2127,6 +2060,7 @@ export const NewLinkedin = () => {
     </Box>
   )
 }
+
 export const NewEmail = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2149,6 +2083,7 @@ export const NewEmail = () => {
     </Box>
   )
 }
+
 export const HeartSVG = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2171,6 +2106,7 @@ export const HeartSVG = () => {
     </Box>
   )
 }
+
 export const BlueBadge = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2193,6 +2129,7 @@ export const BlueBadge = () => {
     </Box>
   )
 }
+
 export const CloseIcon = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2266,6 +2203,7 @@ export const TasksVector = () => {
     </Box>
   )
 }
+
 export const NewEmail2 = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -2288,3 +2226,30 @@ export const NewEmail2 = () => {
     </Box>
   )
 }
+
+export const SVGInfoIcon = ({ size = '20' }) =>
+  <svg width={size} height={size} fill="none" viewBox="0 0 20 20" class='icon'>
+    <g clip-path="url(#clip0_114_678)">
+      <path
+        d="M10 18.3333C14.6024 18.3333 18.3333 14.6024 18.3333 10C18.3333 5.39763 14.6024 1.66667 10 1.66667C5.39763 1.66667 1.66667 5.39763 1.66667 10C1.66667 14.6024 5.39763 18.3333 10 18.3333Z"
+        stroke="#155DFC" stroke-linecap="round" stroke-linejoin="round"
+        stroke-width="1.66667" fill="none"/>
+      <path d="M10 13.3333V10" stroke="#155DFC" stroke-linecap="round"
+        stroke-linejoin="round" stroke-width="1.66667"/>
+      <path d="M10 6.66667H10.0083" stroke="#155DFC" stroke-linecap="round" stroke-linejoin="round"
+        stroke-width="1.66667"/>
+    </g>
+    <defs>
+      <clipPath id="clip0_114_678">
+        <rect fill="white" height="20" width="20"></rect></clipPath>
+    </defs>
+  </svg>
+
+export const SVGClose = ()=>
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x
+    w-3 h-3 opacity-70 group-hover:opacity-100" aria-hidden="true"
+  >
+    <path d="M18 6 6 18"></path>
+    <path d="m6 6 12 12"></path>
+  </svg>
