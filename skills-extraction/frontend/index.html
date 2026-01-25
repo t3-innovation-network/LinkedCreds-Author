@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Skills Extraction</title>
+    <link rel="stylesheet" href="style.css?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Skills Extraction AI</h1>
+            <p>Powered by Ollama & O*NET Taxonomy</p>
+        </header>
+
+        <main>
+            <div class="editor-container">
+                <textarea id="inputText" placeholder="Start typing job description or resume text..."></textarea>
+            </div>
+            <div class="status-bar">
+                <div class="loader-container" id="loaderContainer">
+                    <div class="loader"></div>
+                    <span>Extracting...</span>
+                </div>
+                <div class="stats" id="stats"></div>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <!-- Results will be injected here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js?v=3"></script>
+</body>
+
+</html>

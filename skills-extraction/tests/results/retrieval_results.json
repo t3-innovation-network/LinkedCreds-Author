@@ -1,0 +1,1212 @@
+{
+  "index_integrity": {
+    "index_size": 8876,
+    "skills_count": 8876,
+    "dimension": 384,
+    "is_trained": true,
+    "index_type": "IndexFlatIP (Inner Product / Cosine Similarity)",
+    "integrity_check": true
+  },
+  "per_case": [
+    {
+      "test_id": "RTC001",
+      "extracted_skill": "Python",
+      "expected_matches": [
+        "Programming",
+        "Python",
+        "Scripting Software"
+      ],
+      "latency_ms": 290.84205627441406,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "python",
+        "similarity": 1.0,
+        "rank": 1,
+        "uuid": "c6c98504-8abb-5c0c-bd2b-36df0ff43c60"
+      },
+      "all_results": [
+        {
+          "name": "python",
+          "similarity": 1.0,
+          "rank": 1,
+          "uuid": "c6c98504-8abb-5c0c-bd2b-36df0ff43c60"
+        },
+        {
+          "name": "programming",
+          "similarity": 0.6131563782691956,
+          "rank": 2,
+          "uuid": "346910a9-2d38-548c-b3d8-02750aef5d9f"
+        },
+        {
+          "name": "scripting software",
+          "similarity": 0.548169732093811,
+          "rank": 3,
+          "uuid": "2591e70d-33ad-5b1f-8f13-3e0c3330af75"
+        }
+      ],
+      "expected_found": [
+        "programming",
+        "python",
+        "scripting software"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "programming",
+          "python",
+          "scripting software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC002",
+      "extracted_skill": "Project Management",
+      "expected_matches": [
+        "Management of Personnel Resources",
+        "Project Planning Software",
+        "Project Management Software"
+      ],
+      "latency_ms": 14.33420181274414,
+      "hits_at_k": 2,
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "top_match": {
+        "name": "project management software",
+        "similarity": 0.8600844144821167,
+        "rank": 1,
+        "uuid": "ae987aa3-4c2d-5b53-aa8c-df9a1989bec3"
+      },
+      "all_results": [
+        {
+          "name": "project management software",
+          "similarity": 0.8600844144821167,
+          "rank": 1,
+          "uuid": "ae987aa3-4c2d-5b53-aa8c-df9a1989bec3"
+        },
+        {
+          "name": "project planning software",
+          "similarity": 0.7337366938591003,
+          "rank": 2,
+          "uuid": "93718899-7fc2-59cf-a502-347b1d83e871"
+        },
+        {
+          "name": "project manager online projectmanager.com",
+          "similarity": 0.7301197052001953,
+          "rank": 3,
+          "uuid": "a0834ca5-45a1-5e7e-855a-71ed6ebf3218"
+        }
+      ],
+      "expected_found": [
+        "project planning software",
+        "project management software"
+      ],
+      "expected_missing": [
+        "management of personnel resources"
+      ],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "management of personnel resources",
+            "error": "Not found in top-10 results"
+          }
+        ],
+        "found_count": 2,
+        "missing_count": 1,
+        "found_skills": [
+          "project planning software",
+          "project management software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC003",
+      "extracted_skill": "Data Analysis",
+      "expected_matches": [
+        "Value Analysis",
+        "Systems Analysis",
+        "Data analysis software"
+      ],
+      "latency_ms": 9.647130966186523,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "data analysis software",
+        "similarity": 0.6519291400909424,
+        "rank": 1,
+        "uuid": "b5e569c7-67a5-528c-a797-f9773c5ea1d3"
+      },
+      "all_results": [
+        {
+          "name": "data analysis software",
+          "similarity": 0.6519291400909424,
+          "rank": 1,
+          "uuid": "b5e569c7-67a5-528c-a797-f9773c5ea1d3"
+        },
+        {
+          "name": "value analysis",
+          "similarity": 0.6439334154129028,
+          "rank": 2,
+          "uuid": "e47da363-cda4-5abe-b15f-678255046dd1"
+        },
+        {
+          "name": "systems analysis",
+          "similarity": 0.6106970310211182,
+          "rank": 3,
+          "uuid": "970980fc-84b7-531f-899a-ea8d510d2c45"
+        }
+      ],
+      "expected_found": [
+        "value analysis",
+        "systems analysis",
+        "data analysis software"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "value analysis",
+          "systems analysis",
+          "data analysis software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC004",
+      "extracted_skill": "Machine Learning",
+      "expected_matches": [
+        "Artificial Intelligence Software",
+        "Active Learning",
+        "Machine control software"
+      ],
+      "latency_ms": 9.19795036315918,
+      "hits_at_k": 2,
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "top_match": {
+        "name": "artificial intelligence software",
+        "similarity": 0.5899145007133484,
+        "rank": 1,
+        "uuid": "f4f10e25-31d4-5cd4-a2a0-4c8bf0752c11"
+      },
+      "all_results": [
+        {
+          "name": "artificial intelligence software",
+          "similarity": 0.5899145007133484,
+          "rank": 1,
+          "uuid": "f4f10e25-31d4-5cd4-a2a0-4c8bf0752c11"
+        },
+        {
+          "name": "classification web",
+          "similarity": 0.5554401278495789,
+          "rank": 2,
+          "uuid": "0cf18bc8-6572-569f-a056-d2843eb5457c"
+        },
+        {
+          "name": "active learning",
+          "similarity": 0.5551424026489258,
+          "rank": 3,
+          "uuid": "09021a3c-5185-52d8-9fd1-14d28a080f08"
+        }
+      ],
+      "expected_found": [
+        "artificial intelligence software",
+        "active learning"
+      ],
+      "expected_missing": [
+        "machine control software"
+      ],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "machine control software",
+            "error": "Not found in top-10 results"
+          }
+        ],
+        "found_count": 2,
+        "missing_count": 1,
+        "found_skills": [
+          "artificial intelligence software",
+          "active learning"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC005",
+      "extracted_skill": "Database Management",
+      "expected_matches": [
+        "Database management systems",
+        "Database management software",
+        "Database management system software"
+      ],
+      "latency_ms": 8.713960647583008,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "database management systems",
+        "similarity": 0.9392337799072266,
+        "rank": 1,
+        "uuid": "67c24803-df3c-5d87-b61f-9f31a86d7ded"
+      },
+      "all_results": [
+        {
+          "name": "database management systems",
+          "similarity": 0.9392337799072266,
+          "rank": 1,
+          "uuid": "67c24803-df3c-5d87-b61f-9f31a86d7ded"
+        },
+        {
+          "name": "database management software",
+          "similarity": 0.8811433911323547,
+          "rank": 2,
+          "uuid": "71a08709-5a93-5928-bb78-55f246d382bc"
+        },
+        {
+          "name": "database management system software",
+          "similarity": 0.8644101023674011,
+          "rank": 3,
+          "uuid": "df310d43-4afc-592c-b811-39393e1aea6a"
+        }
+      ],
+      "expected_found": [
+        "database management systems",
+        "database management software",
+        "database management system software"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "database management systems",
+          "database management software",
+          "database management system software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC006",
+      "extracted_skill": "Leadership",
+      "expected_matches": [
+        "80-20 Software Leaders4",
+        "Coordination",
+        "agency master"
+      ],
+      "latency_ms": 7.90715217590332,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "80 20 software leaders4",
+        "similarity": 0.4989159405231476,
+        "rank": 1,
+        "uuid": "6579aeda-cca0-5c5d-932a-9cba3ae5617b"
+      },
+      "all_results": [
+        {
+          "name": "80 20 software leaders4",
+          "similarity": 0.4989159405231476,
+          "rank": 1,
+          "uuid": "6579aeda-cca0-5c5d-932a-9cba3ae5617b"
+        },
+        {
+          "name": "agency master",
+          "similarity": 0.4600144028663635,
+          "rank": 2,
+          "uuid": "c8bc3921-1d8f-56d9-ae44-31658e2a9878"
+        },
+        {
+          "name": "coordination",
+          "similarity": 0.4587284326553345,
+          "rank": 3,
+          "uuid": "edb33388-dd25-5532-8292-fa2737662ae6"
+        }
+      ],
+      "expected_found": [
+        "80 20 software leaders4",
+        "coordination",
+        "agency master"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "80 20 software leaders4",
+            "expected_min": 0.5,
+            "actual": 0.4989159405231476
+          },
+          {
+            "skill": "coordination",
+            "expected_min": 0.5,
+            "actual": 0.4587284326553345
+          },
+          {
+            "skill": "agency master",
+            "expected_min": 0.5,
+            "actual": 0.4600144028663635
+          }
+        ],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "80 20 software leaders4",
+          "coordination",
+          "agency master"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC007",
+      "extracted_skill": "AWS",
+      "expected_matches": [
+        "Amazon Web Services AWS software",
+        "Salesforce",
+        "Amazon DynamoDB"
+      ],
+      "latency_ms": 8.984804153442383,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "amazon web services aws software",
+        "similarity": 0.6727606058120728,
+        "rank": 1,
+        "uuid": "675dc753-f54a-548b-8543-d2d4f7c5eb95"
+      },
+      "all_results": [
+        {
+          "name": "amazon web services aws software",
+          "similarity": 0.6727606058120728,
+          "rank": 1,
+          "uuid": "675dc753-f54a-548b-8543-d2d4f7c5eb95"
+        },
+        {
+          "name": "salesforce",
+          "similarity": 0.5505300164222717,
+          "rank": 2,
+          "uuid": "57662fa1-806d-5391-8bb3-6ef34f8d8827"
+        },
+        {
+          "name": "amazon dynamodb",
+          "similarity": 0.5265682339668274,
+          "rank": 3,
+          "uuid": "7dfe1728-16c3-56f4-a70d-8c8740d2acd5"
+        }
+      ],
+      "expected_found": [
+        "amazon web services aws software",
+        "salesforce",
+        "amazon dynamodb"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "amazon web services aws software",
+          "salesforce",
+          "amazon dynamodb"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC008",
+      "extracted_skill": "JavaScript",
+      "expected_matches": [
+        "JavaScript",
+        "Node.js",
+        "jquery"
+      ],
+      "latency_ms": 10.302066802978516,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "javascript",
+        "similarity": 1.0000001192092896,
+        "rank": 1,
+        "uuid": "2f0aa693-fb0e-5146-84e7-50d4a6185e2c"
+      },
+      "all_results": [
+        {
+          "name": "javascript",
+          "similarity": 1.0000001192092896,
+          "rank": 1,
+          "uuid": "2f0aa693-fb0e-5146-84e7-50d4a6185e2c"
+        },
+        {
+          "name": "jquery",
+          "similarity": 0.6728461980819702,
+          "rank": 2,
+          "uuid": "7a119d24-0c78-5df6-b1d3-6ce0fe5e5302"
+        },
+        {
+          "name": "node.js",
+          "similarity": 0.6165169477462769,
+          "rank": 3,
+          "uuid": "08a81211-217c-5f0a-806f-888917a1b531"
+        }
+      ],
+      "expected_found": [
+        "javascript",
+        "node.js",
+        "jquery"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "javascript",
+          "node.js",
+          "jquery"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC009",
+      "extracted_skill": "Network Security",
+      "expected_matches": [
+        "Intrusion prevention system ips",
+        "Security testing software",
+        "Network security auditing software"
+      ],
+      "latency_ms": 11.296987533569336,
+      "hits_at_k": 2,
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "top_match": {
+        "name": "network security auditing software",
+        "similarity": 0.6229183673858643,
+        "rank": 1,
+        "uuid": "9fe46dc0-a34e-588d-b049-bcdae44f9280"
+      },
+      "all_results": [
+        {
+          "name": "network security auditing software",
+          "similarity": 0.6229183673858643,
+          "rank": 1,
+          "uuid": "9fe46dc0-a34e-588d-b049-bcdae44f9280"
+        },
+        {
+          "name": "intrusion prevention system ips",
+          "similarity": 0.5448374152183533,
+          "rank": 2,
+          "uuid": "a9966386-bbda-5bc7-bd40-91c05681502d"
+        },
+        {
+          "name": "internet protocol security ipsec",
+          "similarity": 0.5412584543228149,
+          "rank": 3,
+          "uuid": "a88ccd50-6e6b-54c1-a223-00613771c4ea"
+        }
+      ],
+      "expected_found": [
+        "intrusion prevention system ips",
+        "network security auditing software"
+      ],
+      "expected_missing": [
+        "security testing software"
+      ],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "security testing software",
+            "error": "Not found in top-10 results"
+          }
+        ],
+        "found_count": 2,
+        "missing_count": 1,
+        "found_skills": [
+          "intrusion prevention system ips",
+          "network security auditing software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC010",
+      "extracted_skill": "Financial Analysis",
+      "expected_matches": [
+        "Peer to peer financial analysis",
+        "Financial Analysis Software",
+        "Financial Transaction Analysis Software"
+      ],
+      "latency_ms": 9.959936141967773,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "financial analysis software",
+        "similarity": 0.7442639470100403,
+        "rank": 1,
+        "uuid": "9bf5fab9-5168-5a0a-9df1-fca4f5a5b9f1"
+      },
+      "all_results": [
+        {
+          "name": "financial analysis software",
+          "similarity": 0.7442639470100403,
+          "rank": 1,
+          "uuid": "9bf5fab9-5168-5a0a-9df1-fca4f5a5b9f1"
+        },
+        {
+          "name": "financial transaction analysis software",
+          "similarity": 0.6678641438484192,
+          "rank": 2,
+          "uuid": "bcc694f7-a4a7-5a74-b100-4334da7b6c8c"
+        },
+        {
+          "name": "peer to peer financial analysis",
+          "similarity": 0.6616749167442322,
+          "rank": 3,
+          "uuid": "b7cbe3a6-3fb0-5e71-98fd-47d3755b1b06"
+        }
+      ],
+      "expected_found": [
+        "peer to peer financial analysis",
+        "financial analysis software",
+        "financial transaction analysis software"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "peer to peer financial analysis",
+          "financial analysis software",
+          "financial transaction analysis software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC011",
+      "extracted_skill": "Docker",
+      "expected_matches": [
+        "Docker",
+        "Compugov DocketView",
+        "Court docket management software"
+      ],
+      "latency_ms": 8.761882781982422,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "docker",
+        "similarity": 1.0000001192092896,
+        "rank": 1,
+        "uuid": "e0544f02-4cdd-592b-b142-abd0871f60e9"
+      },
+      "all_results": [
+        {
+          "name": "docker",
+          "similarity": 1.0000001192092896,
+          "rank": 1,
+          "uuid": "e0544f02-4cdd-592b-b142-abd0871f60e9"
+        },
+        {
+          "name": "compugov docketview",
+          "similarity": 0.579866349697113,
+          "rank": 2,
+          "uuid": "8b98f427-2844-507e-9a4f-ef5bb16512e4"
+        },
+        {
+          "name": "court docket management software",
+          "similarity": 0.5421140193939209,
+          "rank": 3,
+          "uuid": "d7e1e68e-352b-5684-88ce-6da8437cc57d"
+        }
+      ],
+      "expected_found": [
+        "docker",
+        "compugov docketview",
+        "court docket management software"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "docker",
+          "compugov docketview",
+          "court docket management software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC012",
+      "extracted_skill": "Customer Service",
+      "expected_matches": [
+        "Customer service and support software",
+        "Customer service knowledge generation software",
+        "Salesforce"
+      ],
+      "latency_ms": 11.340856552124023,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "customer service and support software",
+        "similarity": 0.768265426158905,
+        "rank": 1,
+        "uuid": "cd3efacf-ebed-5d5d-adea-4e7804ee8d64"
+      },
+      "all_results": [
+        {
+          "name": "customer service and support software",
+          "similarity": 0.768265426158905,
+          "rank": 1,
+          "uuid": "cd3efacf-ebed-5d5d-adea-4e7804ee8d64"
+        },
+        {
+          "name": "customer service knowledge generation software",
+          "similarity": 0.5830097198486328,
+          "rank": 2,
+          "uuid": "5a91beea-0a85-5697-aef4-3e7704236055"
+        },
+        {
+          "name": "salesforce",
+          "similarity": 0.5659316182136536,
+          "rank": 3,
+          "uuid": "57662fa1-806d-5391-8bb3-6ef34f8d8827"
+        }
+      ],
+      "expected_found": [
+        "customer service and support software",
+        "customer service knowledge generation software",
+        "salesforce"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "customer service and support software",
+          "customer service knowledge generation software",
+          "salesforce"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC013",
+      "extracted_skill": "Testing",
+      "expected_matches": [
+        "Test implementation software",
+        "unit testing software",
+        "Testing software"
+      ],
+      "latency_ms": 8.567094802856445,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "testing software",
+        "similarity": 0.7764378190040588,
+        "rank": 1,
+        "uuid": "fdeda877-da0e-5a1e-8468-63aa82847e2f"
+      },
+      "all_results": [
+        {
+          "name": "testing software",
+          "similarity": 0.7764378190040588,
+          "rank": 1,
+          "uuid": "fdeda877-da0e-5a1e-8468-63aa82847e2f"
+        },
+        {
+          "name": "unit testing software",
+          "similarity": 0.6729867458343506,
+          "rank": 2,
+          "uuid": "c3bb0ef0-fe96-5c58-a3bf-d93464d1fdc7"
+        },
+        {
+          "name": "test implementation software",
+          "similarity": 0.6713767051696777,
+          "rank": 3,
+          "uuid": "e1e41466-76bf-54a5-8fa7-8127ef199f78"
+        }
+      ],
+      "expected_found": [
+        "test implementation software",
+        "unit testing software",
+        "testing software"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "test implementation software",
+          "unit testing software",
+          "testing software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC014",
+      "extracted_skill": "Tableau",
+      "expected_matches": [
+        "Tableau",
+        "Data visualization software",
+        "Tablet application software"
+      ],
+      "latency_ms": 9.22393798828125,
+      "hits_at_k": 1,
+      "precision": 0.3333333333333333,
+      "recall": 0.3333333333333333,
+      "top_match": {
+        "name": "tableau",
+        "similarity": 1.0,
+        "rank": 1,
+        "uuid": "6e5bdfed-e4d8-50d9-8923-67bb16de462a"
+      },
+      "all_results": [
+        {
+          "name": "tableau",
+          "similarity": 1.0,
+          "rank": 1,
+          "uuid": "6e5bdfed-e4d8-50d9-8923-67bb16de462a"
+        },
+        {
+          "name": "tabledit",
+          "similarity": 0.6108245253562927,
+          "rank": 2,
+          "uuid": "01174a63-38a1-502c-bb0b-e05ca553db68"
+        },
+        {
+          "name": "diving table software",
+          "similarity": 0.507279098033905,
+          "rank": 3,
+          "uuid": "1b3f2c33-0369-52de-b9f8-dcb6953e68f7"
+        }
+      ],
+      "expected_found": [
+        "tableau"
+      ],
+      "expected_missing": [
+        "data visualization software",
+        "tablet application software"
+      ],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "data visualization software",
+            "error": "Not found in top-10 results"
+          },
+          {
+            "skill": "tablet application software",
+            "error": "Not found in top-10 results"
+          }
+        ],
+        "found_count": 1,
+        "missing_count": 2,
+        "found_skills": [
+          "tableau"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC015",
+      "extracted_skill": "Agile Scrum Master",
+      "expected_matches": [
+        "Agile Product Lifecyle Management Plm",
+        "Endeavour Agile Alm",
+        "Epic Practice Management"
+      ],
+      "latency_ms": 8.86225700378418,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "endeavour agile alm",
+        "similarity": 0.6247471570968628,
+        "rank": 1,
+        "uuid": "7544c865-fc73-5079-8882-4a6f26fdfb22"
+      },
+      "all_results": [
+        {
+          "name": "endeavour agile alm",
+          "similarity": 0.6247471570968628,
+          "rank": 1,
+          "uuid": "7544c865-fc73-5079-8882-4a6f26fdfb22"
+        },
+        {
+          "name": "agile product lifecyle management plm",
+          "similarity": 0.5100523233413696,
+          "rank": 2,
+          "uuid": "56be2d3c-43b6-58bd-ae25-9c2b0434fbd7"
+        },
+        {
+          "name": "epic practice management",
+          "similarity": 0.4505595862865448,
+          "rank": 3,
+          "uuid": "38ad3d9f-e0f3-57e3-b8b1-bb3496ffa396"
+        }
+      ],
+      "expected_found": [
+        "agile product lifecyle management plm",
+        "endeavour agile alm",
+        "epic practice management"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "epic practice management",
+            "expected_min": 0.5,
+            "actual": 0.4505595862865448
+          }
+        ],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "agile product lifecyle management plm",
+          "endeavour agile alm",
+          "epic practice management"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC016",
+      "extracted_skill": "Linux System Administration",
+      "expected_matches": [
+        "Linux",
+        "computer operating systems",
+        "Operating system software"
+      ],
+      "latency_ms": 6.864786148071289,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "linux",
+        "similarity": 0.7037314176559448,
+        "rank": 1,
+        "uuid": "23c6c9ca-faf6-5f9a-b11c-76001ad2a8b6"
+      },
+      "all_results": [
+        {
+          "name": "linux",
+          "similarity": 0.7037314176559448,
+          "rank": 1,
+          "uuid": "23c6c9ca-faf6-5f9a-b11c-76001ad2a8b6"
+        },
+        {
+          "name": "operating system software",
+          "similarity": 0.6448644995689392,
+          "rank": 2,
+          "uuid": "96ed2b36-577d-5d78-a932-e97128bef47c"
+        },
+        {
+          "name": "computer operating systems",
+          "similarity": 0.6140224933624268,
+          "rank": 3,
+          "uuid": "14a0ff9e-3d26-51d6-b3f6-486a0e6ee041"
+        }
+      ],
+      "expected_found": [
+        "linux",
+        "computer operating systems",
+        "operating system software"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "linux",
+          "computer operating systems",
+          "operating system software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC017",
+      "extracted_skill": "Technical Writing",
+      "expected_matches": [
+        "Writing",
+        "Automated underwriting software",
+        "Report writing software"
+      ],
+      "latency_ms": 7.627964019775391,
+      "hits_at_k": 1,
+      "precision": 0.3333333333333333,
+      "recall": 0.3333333333333333,
+      "top_match": {
+        "name": "writing",
+        "similarity": 0.6885901689529419,
+        "rank": 1,
+        "uuid": "41e4432e-02db-5b85-b1f0-dbab6df94e32"
+      },
+      "all_results": [
+        {
+          "name": "writing",
+          "similarity": 0.6885901689529419,
+          "rank": 1,
+          "uuid": "41e4432e-02db-5b85-b1f0-dbab6df94e32"
+        },
+        {
+          "name": "hands on technology therawriter.pt",
+          "similarity": 0.6325671076774597,
+          "rank": 2,
+          "uuid": "22ff8db7-f535-5711-b354-8d1d7b7bf2cb"
+        },
+        {
+          "name": "techsia techlog",
+          "similarity": 0.537455141544342,
+          "rank": 3,
+          "uuid": "32bd9156-5be8-5134-8186-ace079b9254f"
+        }
+      ],
+      "expected_found": [
+        "writing"
+      ],
+      "expected_missing": [
+        "automated underwriting software",
+        "report writing software"
+      ],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "automated underwriting software",
+            "error": "Not found in top-10 results"
+          },
+          {
+            "skill": "report writing software",
+            "expected_min": 0.5,
+            "actual": 0.495392769575119
+          }
+        ],
+        "found_count": 2,
+        "missing_count": 1,
+        "found_skills": [
+          "writing",
+          "report writing software"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC018",
+      "extracted_skill": "React",
+      "expected_matches": [
+        "React",
+        "Web page design and editing software",
+        "Propeller Multimedia React2"
+      ],
+      "latency_ms": 8.844852447509766,
+      "hits_at_k": 2,
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "top_match": {
+        "name": "react",
+        "similarity": 1.0,
+        "rank": 1,
+        "uuid": "a842f447-d7aa-5252-8eac-3f58e7bdb2a8"
+      },
+      "all_results": [
+        {
+          "name": "react",
+          "similarity": 1.0,
+          "rank": 1,
+          "uuid": "a842f447-d7aa-5252-8eac-3f58e7bdb2a8"
+        },
+        {
+          "name": "propeller multimedia react2",
+          "similarity": 0.5420255661010742,
+          "rank": 2,
+          "uuid": "ae98ecb9-381d-5ac9-9b5c-7a38febb8ecb"
+        },
+        {
+          "name": "enzymex",
+          "similarity": 0.3590415120124817,
+          "rank": 3,
+          "uuid": "93d1b1aa-6955-5430-848d-28fdd3f8b431"
+        }
+      ],
+      "expected_found": [
+        "react",
+        "propeller multimedia react2"
+      ],
+      "expected_missing": [
+        "web page design and editing software"
+      ],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "web page design and editing software",
+            "error": "Not found in top-10 results"
+          }
+        ],
+        "found_count": 2,
+        "missing_count": 1,
+        "found_skills": [
+          "react",
+          "propeller multimedia react2"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC019",
+      "extracted_skill": "DevOps CI/CD",
+      "expected_matches": [
+        "CD-adapco STAR-CAD",
+        "Jenkins CI",
+        "Computational Dynamics STAR-CD"
+      ],
+      "latency_ms": 8.448123931884766,
+      "hits_at_k": 1,
+      "precision": 0.3333333333333333,
+      "recall": 0.3333333333333333,
+      "top_match": {
+        "name": "jenkins ci",
+        "similarity": 0.5323996543884277,
+        "rank": 1,
+        "uuid": "f53c4bf2-138f-567d-b35d-c3415a58ba2a"
+      },
+      "all_results": [
+        {
+          "name": "jenkins ci",
+          "similarity": 0.5323996543884277,
+          "rank": 1,
+          "uuid": "f53c4bf2-138f-567d-b35d-c3415a58ba2a"
+        },
+        {
+          "name": "integrated development environment ide software",
+          "similarity": 0.4774545431137085,
+          "rank": 2,
+          "uuid": "adf484e0-3fb4-5efb-9a8f-cbf5afcd8b6d"
+        },
+        {
+          "name": "deployment software",
+          "similarity": 0.46697568893432617,
+          "rank": 3,
+          "uuid": "1d7e8a5a-c3e5-56bb-b8f9-4747f9e6cdbe"
+        }
+      ],
+      "expected_found": [
+        "jenkins ci"
+      ],
+      "expected_missing": [
+        "cd adapco star cad",
+        "computational dynamics star cd"
+      ],
+      "threshold_test": {
+        "passed": false,
+        "violations": [
+          {
+            "skill": "cd adapco star cad",
+            "error": "Not found in top-10 results"
+          },
+          {
+            "skill": "computational dynamics star cd",
+            "error": "Not found in top-10 results"
+          }
+        ],
+        "found_count": 1,
+        "missing_count": 2,
+        "found_skills": [
+          "jenkins ci"
+        ]
+      }
+    },
+    {
+      "test_id": "RTC020",
+      "extracted_skill": "Salesforce CRM Administration",
+      "expected_matches": [
+        "Microsoft Dynamics CRM",
+        "Customer relationship management CRM software",
+        "Salesforce.com Salesforce CRM"
+      ],
+      "latency_ms": 10.605812072753906,
+      "hits_at_k": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "top_match": {
+        "name": "salesforce.com salesforce crm",
+        "similarity": 0.8548972606658936,
+        "rank": 1,
+        "uuid": "f25944ec-1fed-50da-80b8-ae95d29d7334"
+      },
+      "all_results": [
+        {
+          "name": "salesforce.com salesforce crm",
+          "similarity": 0.8548972606658936,
+          "rank": 1,
+          "uuid": "f25944ec-1fed-50da-80b8-ae95d29d7334"
+        },
+        {
+          "name": "customer relationship management crm software",
+          "similarity": 0.6757925152778625,
+          "rank": 2,
+          "uuid": "2b7081fd-5b89-5ed6-9f66-b26f253dafd7"
+        },
+        {
+          "name": "microsoft dynamics crm",
+          "similarity": 0.5997424721717834,
+          "rank": 3,
+          "uuid": "9c919528-e16c-59d8-bd21-6eeb064b51b7"
+        }
+      ],
+      "expected_found": [
+        "microsoft dynamics crm",
+        "customer relationship management crm software",
+        "salesforce.com salesforce crm"
+      ],
+      "expected_missing": [],
+      "threshold_test": {
+        "passed": true,
+        "violations": [],
+        "found_count": 3,
+        "missing_count": 0,
+        "found_skills": [
+          "microsoft dynamics crm",
+          "customer relationship management crm software",
+          "salesforce.com salesforce crm"
+        ]
+      }
+    }
+  ],
+  "overall": {
+    "avg_precision": 0.8333333333333334,
+    "avg_recall": 0.8333333333333334,
+    "total_tests": 20,
+    "successful_matches": 20
+  },
+  "speed_benchmark": {
+    "total_time_ms": 76.72905921936035,
+    "avg_time_per_query_ms": 3.8364529609680176,
+    "queries_per_second": 260.65743804862893,
+    "num_queries": 20
+  }
+}
