@@ -4,10 +4,27 @@ import { SxProps } from '@mui/material/styles'
 export const CustomTextField = styled(TextField)({
   '& .MuiInputBase-root': {
     position: 'relative',
-    paddingRight: '50px',
+    paddingRight: '20px',
     width: '100%',
     height: '275px',
-    marginTop: '3px'
+    marginTop: '3px',
+    '& textarea': {
+      '&::-webkit-scrollbar': {
+        width: '10px'
+      },
+      '&::-webkit-scrollbar-track': {
+        background: '#f0f0f0',
+        borderRadius: '4px'
+      },
+      '&::-webkit-scrollbar-thumb': {
+        background: '#c0c0c0',
+        borderRadius: '4px',
+        '&:hover': {
+          background: '#a0a0a0',
+          cursor: 'pointer'
+        }
+      }
+    }
   },
   '& .MuiFormHelperText-root': {
     position: 'absolute',
@@ -42,7 +59,6 @@ export const TextFieldStyles = {
 export const inputPropsStyles = {
   color: 'black',
   fontSize: '15px',
-  fontStyle: 'italic',
   letterSpacing: '0.075px'
 }
 

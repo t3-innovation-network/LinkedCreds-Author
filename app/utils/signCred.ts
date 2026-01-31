@@ -12,6 +12,7 @@ interface FormDataI {
   evidenceLink: string
   evidenceDescription: string
   credentialType: string
+  skills?: string[]  // Array of detected and manually added skills
 }
 
 interface RecommendationI {
@@ -132,7 +133,8 @@ export const generateCredentialData = (data: FormData): FormDataI => {
         : [{ name: '', url: '' }],
     evidenceLink: data?.evidenceLink || '',
     evidenceDescription: data.evidenceDescription || '',
-    credentialType: data.persons || ''
+    credentialType: data.persons || '',
+    skills: data.skills || []  // Including skills in credential data for JSON
   }
 }
 

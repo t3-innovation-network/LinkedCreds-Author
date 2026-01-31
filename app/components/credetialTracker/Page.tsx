@@ -15,6 +15,9 @@ import Image from 'next/image'
 import { commonTypographyStyles, evidenceListStyles } from '../Styles/appStyles'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 
+//TODO keyword is used to add API call for skill extraction later
+
+
 // Set up PDF.js worker
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
@@ -156,6 +159,27 @@ const Media = styled(Box)<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
   margin: '0 auto'
 }))
 
+// SKILL EXTRACTION - TEMPORARY IMPLEMENTATION
+// TODO: Replace with API call
+
+// Temporary keyword list for demo - will be replaced by API
+const TEMP_SKILL_KEYWORDS = [
+  'Leadership', 'Strategic Planning', 'Process Improvement', 'Quality Assurance',
+  'Documentation', 'Problem Solving', 'Critical Thinking', 'Collaboration',
+  'Communication', 'Teamwork', 'Project Management', 'Software Development',
+  'Research', 'Data Analysis', 'Customer Service', 'Plant Care', 'Diagnosis'
+]
+
+/**
+ * Extract skills from text description
+ * TODO: Need to add API call for skill extraction
+ */
+const extractSkillsFromText = (text: string): string[] => {
+  if (!text) return []
+  const lowerText = text.toLowerCase()
+  return TEMP_SKILL_KEYWORDS.filter(skill => lowerText.includes(skill.toLowerCase()))
+}
+
 // Field component for consistent styling
 interface FieldProps {
   label: string
@@ -171,7 +195,7 @@ const Field: React.FC<FieldProps> = ({ label, value, isHtml }) => (
         <span dangerouslySetInnerHTML={{ __html: value }} />
       </FieldValue>
     ) : (
-      <FieldValue>{value || 'To be completed...'}</FieldValue>
+      <FieldValue>{value || 'Start typing...'}</FieldValue>
     )}
   </Box>
 )
@@ -184,14 +208,22 @@ interface CredentialTrackerProps {
     url: string
     isFeatured?: boolean
   }[]
+  onSkillsChange?: (skills: string[]) => void  // Callback to store skills for backend
+  currentStep?: number  // Current form step (1, 2, 3, or final) - controls visibility of skill editing
 }
 
 const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   formData,
-  selectedFiles = []
+  selectedFiles = [],
+  onSkillsChange,
+  currentStep = 2  // Default to step 2 for backward compatibility
 }) => {
   const [pdfThumbnails, setPdfThumbnails] = useState<Record<string, string>>({})
   const [videoThumbnails, setVideoThumbnails] = useState<Record<string, string>>({})
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [removedSkills, setRemovedSkills] = useState<string[]>([])
+  const [manuallyAddedSkills, setManuallyAddedSkills] = useState<string[]>([])
+  const [newSkillInput, setNewSkillInput] = useState<string>('')
 
   // Generate thumbnails for PDF and video files
   useEffect(() => {
@@ -232,6 +264,75 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   // Get featured media file
   const featuredFile = selectedFiles.find(f => f.isFeatured)
 
+  // Extract skills from description text
+  // TODO: When API is ready, this can become an async effect with loading state
+  const detectedSkills = React.useMemo(() => {
+    const text = (formData?.credentialDescription || '') + ' ' + (formData?.description || '')
+    return extractSkillsFromText(text)
+  }, [formData?.credentialDescription, formData?.description])
+
+  // Sync selected skills with detected skills when description changes
+  useEffect(() => {
+    // On first load (no skills selected yet), initialize with detected skills
+    if (selectedSkills.length === 0 && removedSkills.length === 0 && detectedSkills.length > 0) {
+      setSelectedSkills(detectedSkills)
+      return
+    }
+
+    // When description changes, update selected skills:
+    // 1. Remove skills that are no longer detected (unless manually added)
+    // 2. Add newly detected skills (unless they were previously removed)
+    setSelectedSkills(prev => {
+      // Keep manually added skills and skills that are still detected
+      const stillValid = prev.filter(skill =>
+        manuallyAddedSkills.includes(skill) || detectedSkills.includes(skill)
+      )
+
+      // Add new detected skills that weren't previously removed
+      const newDetected = detectedSkills.filter(skill =>
+        !prev.includes(skill) && !removedSkills.includes(skill)
+      )
+
+      return [...stillValid, ...newDetected]
+    })
+  }, [detectedSkills])
+
+  // Notify parent component whenever selected skills change (for backend storage)
+  useEffect(() => {
+    if (onSkillsChange) {
+      onSkillsChange(selectedSkills)
+    }
+  }, [selectedSkills, onSkillsChange])
+
+  // Handle removing a skill from selected list
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setSelectedSkills(prev => prev.filter(s => s !== skillToRemove))
+    // Add to removed skills if it's a detected or manually added skill
+    if (!removedSkills.includes(skillToRemove)) {
+      setRemovedSkills(prev => [...prev, skillToRemove])
+    }
+  }
+
+  // Handle restoring a removed skill
+  const handleRestoreSkill = (skill: string) => {
+    if (!selectedSkills.includes(skill)) {
+      setSelectedSkills(prev => [...prev, skill])
+      setRemovedSkills(prev => prev.filter(s => s !== skill))
+    }
+  }
+
+  // Handle adding a manual skill
+  const handleAddManualSkill = () => {
+    const trimmedSkill = newSkillInput.trim()
+    if (trimmedSkill && !selectedSkills.includes(trimmedSkill)) {
+      setSelectedSkills(prev => [...prev, trimmedSkill])
+      setManuallyAddedSkills(prev => [...prev, trimmedSkill])
+      setNewSkillInput('')
+      // Remove from removed skills if it was there
+      setRemovedSkills(prev => prev.filter(s => s !== trimmedSkill))
+    }
+  }
+
   return (
     <Box sx={{ p: 0, width: '100%', maxWidth: { xs: '100%', md: '720px' } }}>
       <Box
@@ -258,7 +359,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                   color: '#202e5b'
                 }}
               >
-                Here&apos;s what you&apos;re building
+                Here's what you're building
               </Typography>
               <Typography
                 sx={{
@@ -288,6 +389,256 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                     value={formData?.credentialDescription as string}
                     isHtml={true}
                   />
+
+                  {/* Detected Skills Section */}
+                  <Box sx={{ mb: 2.5 }}>
+                    {/* Detected Skills Header */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                      <Box
+                        component='span'
+                        sx={{
+                          fontSize: '18px',
+                          color: '#003fe0'
+                        }}
+                      >
+                        ✨
+                      </Box>
+                      <FieldLabel sx={{ mb: 0 }}>
+                        Detected Skills ({selectedSkills.length})
+                      </FieldLabel>
+                    </Box>
+
+                    {/* Selected Skills Display with X buttons */}
+                    {selectedSkills && selectedSkills.length > 0 ? (
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1.5 }}>
+                        {selectedSkills.map(skill => (
+                          <Box
+                            key={skill}
+                            sx={{
+                              background: '#155dfc',
+                              color: '#ffffff',
+                              px: 2,
+                              py: 0.75,
+                              borderRadius: '20px',
+                              fontSize: '14px',
+                              fontWeight: 500,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                              transition: 'all 0.2s',
+                              '&:hover': {
+                                background: '#003fe0'
+                              }
+                            }}
+                          >
+                            {skill}
+                            <Box
+                              component='span'
+                              onClick={() => handleRemoveSkill(skill)}
+                              sx={{
+                                cursor: 'pointer',
+                                fontWeight: 400,
+                                fontSize: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                ml: 0.5,
+                                '&:hover': {
+                                  transform: 'scale(1.2)'
+                                }
+                              }}
+                            >
+                              ×
+                            </Box>
+                          </Box>
+                        ))}
+                      </Box>
+                    ) : null}
+
+                    {/* Only show skill editing controls on step 2 */}
+                    {currentStep === 2 && (
+                      <>
+                        <Typography
+                          sx={{
+                            fontFamily: 'Inter',
+                            fontSize: '14px',
+                            color: '#6b7280',
+                            mb: 2
+                          }}
+                        >
+                          Click any skill to remove it
+                        </Typography>
+
+                        <Divider sx={{ mb: 2 }} />
+
+                        {/* Add Skill Manually Section */}
+                        <Box sx={{ mb: 2 }}>
+                          <Typography
+                            sx={{
+                              fontFamily: 'Inter',
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              color: '#6b7280',
+                              mb: 1
+                            }}
+                          >
+                            Add skill manually
+                          </Typography>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <input
+                              type='text'
+                              placeholder='Type skill name...'
+                              value={newSkillInput}
+                              onChange={e => setNewSkillInput(e.target.value)}
+                              onKeyPress={e => {
+                                if (e.key === 'Enter') {
+                                  handleAddManualSkill()
+                                }
+                              }}
+                              style={{
+                                flex: 1,
+                                background: '#fff',
+                                color: '#000000ff',
+                                padding: '12px 16px',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '8px',
+                                fontSize: '14px',
+                                fontFamily: 'Inter',
+                                outline: 'none'
+                              }}
+                            />
+                            <Box
+                              onClick={handleAddManualSkill}
+                              sx={{
+                                width: '48px',
+                                height: '48px',
+                                background: '#155dfc',
+                                borderRadius: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                fontSize: '24px',
+                                color: '#ffffff',
+                                transition: 'all 0.2s',
+                                '&:hover': {
+                                  background: '#003fe0'
+                                }
+                              }}
+                            >
+                              +
+                            </Box>
+                          </Box>
+                        </Box>
+
+                        <Divider sx={{ mb: 2 }} />
+                      </>
+                    )}
+
+                    {/* Issued By Section */}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography
+                        sx={{
+                          fontFamily: 'Inter',
+                          fontSize: '14px',
+                          color: '#6b7280',
+                          mb: 0.5
+                        }}
+                      >
+                        Issued by
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontFamily: 'Inter',
+                          fontSize: '16px',
+                          fontWeight: 600,
+                          color: '#000e40'
+                        }}
+                      >
+                        Self-Issued
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Removed Skills Section */}
+                  {removedSkills.length > 0 && (
+                    <Box
+                      sx={{
+                        background: '#f9fafb',
+                        borderRadius: '12px',
+                        p: 2.5,
+                        mb: 2.5
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mb: 2
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontFamily: 'Inter',
+                            fontSize: '16px',
+                            fontWeight: 600,
+                            color: '#000e40'
+                          }}
+                        >
+                          Removed Skills
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontFamily: 'Inter',
+                            fontSize: '14px',
+                            color: '#6b7280'
+                          }}
+                        >
+                          Click to restore
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        {removedSkills.map(skill => (
+                          <Box
+                            key={skill}
+                            onClick={() => handleRestoreSkill(skill)}
+                            sx={{
+                              background: '#ffffff',
+                              border: '1px solid #e5e7eb',
+                              color: '#9ca3af',
+                              px: 2,
+                              py: 0.75,
+                              borderRadius: '20px',
+                              fontSize: '14px',
+                              fontWeight: 400,
+                              textDecoration: 'line-through',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              '&:hover': {
+                                background: '#f3f4f6',
+                                color: '#6b7280'
+                              }
+                            }}
+                          >
+                            {skill}
+                            <Box
+                              component='span'
+                              sx={{
+                                fontSize: '16px',
+                                fontWeight: 400
+                              }}
+                            >
+                              ↻
+                            </Box>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
                   {/* Enhanced Media Section with PDF support */}
                   <MediaContainer>
                     <Media hasImage={!!featuredFile || !!formData?.evidenceLink}>

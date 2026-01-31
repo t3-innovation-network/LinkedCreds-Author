@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { Box, Button, Typography, useTheme, useMediaQuery, Theme } from '@mui/material'
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import Link from 'next/link'
 import Card from './components/cards'
 interface SectionProps {
@@ -22,14 +23,16 @@ const EXAMPLE_CARDS = [
     evidence: ['IMG_0630', 'IMG_0624', 'IMG_0640'],
     width: '195px',
     height: '385px',
-    rotation: 'rotate(-5deg)',
+    rotation: 'rotate(-8deg)', // Slightly more tilt for the bottom card
     image: '/caretaker.jpeg',
     showPlayButton: false,
-    showTimer: false
+    showTimer: false,
+    showDuration: true,
+    showEvidence: true
   },
   {
     id: 'barista',
-    title: 'Barrista',
+    title: 'Barista',
     description:
       'I am able to demonstrate advanced skills in coffee preparation, customer service, and knowledge of coffee origins and brewing techniques.',
     criteria: [
@@ -42,17 +45,16 @@ const EXAMPLE_CARDS = [
       'Video of the Perfect Pour',
       'Coffee Portfolio',
       'Training Campus Certification',
-      'Scent training',
-      'IMG_0624',
-      'Tamping',
-      'IMG_0640'
+      'Scent training'
     ],
     width: '195px',
     height: '410px',
-    rotation: 'rotate(0deg)',
+    rotation: 'rotate(0deg)', // Center card stays straight
     image: '/coffee.jpeg',
     showPlayButton: true,
-    showTimer: true
+    showTimer: true,
+    showDuration: true,
+    showEvidence: true
   },
   {
     id: 'landscaper',
@@ -69,15 +71,16 @@ const EXAMPLE_CARDS = [
       'Portfolio of Garden Care',
       'Landscaper Portfolio',
       'Hardscape Training',
-      'IMG_0624',
-      'IMG_0640'
+      'IMG_0624'
     ],
     width: '195px',
     height: '400px',
-    rotation: 'rotate(5deg)',
+    rotation: 'rotate(8deg)', // Mirror the tilt for the top card
     image: '/landscape.jpeg',
     showPlayButton: true,
-    showTimer: true
+    showTimer: true,
+    showDuration: true,
+    showEvidence: true
   }
 ]
 
@@ -134,99 +137,158 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
         pt: { xs: '43px', md: '75px' }
       }}
     >
-      <Box
-        sx={{
-          width: { xs: '100%', md: '40vw' },
-          maxWidth: { xs: '100%', md: '771px' },
-          textAlign: 'left',
-          alignSelf: { xs: 'center', md: 'flex-start' },
-          pr: { xs: 0, md: 0 },
-          mr: { xs: 0, md: '71px' },
-          height: { xs: 'auto', md: '432px' }
-          // mt: { xs: '43px', md: 0 }
-        }}
-      >
+      {/* Left Content */}
+      <Box sx={{ flex: 1, textAlign: 'left', mb: { xs: 6, md: 0 } }}>
+        <Typography
+          variant='body1'
+          sx={{
+            color: theme.palette.t3ButtonBlue, // Using your blue for brand consistency
+            backgroundColor: '#EEF5FF',
+            borderRadius: '100px',
+            width: 'fit-content',
+            fontSize: '13px',
+            fontWeight: 'medium',
+            px: '15px',
+            letterSpacing: '1.5px',
+            mb: 3, // Space between this and the main heading
+            fontFamily: 'Poppins'
+          }}
+        >
+          LinkedCreds is an open-source project
+        </Typography>
         <Typography
           variant='h2'
           sx={{
             color: theme.palette.t3Black,
-            mb: { xs: '15px', md: '10px' },
-            fontFamily: 'poppins',
-            fontSize: { xs: '30px', md: '50px' },
-            fontWeight: 'bolder',
-            lineHeight: { xs: '37.5px', md: '62.5px' },
-            maxWidth: { xs: '360px', md: '771px' }
+            mb: 2,
+            fontFamily: 'Poppins',
+            fontSize: { xs: '32px', md: '56px' },
+            maxWidth: '600px',
+            fontWeight: 800,
+            lineHeight: 1.2
           }}
         >
-          {isMobile ? (
-            'Showcase the skills that define you.'
-          ) : (
-            <>
-              Showcase the skills
-              <br />
-              that define you.
-            </>
-          )}
+          Showcase the skills that define you.
         </Typography>
 
         <Typography
           variant='body1'
           sx={{
             color: theme.palette.t3BodyText,
-            mb: '30px',
-            fontSize: { xs: '16px', md: '18px' },
-            lineHeight: '22.5px'
+            mb: 4,
+            fontSize: '18px',
+            maxWidth: '550px',
+            lineHeight: 1.6
           }}
         >
-          {isMobile ? (
-            'Whether it’s caring for your family, volunteering, a side hustle, or on-the-job learning, LinkedCreds helps you document, verify, and share your unique experiences.'
-          ) : (
-            <>
-              Whether it&apos;s caring for your family, volunteering, a side hustle,
-              <br />
-              or on-the-job learning, LinkedCreds helps you document, verify,
-              <br />
-              and share your unique experiences.
-            </>
-          )}
+          Whether it’s caring for your family, volunteering, or a side hustle, LinkedCreds
+          helps you document, verify, and share your unique experiences.
         </Typography>
 
         <Link href='/credentialForm' passHref>
           <Button
             variant='contained'
+            endIcon={<KeyboardArrowRightIcon />}
             sx={{
               backgroundColor: theme.palette.t3ButtonBlue,
               color: '#FFFFFF',
-              width: { xs: '195px', md: '177px' },
-              maxWidth: { xs: '195px', md: '177px' },
-              maxHeight: { xs: '40px', md: '52px' },
               borderRadius: '100px',
-              py: '22px',
-              px: '20px',
+              px: 4,
+              py: 1.5,
               textTransform: 'none',
               fontSize: '16px',
-              fontFamily: 'Roboto',
-              lineHeight: '20px',
-              fontWeight: '500',
-              mb: { xs: '19px', md: 0 }
+              fontWeight: 600,
+              '&:hover': { backgroundColor: '#002fb0' }
             }}
           >
             Build your first skill
           </Button>
         </Link>
+        <Link href='/help' passHref>
+          <Button
+            variant='contained'
+            sx={{
+              backgroundColor: '#FFFFFF',
+              color: '#101828',
+              border: `2px solid #e5e7eb`,
+              borderRadius: '100px',
+              px: 4,
+              py: 1.5,
+              ml: 2,
+              textTransform: 'none',
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 500,
+              fontSize: '16px',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                borderColor: '#155dfc',
+                backgroundColor: '#f9fafb',
+                borderWidth: '2px'
+              }
+            }}
+          >
+            Learn More
+          </Button>
+        </Link>
+        <Typography
+          variant='body2'
+          sx={{
+            fontSize: { xs: '12px', sm: '14px' },
+            mt: 1,
+            color: '#4a5565',
+            fontFamily: 'Inter, sans-serif',
+            lineHeight: 1.5
+          }}
+        >
+          <span>Created for you by the </span>
+          <Box
+            component='a'
+            href='https://www.uschamberfoundation.org/solutions/workforce-development-and-training/t3-innovation-network'
+            target='_blank'
+            rel='noopener noreferrer'
+            sx={{
+              color: 'inherit',
+              textDecoration: 'underline',
+              '&:hover': {
+                color: '#1447e6'
+              }
+            }}
+          >
+            US Chamber of Commerce Foundation T3 Innovation Network
+          </Box>
+          <span>.</span>
+        </Typography>
       </Box>
 
+      {/* Right Content: Fanned Cards */}
       {showCards && (
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'row',
+            position: 'relative',
+            height: '450px',
+            alignItems: 'center',
             justifyContent: 'center',
-            alignItems: 'center'
+            // This creates the overlapping effect
+            pl: 3
           }}
         >
-          {EXAMPLE_CARDS.map(card => (
-            <Card key={card.id} {...card} />
+          {EXAMPLE_CARDS.map((card, index) => (
+            <Box
+              key={card.id}
+              sx={{
+                transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                zIndex: index,
+                cursor: 'pointer',
+                '&:hover': {
+                  transform: 'translateY(-20px) scale(1.01)',
+                  zIndex: 10,
+                  mx: 1 // Push neighbors aside slightly on hover
+                }
+              }}
+            >
+              <Card {...card} />
+            </Box>
           ))}
         </Box>
       )}

@@ -60,7 +60,8 @@ export interface FormData {
   explainAnswer: string
   howKnow: string
   qualification: string
-  [key: string]: string | number | Portfolio[] | undefined
+  skills?: string[]  // Array of detected and manually added skills for backend storage
+  [key: string]: string | number | Portfolio[] | string[] | undefined
 }
 
 // Component Props for the form

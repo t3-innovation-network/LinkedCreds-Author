@@ -57,7 +57,8 @@ const Card = ({
         borderRadius: '10px',
         border: '1px solid #003FE0',
         padding: '7.5px',
-        position: 'relative'
+        position: 'relative',
+        filter: 'drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.3))'
       }}
     >
       <Box

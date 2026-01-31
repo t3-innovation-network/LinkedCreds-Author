@@ -106,11 +106,11 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
         </FormLabel>
         <CustomTextField
           {...register('credentialDescription', {
-            required: 'Credential Description is required'
+            required: 'Skill description is required'
           })}
           sx={customTextFieldStyles}
           multiline
-          rows={11}
+          rows={10}
           variant='outlined'
           placeholder={
             'Example:\nWatering and feeding on a routine schedule, diagnosing plant sickness, over/under watering, removing dead leaves, and cultivating rich soil.'
@@ -118,12 +118,12 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
           FormHelperTextProps={{
             className: 'MuiFormHelperText-root'
           }}
-          inputProps={{ maxLength: 294 }}
+          inputProps={{ maxLength: 1000 }}
           error={!!errors.credentialDescription}
           helperText={
             errors.credentialDescription?.message
               ? `${errors.credentialDescription.message}`
-              : `${watch('credentialDescription').length}/${294} characters`
+              : `${watch('credentialDescription').length}/1000 characters`
           }
         />
         <Box sx={{ display: 'flex', gap: '5px' }}>
@@ -145,7 +145,7 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
           })}
           sx={customTextFieldStyles}
           multiline
-          rows={11}
+          rows={10}
           variant='outlined'
           placeholder={
             'Example:\nI have been a weekly volunteer at the Beloved NC garden for the past 3 years in addition to caring for my own personal garden.'
@@ -153,12 +153,12 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
           FormHelperTextProps={{
             className: 'MuiFormHelperText-root'
           }}
-          inputProps={{ maxLength: 294 }}
+          inputProps={{ maxLength: 1000 }}
           error={!!errors.description}
           helperText={
             errors.description?.message
               ? `${errors.description.message}`
-              : `${watch('description').length}/${294} characters`
+              : `${watch('description').length}/1000 characters`
           }
         />
       </Box>

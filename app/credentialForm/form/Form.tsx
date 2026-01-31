@@ -404,7 +404,7 @@ const Form = ({ onStepChange }: any) => {
             alignSelf: { xs: 'stretch', md: 'auto' }
           }}
         >
-          <CredentialTracker formData={watch()} selectedFiles={selectedFiles} />
+          <CredentialTracker formData={watch()} selectedFiles={selectedFiles} currentStep={activeStep} />
         </Box>
       )}
     </Box>
