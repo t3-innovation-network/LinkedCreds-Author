@@ -1,0 +1,184 @@
+{
+  "test_cases": [
+    {
+      "id": "RTC001",
+      "extracted_skill": "Python",
+      "expected_onet_skills": [
+        "Programming",
+        "Python",
+        "Scripting Software"
+      ]
+    },
+    {
+      "id": "RTC002",
+      "extracted_skill": "Project Management",
+      "expected_onet_skills": [
+        "Management of Personnel Resources",
+        "Project Planning Software",
+        "Project Management Software"
+      ]
+    },
+    {
+      "id": "RTC003",
+      "extracted_skill": "Data Analysis",
+      "expected_onet_skills": [
+        "Value Analysis",
+        "Systems Analysis",
+        "Data analysis software"
+      ]
+    },
+    {
+      "id": "RTC004",
+      "extracted_skill": "Machine Learning",
+      "expected_onet_skills": [
+        "Artificial Intelligence Software",
+        "Active Learning",
+        "Machine control software"
+      ]
+    },
+    {
+      "id": "RTC005",
+      "extracted_skill": "Database Management",
+      "expected_onet_skills": [
+        "Database management systems",
+        "Database management software",
+        "Database management system software"
+      ]
+    },
+    {
+      "id": "RTC006",
+      "extracted_skill": "Leadership",
+      "expected_onet_skills": [
+        "80-20 Software Leaders4",
+        "Coordination",
+        "agency master"
+      ]
+    },
+    {
+      "id": "RTC007",
+      "extracted_skill": "AWS",
+      "expected_onet_skills": [
+        "Amazon Web Services AWS software",
+        "Salesforce",
+        "Amazon DynamoDB"
+      ]
+    },
+    {
+      "id": "RTC008",
+      "extracted_skill": "JavaScript",
+      "expected_onet_skills": [
+        "JavaScript",
+        "Node.js",
+        "jquery"
+      ]
+    },
+    {
+      "id": "RTC009",
+      "extracted_skill": "Network Security",
+      "expected_onet_skills": [
+        "Intrusion prevention system ips",
+        "Security testing software",
+        "Network security auditing software"
+      ]
+    },
+    {
+      "id": "RTC010",
+      "extracted_skill": "Financial Analysis",
+      "expected_onet_skills": [
+        "Peer to peer financial analysis",
+        "Financial Analysis Software",
+        "Financial Transaction Analysis Software"
+      ]
+    },
+    {
+      "id": "RTC011",
+      "extracted_skill": "Docker",
+      "expected_onet_skills": [
+        "Docker",
+        "Compugov DocketView",
+        "Court docket management software"
+      ]
+    },
+    {
+      "id": "RTC012",
+      "extracted_skill": "Customer Service",
+      "expected_onet_skills": [
+        "Customer service and support software",
+        "Customer service knowledge generation software",
+        "Salesforce"
+      ]
+    },
+    {
+      "id": "RTC013",
+      "extracted_skill": "Testing",
+      "expected_onet_skills": [
+        "Test implementation software",
+        "unit testing software",
+        "Testing software"
+      ]
+    },
+    {
+      "id": "RTC014",
+      "extracted_skill": "Tableau",
+      "expected_onet_skills": [
+        "Tableau",
+        "Data visualization software",
+        "Tablet application software"
+      ]
+    },
+    {
+      "id": "RTC015",
+      "extracted_skill": "Agile Scrum Master",
+      "expected_onet_skills": [
+        "Agile Product Lifecyle Management Plm",
+        "Endeavour Agile Alm",
+        "Epic Practice Management"
+      ]
+    },
+    {
+      "id": "RTC016",
+      "extracted_skill": "Linux System Administration",
+      "expected_onet_skills": [
+        "Linux",
+        "computer operating systems",
+        "Operating system software"
+      ]
+    },
+    {
+      "id": "RTC017",
+      "extracted_skill": "Technical Writing",
+      "expected_onet_skills": [
+        "Writing",
+        "Automated underwriting software",
+        "Report writing software"
+      ]
+    },
+    {
+      "id": "RTC018",
+      "extracted_skill": "React",
+      "expected_onet_skills": [
+        "React",
+        "Web page design and editing software",
+        "Propeller Multimedia React2"
+      ]
+    },
+    {
+      "id": "RTC019",
+      "extracted_skill": "DevOps CI/CD",
+      "expected_onet_skills": [
+        "CD-adapco STAR-CAD",
+        "Jenkins CI",
+        "Computational Dynamics STAR-CD"
+      ]
+    },
+    {
+      "id": "RTC020",
+      "extracted_skill": "Salesforce CRM Administration",
+      "expected_onet_skills": [
+        "Microsoft Dynamics CRM",
+        "Customer relationship management CRM software",
+        "Salesforce.com Salesforce CRM"
+      ]
+    }
+  ]
+}

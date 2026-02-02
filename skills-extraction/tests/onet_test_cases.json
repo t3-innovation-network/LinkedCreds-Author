@@ -1,0 +1,306 @@
+{
+  "test_cases": [
+    {
+      "id": "TC001",
+      "input_text": "Developed RESTful APIs using Python and JavaScript, implemented Docker containers for microservices, and created responsive web interfaces with HTML and CSS",
+      "expected_skills": [
+        "Python",
+        "JavaScript",
+        "Docker",
+        "HTML",
+        "CSS",
+        "MicroServices"
+      ]
+    },
+    {
+      "id": "TC002",
+      "input_text": "Led cross-functional teams of 15 members, facilitated coordination meetings, resolved conflicts through active listening and negotiation, and managed project timelines effectively",
+      "expected_skills": [
+        "Coordination",
+        "Active Listening",
+        "Negotiation",
+        "Management of Personnel Resources",
+        "Project Management"
+      ]
+    },
+    {
+      "id": "TC003",
+      "input_text": "Performed complex problem solving to optimize supply chain operations, conducted systems analysis and evaluation, implemented quality control processes, and monitored KPIs",
+      "expected_skills": [
+        "Complex Problem Solving",
+        "Systems Analysis",
+        "Systems Evaluation",
+        "Quality Control Analysis",
+        "Monitoring KPIS"
+      ]
+    },
+    {
+      "id": "TC004",
+      "input_text": "Built machine learning models using Python and R, performed statistical analysis with SPSS, created data visualizations in Tableau, and wrote comprehensive technical documentation",
+      "expected_skills": [
+        "Statistical analysis",
+        "Python",
+        "R",
+        "Technical documentaion",
+        "machine learning",
+        "Tableau"
+      ]
+    },
+    {
+      "id": "TC005",
+      "input_text": "Managed financial resources and departmental budgets, performed troubleshooting of Oracle ERP systems, analyzed financial data in Microsoft Excel, and ensured compliance",
+      "expected_skills": [
+        "Management of Financial Resources",
+        "Troubleshooting",
+        "Oracle",
+        "Microsoft Excel",
+        "Oracle ERP Systems"
+      ]
+    },
+    {
+      "id": "TC006",
+      "input_text": "I'm raising a python snake in my backyard terrarium and using active learning techniques to train it for better feeding behavior",
+      "expected_skills": []
+    },
+    {
+      "id": "TC007",
+      "input_text": "The art installation at the downtown gallery required coordination with staff and critical thinking about the spatial arrangement of sculptures",
+      "expected_skills": []
+    },
+    {
+      "id": "TC008",
+      "input_text": "I spent the weekend writing poetry for my creative writing class and practicing my speaking skills for the upcoming theater performance",
+      "expected_skills": []
+    },
+    {
+      "id": "TC009",
+      "input_text": "The hospital's monitoring equipment displayed vital signs during the operation and control of the patient's anesthesia levels",
+      "expected_skills": []
+    },
+    {
+      "id": "TC010",
+      "input_text": "My science fair project studied social perceptiveness in teenagers and how judgment and decision making develops during adolescence",
+      "expected_skills": []
+    },
+    {
+      "id": "TC011",
+      "input_text": "Architected cloud infrastructure using Docker and Kubernetes, implemented CI/CD pipelines with Jenkins, managed MongoDB databases, and utilized Apache Kafka for event streaming",
+      "expected_skills": [
+        "Docker",
+        "MongoDB",
+        "Apache Kafka",
+        "Jenkins",
+        "CI/CD",
+        "Kubernetes"
+      ]
+    },
+    {
+      "id": "TC012",
+      "input_text": "Provided instruction to 50+ students weekly, demonstrated active learning strategies in curriculum design, maintained service orientation with parents, and exercised social perceptiveness in classroom management",
+      "expected_skills": [
+        "Instructing",
+        "Active Learning Strategies",
+        "Social Perceptiveness",
+        "Classroom Management"
+      ]
+    },
+    {
+      "id": "TC013",
+      "input_text": "Utilized SAP ERP for enterprise resource planning, Oracle Database for data management, implemented Salesforce CRM for customer relations, and created dashboards using Tableau",
+      "expected_skills": [
+        "SAP ERP",
+        "Oracle Database",
+        "Salesforce CRM",
+        "Tableau"
+      ]
+    },
+    {
+      "id": "TC014",
+      "input_text": "Performed equipment maintenance and repair on industrial machinery, conducted operations analysis to improve efficiency, selected appropriate technology for upgrades, and executed installation of new systems",
+      "expected_skills": [
+        "Equipment Maintenance",
+        "Repair",
+        "Operations Analysis",
+        "Technology Design",
+        "Equipment Selection",
+        "System Installation"
+      ]
+    },
+    {
+      "id": "TC015",
+      "input_text": "Applied critical thinking to solve complex engineering challenges, used advanced mathematics for structural calculations, performed quality control analysis on designs, and leveraged science principles in material selection",
+      "expected_skills": [
+        "Critical Thinking",
+        "Advanced Mathematics",
+        "Quality Control Analysis",
+        "Science Principles"
+      ]
+    },
+    {
+      "id": "TC016",
+      "input_text": "Delivered persuasive presentations to C-level executives, demonstrated strong speaking proficiency in client meetings, practiced active listening during stakeholder interviews, and exercised negotiation skills in contract discussions",
+      "expected_skills": [
+        "Persuasive Presentations",
+        "Speaking",
+        "Active Listening",
+        "Negotiation skills"
+      ]
+    },
+    {
+      "id": "TC017",
+      "input_text": "Managed cloud infrastructure on Amazon Web Services, automated deployments using Ansible and Puppet, monitored system health with Nagios, and secured networks with firewall configurations",
+      "expected_skills": [
+        "Amazon Web Services",
+        "Ansible",
+        "Puppet",
+        "Firewall Configurations"
+      ]
+    },
+    {
+      "id": "TC018",
+      "input_text": "Designed user interfaces with Adobe Photoshop and Adobe Illustrator, developed frontend applications using React and JavaScript, implemented responsive layouts with CSS, and version controlled with Git",
+      "expected_skills": [
+        "Adobe Photoshop",
+        "Adobe Illustrator",
+        "JavaScript",
+        "CSS",
+        "Git",
+        "React"
+      ]
+    },
+    {
+      "id": "TC019",
+      "input_text": "Analyzed large datasets using Python pandas and NumPy libraries, created interactive visualizations with Tableau, performed statistical modeling in R, and orchestrated data pipelines with Apache Spark",
+      "expected_skills": [
+        "Python",
+        "R",
+        "Tableau",
+        "Apache Spark",
+        "Numpy",
+        "Pandas"
+      ]
+    },
+    {
+      "id": "TC020",
+      "input_text": "Developed native mobile applications for Android using Java and Kotlin, built iOS apps with Swift and Objective C, managed version control with Git, and deployed through app stores",
+      "expected_skills": [
+        "Java",
+        "Android",
+        "Swift",
+        "Objective C",
+        "Git",
+        "Kotlin"
+      ]
+    },
+    {
+      "id": "TC021",
+      "input_text": "Administered Linux servers running Red Hat Enterprise Linux, configured Apache HTTP Server and Nginx web servers, implemented MySQL and PostgreSQL databases, and automated tasks using Bash shell scripting",
+      "expected_skills": [
+        "Linux",
+        "Red Hat Enterprise Linux",
+        "Apache HTTP Server",
+        "MySQL",
+        "PostgreSQL",
+        "Bash",
+        "NGINX",
+        "Shell Scripting"
+      ]
+    },
+    {
+      "id": "TC022",
+      "input_text": "Conducted penetration testing using Kali Linux and Metasploit framework, implemented network security with firewall software, performed vulnerability assessments with Nessus scanner, and analyzed traffic with Wireshark",
+      "expected_skills": [
+        "Kali Linux",
+        "Metasploit framework",
+        "Nessus scanner",
+        "firewall software",
+        "Wireshark",
+        "network security"
+      ]
+    },
+    {
+      "id": "TC023",
+      "input_text": "Managed project schedules using Microsoft Project and Jira, facilitated Agile Scrum ceremonies, coordinated cross-functional team resources, demonstrated excellent time management, and made critical decisions under pressure",
+      "expected_skills": [
+        "Microsoft Project",
+        "JIRA",
+        "Project Management",
+        "Time Management",
+        "Agile Scrum"
+      ]
+    },
+    {
+      "id": "TC024",
+      "input_text": "Built deep learning models with TensorFlow and PyTorch frameworks, processed natural language using Python NLTK, deployed models via Docker containers, and managed experiments with version control",
+      "expected_skills": [
+        "Python",
+        "Docker",
+        "TensorFlow",
+        "PyTorch",
+        "Python NLTK"
+      ]
+    },
+    {
+      "id": "TC025",
+      "input_text": "Designed normalized database schemas, optimized complex SQL queries for Oracle and Microsoft SQL Server, implemented ETL processes with Informatica PowerCenter, and created executive dashboards using Tableau",
+      "expected_skills": [
+        "Database Schemas",
+        "SQL Queries",
+        "Informatica PowerCenter",
+        "Tableau",
+        "Microsoft SQL Server",
+        "Oracle"
+      ]
+    },
+    {
+      "id": "TC026",
+      "input_text": "Executed equipment selection for new manufacturing line, performed installation of robotic systems, conducted troubleshooting and repair of conveyor belts, and monitored operation and control systems daily",
+      "expected_skills": [
+        "Equipment Selection",
+        "Installation",
+        "Troubleshooting",
+        "Repair",
+        "Monitoring"
+      ]
+    },
+    {
+      "id": "TC027",
+      "input_text": "Demonstrated service orientation in customer support role, applied social perceptiveness to understand client needs, used active listening in complaint resolution, and persuaded stakeholders through effective speaking",
+      "expected_skills": [
+        "Service Orientation",
+        "Social Perceptiveness",
+        "Active Listening",
+        "Persuasion",
+        "Effective Speaking"
+      ]
+    },
+    {
+      "id": "TC028",
+      "input_text": "Managed personnel resources across three departments, coordinated training programs, instructed new employees on company procedures, demonstrated time management in scheduling, and used negotiation in labor discussions",
+      "expected_skills": [
+        "Management of Personnel Resources",
+        "Coordination",
+        "Project Management",
+        "Time Management",
+        "Negotiation"
+      ]
+    },
+    {
+      "id": "TC029",
+      "input_text": "Performed systems evaluation of legacy infrastructure, conducted operations analysis to identify bottlenecks, applied mathematics to model performance improvements, and used science-based approaches to optimize throughput",
+      "expected_skills": [
+        "Systems Evaluation",
+        "Operations Analysis",
+        "Throughput Optimization"
+      ]
+    },
+    {
+      "id": "TC030",
+      "input_text": "The Python programming course covered reading comprehension of documentation, writing clean code, and the science behind algorithms. I'm learning active learning techniques to improve my programming skills",
+      "expected_skills": [
+        "Python",
+        "Active Learning"
+      ]
+    }
+  ]
+}
