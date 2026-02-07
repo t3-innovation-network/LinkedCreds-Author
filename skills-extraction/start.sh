@@ -11,7 +11,7 @@ fi
 # Install backend dependencies if needed
 echo "Checking backend dependencies..."
 cd backend
-pip install -q -r requirements.txt
+pip install -q -r ../requirements.txt
 
 # Start Backend in background
 echo "Starting Backend on port 8001..."

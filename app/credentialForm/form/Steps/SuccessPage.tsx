@@ -383,7 +383,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
 
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={3000}
+        autoHideDuration={500}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
@@ -391,7 +391,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
           {snackbar.message}
         </Alert>
       </Snackbar>
-      <LoadingOverlay text='Saving credential. Patience is a virtue...' open={!fileId} />
+      <LoadingOverlay text='Saving your credential. Please wait...' open={!fileId} />
     </Box>
   )
 }

@@ -94,7 +94,7 @@ export default function AskForRecommendation() {
     try {
       await navigator.clipboard.writeText(messageToCopy)
       showNotification('Text copied to clipboard!')
-      setTimeout(() => {}, 1000)
+      setTimeout(() => { }, 1000)
     } catch (err) {
       showNotification('Failed to copy text')
     }
@@ -189,9 +189,9 @@ export default function AskForRecommendation() {
               color: '#FFFFFF',
               fontSize: '14px',
               width: 'fit-content',
-              backgroundColor: '#003FE0',
+              backgroundColor: '#155dfc',
               '&:hover': {
-                backgroundColor: '#003FE0'
+                backgroundColor: '#155dfc'
               }
             }}
             startIcon={<ContentCopyIcon />}

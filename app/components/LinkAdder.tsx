@@ -4,16 +4,13 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   Card,
   CardContent,
   IconButton
 } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
+
 import {
-  addAnotherBoxStyles,
-  addAnotherButtonStyles,
-  addAnotherIconStyles
+  addAnotherBoxStyles
 } from './Styles/appStyles'
 import { handleUrlValidation } from '../utils/urlValidation'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -139,22 +136,7 @@ const LinkAdder: React.FC<LinkAdderProps> = ({
           </Card>
         </React.Fragment>
       ))}
-      {fields.length < maxLinks && fields.length !== 0 && (
-        <Box sx={addAnotherBoxStyles}>
-          <Button
-            type='button'
-            onClick={onAdd}
-            sx={addAnotherButtonStyles(theme)}
-            endIcon={
-              <Box sx={addAnotherIconStyles}>
-                <AddIcon />
-              </Box>
-            }
-          >
-            Add another
-          </Button>
-        </Box>
-      )}
+      {/* "Add another" button removed as per design update */}
     </>
   )
 }

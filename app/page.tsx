@@ -234,7 +234,7 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
           variant='body2'
           sx={{
             fontSize: { xs: '12px', sm: '14px' },
-            mt: 1,
+            mt: 2,
             color: '#4a5565',
             fontFamily: 'Inter, sans-serif',
             lineHeight: 1.5

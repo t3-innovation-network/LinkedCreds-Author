@@ -109,7 +109,7 @@ const Theme = createTheme({
     t3White: '#ffffff',
     t3Black: '#000000',
     t3BodyText: '#202e5b',
-    t3ButtonBlue: '#003fe0',
+    t3ButtonBlue: '#155dfc',
     t3YellowAccent: '#ffcb25',
     t3LightGray: '#e5e7eb',
     t3DarkGray: '#4d4d4d',
@@ -180,10 +180,10 @@ const Theme = createTheme({
             fontWeight: '600',
             lineHeight: '20px',
             fontSize: '16px',
-            backgroundColor: '#003FE0',
+            backgroundColor: '#155dfc',
             color: '#FFFFFF',
             '&:hover': {
-              backgroundColor: '#003FE0'
+              backgroundColor: '#155dfc'
             },
             '&.Mui-disabled': {
               backgroundColor: '#d1d5db',
@@ -200,14 +200,14 @@ const Theme = createTheme({
             fontFamily: 'Roboto',
             fontWeight: '600',
             lineHeight: '20px',
-            backgroundColor: '#003FE0',
+            backgroundColor: '#155dfc',
             color: '#FFFFFF',
             flexGrow: 8,
             fontSize: '14px',
             width: 'fit-content',
             maxWidth: '230px',
             '&:hover': {
-              backgroundColor: '#003FE0'
+              backgroundColor: '#155dfc'
             },
             '&.Mui-disabled': {
               backgroundColor: '#d1d5db', // using t3Disabled color
@@ -224,8 +224,8 @@ const Theme = createTheme({
             fontFamily: 'Roboto',
             fontWeight: '600',
             lineHeight: '20px',
-            border: '1px solid  #003FE0',
-            color: '#003FE0',
+            border: '1px solid  #155dfc',
+            color: '#155dfc',
             '&:hover': {
               backgroundColor: '#eff6ff'
             },

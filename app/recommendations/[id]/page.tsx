@@ -6,7 +6,7 @@ import { useTheme } from '@mui/material/styles'
 import Credential from './viewCredential/Credential'
 import { useStepContext } from '../../credentialForm/form/StepContext'
 import useGoogleDrive from '../../hooks/useGoogleDrive'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import Form from './RecommandationForm/Form'
 import ComprehensiveClaimDetails from '../../view/[id]/ComprehensiveClaimDetails'
 import { getFileViaFirebase } from '../../firebase/storage'
@@ -23,6 +23,14 @@ const CredentialData = () => {
   const params = useParams()
   const idArray = Array.isArray(params?.id) ? params.id[0] : undefined
   const id = typeof params?.id === 'string' ? params.id : idArray
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const stepParam = searchParams.get('step')
+    if (stepParam === '1') {
+      setActiveStep(1)
+    }
+  }, [searchParams, setActiveStep])
 
   const { storage } = useGoogleDrive()
   useEffect(() => {
@@ -113,7 +121,7 @@ const CredentialData = () => {
         {activeStep !== 0 && <Form fullName={fullName} email={email} />}
       </Box>
 
-      {activeStep > 0 && isLargeScreen && (
+      {activeStep > 1 && isLargeScreen && (
         <Box
           sx={{
             flex: '1',
@@ -127,7 +135,7 @@ const CredentialData = () => {
         </Box>
       )}
 
-      {activeStep > 0 && !isLargeScreen && (
+      {activeStep > 1 && !isLargeScreen && (
         <Box
           sx={{
             width: '100%',

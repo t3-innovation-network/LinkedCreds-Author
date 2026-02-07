@@ -131,7 +131,7 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
       setTooltipText('saving your recommendation')
       setTimeout(() => {
         setTooltipText('wait while we link your recommendation to the claim')
-      }, 2000)
+      }, 500)
 
       setSubmittedFullName(data.fullName)
       await saveAndAddComment()
@@ -173,7 +173,7 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
           width: '100%',
           maxWidth: '720px',
           minWidth: '320px',
-          backgroundColor: '#f0f4f8',
+          backgroundColor: '#FFF',
           margin: '0 auto',
           marginBottom: '20px'
         }}

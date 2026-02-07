@@ -42,19 +42,20 @@ export function Step1({ register, errors, handleNext }: Readonly<Step1Props>) {
   return (
     <Box
       sx={{
-        mt: '20px',
+        mt: '10px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '32px'
+        gap: '32px',
+
       }}
     >
       <SVGSProfileName />
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '24px', fontWeight: 400 }}>
+      <Typography sx={{ fontFamily: 'Lato', fontSize: '28px', fontWeight: 500, color: '#000e40' }}>
         Step 1
       </Typography>
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '24px', fontWeight: 400 }}>
-        please confirm your name
+      <Typography sx={{ fontFamily: 'Lato', fontSize: '18px', fontWeight: 500, color: '#000e40' }}>
+        Please confirm your name
       </Typography>
       <StepTrackShape />
       <Box sx={{ width: '100%' }}>

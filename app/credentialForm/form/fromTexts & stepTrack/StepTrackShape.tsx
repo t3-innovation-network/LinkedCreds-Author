@@ -33,13 +33,13 @@ export function StepTrackShape() {
       content = <SVGCompleteStep />
     } else if (step + 1 === activeStep) {
       content = step + 1
-      bgColor = '#002bb3'
+      bgColor = '#155dfc'
       textColor = 'white'
-      borderColor = '#002bb3'
+      borderColor = '#155dfc'
     } else {
       content = step + 1
       bgColor = 'white'
-      borderColor = '#002bb3'
+      borderColor = '#155dfc'
     }
     const handleStepClick = () => {
       if (!accessToken) {
@@ -76,7 +76,7 @@ export function StepTrackShape() {
             cursor: isClickable ? 'pointer' : 'not-allowed',
             transition: 'background-color 0.3s, color 0.3s',
             '&:hover': {
-              backgroundColor: isClickable ? '#002bb3' : bgColor
+              backgroundColor: isClickable ? '#155dfc' : bgColor
             }
           }}
         >

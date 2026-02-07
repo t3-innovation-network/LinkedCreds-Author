@@ -155,7 +155,7 @@ const Step2: React.FC<Step2Props> = ({
           <TextEditor
             value={watch('recommendationText') || ''}
             onChange={handleEditorChange('recommendationText')}
-            placeholder={`I&apos;ve worked with ${displayName} for about two years, managing her at The Coffee Place. She is an excellent worker, prompt, and applies the skills she learned in Barista training on a daily basis. —This is just an example of how the recommendation might begin.`}
+            placeholder={`I've worked with ${displayName} for about two years, managing her at The Coffee Place. She is an excellent worker, prompt, and applies the skills she learned in Barista training on a daily basis. —This is just an example of how the recommendation might begin.`}
           />
           {errors.recommendationText && (
             <Typography color='error'>{errors.recommendationText.message}</Typography>
