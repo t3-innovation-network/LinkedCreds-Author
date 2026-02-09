@@ -381,13 +381,13 @@ const ClaimsPageClient: React.FC = () => {
             }}
           >
             <Avatar
-              sx={{ border: '2px solid #003fe0' }}
+              sx={{ border: '2px solid #155dfc' }}
               alt='Profile Picture'
               src={session?.user?.image}
             />
             <Box>
               <Typography variant='h6'>
-                Hi, <span style={{ color: '#033fe0' }}>{session?.user?.name}</span>
+                Hi, <span style={{ color: '#155dfc' }}>{session?.user?.name}</span>
               </Typography>
               <Typography variant='body2' color='text.secondary'>
                 What would you like to do?
@@ -576,12 +576,12 @@ const ClaimsPageClient: React.FC = () => {
                               backgroundColor: '#f0f6ff',
                               fontSize: '12px',
                               fontWeight: 'medium',
-                              color: '#003fe0'
+                              color: '#155dfc'
                             }}
                           >
                             Ask for a recommendation
                           </Button>
-                          <Divider orientation='vertical' flexItem color='#003fe0' />
+                          <Divider orientation='vertical' flexItem color='#155dfc' />
                           <Button
                             startIcon={<ContentCopyIcon />}
                             onClick={e => handleCopyUrl(claimId, e)}
@@ -592,7 +592,7 @@ const ClaimsPageClient: React.FC = () => {
                               backgroundColor: '#f0f6ff',
                               fontSize: '12px',
                               fontWeight: 'medium',
-                              color: '#003fe0'
+                              color: '#155dfc'
                             }}
                           >
                             Copy URL

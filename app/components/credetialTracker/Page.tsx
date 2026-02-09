@@ -9,13 +9,15 @@ import {
   CardContent,
   Divider
 } from '@mui/material'
+import { CloudUpload, Restore as RestoreIcon } from '@mui/icons-material'
 import { FormData } from '../../credentialForm/form/types/Types'
-import { Logo } from '../../Assets/SVGs'
+import { Logo, SVGSparkles, SVGSparklesBlue } from '../../Assets/SVGs'
 import Image from 'next/image'
 import { commonTypographyStyles, evidenceListStyles } from '../Styles/appStyles'
+import { extractSkillsFromTextApi, SkillMatch } from '../../utils/skillsApi'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
+import { ensureProtocol } from '../../utils/urlValidation'
 
-//TODO keyword is used to add API call for skill extraction later
 
 
 // Set up PDF.js worker
@@ -98,11 +100,13 @@ const HeaderContainer = styled(Paper)(({ theme }) => ({
   alignItems: 'center'
 }))
 
-const MainContentContainer = styled(Box)(({ theme }) => ({
+const MainContentContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'currentStep'
+})<{ currentStep?: number }>(({ theme, currentStep }) => ({
   width: '100%',
   maxWidth: '720px',
   padding: theme.breakpoints.down('sm') ? '24px 8px' : '45px 30px',
-  backgroundColor: '#87abe4',
+  backgroundColor: currentStep === 4 ? '#fff' : '#87abe4',
   borderRadius: '0 0 20px 20px',
   borderTop: '1px solid #d1e4ff',
   borderLeft: '1px solid #d1e4ff',
@@ -114,7 +118,7 @@ const SkillCard = styled(Card)(({ theme }) => ({
   padding: theme.breakpoints.down('sm') ? '10px 8px' : '15px 30px',
   backgroundColor: '#fff',
   borderRadius: '10px',
-  border: '1px solid #003fe0',
+  border: '1px solid #155dfc',
   width: '100%'
 }))
 
@@ -132,7 +136,7 @@ const FieldValue = styled(Typography)(({ theme }) => ({
   fontSize: theme.breakpoints.down('sm') ? '14px' : '16px',
   fontWeight: 400,
   lineHeight: '24px',
-  color: '#6b7280',
+  color: '#000E40',
   letterSpacing: '0.08px',
   wordBreak: 'break-word',
   whiteSpace: 'pre-line',
@@ -140,7 +144,6 @@ const FieldValue = styled(Typography)(({ theme }) => ({
 }))
 
 const MediaContainer = styled(Box)(({ theme }) => ({
-  height: theme.breakpoints.down('sm') ? '120px' : '180px',
   width: '100%',
   display: 'flex',
   justifyContent: 'center',
@@ -149,56 +152,64 @@ const MediaContainer = styled(Box)(({ theme }) => ({
 }))
 
 const Media = styled(Box)<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
-  width: theme.breakpoints.down('sm') ? '100px' : '160.506px',
-  height: theme.breakpoints.down('sm') ? '90px' : '153.129px',
+  width: '100%',
+  maxWidth: theme.breakpoints.down('sm') ? '400px' : '500px',
+  aspectRatio: hasImage ? '4/3' : 'auto',
   position: 'relative',
-  backgroundImage: hasImage ? 'none' : 'url(/images/SkillMedia.svg)',
-  backgroundSize: '100% 100%',
+  backgroundImage: 'none',
+  backgroundSize: 'contain',
+  backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
+  // overflow: 'hidden', // Removing overflow hidden to allow shadow to be visible if needed, but keeping it is cleaner for borderRadius
   overflow: 'hidden',
-  margin: '0 auto'
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '16px',
+  boxShadow: hasImage ? '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
 }))
 
-// SKILL EXTRACTION - TEMPORARY IMPLEMENTATION
-// TODO: Replace with API call
+const EmptySkillsState = styled(Box)(({ theme }) => ({
+  width: '100%',
+  backgroundColor: '#f2f8ff',
+  borderRadius: '12px',
+  padding: '10px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '12px',
+  marginTop: '8px',
+  marginBottom: '8px'
+}))
 
-// Temporary keyword list for demo - will be replaced by API
-const TEMP_SKILL_KEYWORDS = [
-  'Leadership', 'Strategic Planning', 'Process Improvement', 'Quality Assurance',
-  'Documentation', 'Problem Solving', 'Critical Thinking', 'Collaboration',
-  'Communication', 'Teamwork', 'Project Management', 'Software Development',
-  'Research', 'Data Analysis', 'Customer Service', 'Plant Care', 'Diagnosis'
-]
-
-/**
- * Extract skills from text description
- * TODO: Need to add API call for skill extraction
- */
-const extractSkillsFromText = (text: string): string[] => {
-  if (!text) return []
-  const lowerText = text.toLowerCase()
-  return TEMP_SKILL_KEYWORDS.filter(skill => lowerText.includes(skill.toLowerCase()))
-}
 
 // Field component for consistent styling
 interface FieldProps {
   label: string
   value?: string
   isHtml?: boolean
+  placeholder?: string
 }
 
-const Field: React.FC<FieldProps> = ({ label, value, isHtml }) => (
-  <Box sx={{ mb: 2.5 }}>
+const Field: React.FC<FieldProps> = ({ label, value, isHtml, placeholder }) => (
+  <Box sx={{ mb: 1.5 }}>
     <FieldLabel>{label}</FieldLabel>
     {isHtml && value ? (
       <FieldValue>
         <span dangerouslySetInnerHTML={{ __html: value }} />
       </FieldValue>
+    ) : value ? (
+      <FieldValue>{value}</FieldValue>
     ) : (
-      <FieldValue>{value || 'Start typing...'}</FieldValue>
+      <FieldValue sx={{ fontStyle: 'italic', color: '#4e4e4e' }}>
+        {placeholder || '...'}
+      </FieldValue>
     )}
   </Box>
 )
+
+
 
 interface CredentialTrackerProps {
   formData?: FormData
@@ -208,94 +219,110 @@ interface CredentialTrackerProps {
     url: string
     isFeatured?: boolean
   }[]
-  onSkillsChange?: (skills: string[]) => void  // Callback to store skills for backend
-  currentStep?: number  // Current form step (1, 2, 3, or final) - controls visibility of skill editing
+  onSkillsChange?: (skills: SkillMatch[]) => void
+  onRemovedSkillsChange?: (skills: SkillMatch[]) => void
+  currentStep?: number
 }
 
 const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   formData,
   selectedFiles = [],
   onSkillsChange,
-  currentStep = 2  // Default to step 2 for backward compatibility
+  onRemovedSkillsChange,
+  currentStep = 2
 }) => {
   const [pdfThumbnails, setPdfThumbnails] = useState<Record<string, string>>({})
   const [videoThumbnails, setVideoThumbnails] = useState<Record<string, string>>({})
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
-  const [removedSkills, setRemovedSkills] = useState<string[]>([])
-  const [manuallyAddedSkills, setManuallyAddedSkills] = useState<string[]>([])
+  // Initialize with empty array if undefined, assuming parent handles initial population or we sync from detected
+  const [selectedSkills, setSelectedSkills] = useState<SkillMatch[]>(formData?.skills || [])
+  const [removedSkills, setRemovedSkills] = useState<SkillMatch[]>(formData?.removedSkills || [])
+  const [manuallyAddedSkills, setManuallyAddedSkills] = useState<SkillMatch[]>([])
   const [newSkillInput, setNewSkillInput] = useState<string>('')
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0)
+  const [isHoveringMedia, setIsHoveringMedia] = useState<boolean>(false)
+  const [detectedSkills, setDetectedSkills] = useState<SkillMatch[]>([])
+  const [hasFetched, setHasFetched] = useState(false)
 
-  // Generate thumbnails for PDF and video files
-  useEffect(() => {
-    selectedFiles.forEach(async file => {
-      if (isPDF(file.name) && !pdfThumbnails[file.id]) {
-        const thumbnail = await renderPDFThumbnail(file.url)
-        setPdfThumbnails(prev => ({ ...prev, [file.id]: thumbnail }))
-      }
-
-      if (isMP4(file.name) && !videoThumbnails[file.id]) {
-        try {
-          const thumbnail = await generateVideoThumbnail(file.url)
-          setVideoThumbnails(prev => ({ ...prev, [file.id]: thumbnail }))
-        } catch (error) {
-          console.error('Error generating video thumbnail:', error)
-          setVideoThumbnails(prev => ({
-            ...prev,
-            [file.id]: '/fallback-video.png'
-          }))
-        }
-      }
-    })
-  }, [selectedFiles, pdfThumbnails, videoThumbnails])
+  // ... (thumbnail generation code omitted for brevity as it shouldn't be touched by this replace) ...
 
   // Helper for Evidence section
   const shouldDisplayUrl = (url: string): boolean => {
     return !isGoogleDriveImageUrl(url)
   }
-  const handleNavigate = (url: string, target: string = '_blank') => {
-    window.open(url, target)
-  }
-  const hasValidEvidence =
-    (formData?.portfolio &&
-      Array.isArray(formData.portfolio) &&
-      formData.portfolio.some((p: any) => p.name && p.url)) ||
-    (formData?.evidenceLink && shouldDisplayUrl(formData.evidenceLink))
-
-  // Get featured media file
+  // Sync selected skills with detected skills when description changes
   const featuredFile = selectedFiles.find(f => f.isFeatured)
 
-  // Extract skills from description text
-  // TODO: When API is ready, this can become an async effect with loading state
-  const detectedSkills = React.useMemo(() => {
-    const text = (formData?.credentialDescription || '') + ' ' + (formData?.description || '')
-    return extractSkillsFromText(text)
-  }, [formData?.credentialDescription, formData?.description])
+  // Extract skills from description text using API
+  useEffect(() => {
+    const text = formData?.credentialDescription || ''
+
+    // Skip extraction if on Preview step or later to prevent refresh
+    if (currentStep && currentStep >= 4) {
+      return
+    }
+
+    // Immediate pruning: Remove skills that are no longer in the text
+    setDetectedSkills(prev => prev.filter(s =>
+      text.toLowerCase().includes(s.name.toLowerCase())
+    ))
+
+    const timer = setTimeout(() => {
+      const fetchSkills = async () => {
+        if (text.length > 3) {
+          try {
+            const apiSkills: SkillMatch[] = await extractSkillsFromTextApi(text)
+
+            // Additive update: Merge new skills with existing ones
+            setDetectedSkills(prev => {
+              const existingNames = new Set(prev.map(s => s.name.toLowerCase()))
+              const newUnique = apiSkills.filter(s => !existingNames.has(s.name.toLowerCase()))
+              return [...prev, ...newUnique]
+            })
+          } catch (error) {
+            console.error('Failed to extract skills:', error)
+            // Do not clear skills on error, just keep existing valid ones
+          } finally {
+            setHasFetched(true)
+          }
+        } else {
+          setHasFetched(true)
+        }
+      }
+      fetchSkills()
+    }, 200)
+
+    return () => clearTimeout(timer)
+
+  }, [formData?.credentialDescription, currentStep])
 
   // Sync selected skills with detected skills when description changes
   useEffect(() => {
-    // On first load (no skills selected yet), initialize with detected skills
+    // Skip sync if locked (Preview step) or waiting for initial fetch to prevent clearing valid skills
+    if ((currentStep && currentStep >= 4) || (!hasFetched && selectedSkills.length > 0)) {
+      return
+    }
+
     if (selectedSkills.length === 0 && removedSkills.length === 0 && detectedSkills.length > 0) {
       setSelectedSkills(detectedSkills)
       return
     }
 
-    // When description changes, update selected skills:
-    // 1. Remove skills that are no longer detected (unless manually added)
-    // 2. Add newly detected skills (unless they were previously removed)
+    const detectedNames = detectedSkills.map(s => s.name)
+
     setSelectedSkills(prev => {
-      // Keep manually added skills and skills that are still detected
+      // Keep manual skills and skills that are still detected
       const stillValid = prev.filter(skill =>
-        manuallyAddedSkills.includes(skill) || detectedSkills.includes(skill)
+        manuallyAddedSkills.some(m => m.name === skill.name) || detectedNames.includes(skill.name)
       )
 
-      // Add new detected skills that weren't previously removed
+      // Add new detected skills that aren't already selected and haven't been removed
       const newDetected = detectedSkills.filter(skill =>
-        !prev.includes(skill) && !removedSkills.includes(skill)
+        !prev.some(p => p.name === skill.name) && !removedSkills.some(r => r.name === skill.name)
       )
 
       return [...stillValid, ...newDetected]
     })
-  }, [detectedSkills])
+  }, [detectedSkills, hasFetched, currentStep]) // Depend on objects, ref stable
 
   // Notify parent component whenever selected skills change (for backend storage)
   useEffect(() => {
@@ -305,33 +332,77 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   }, [selectedSkills, onSkillsChange])
 
   // Handle removing a skill from selected list
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setSelectedSkills(prev => prev.filter(s => s !== skillToRemove))
+  const handleRemoveSkill = (skillToRemove: SkillMatch) => {
+    setSelectedSkills(prev => prev.filter(s => s.name !== skillToRemove.name))
     // Add to removed skills if it's a detected or manually added skill
-    if (!removedSkills.includes(skillToRemove)) {
-      setRemovedSkills(prev => [...prev, skillToRemove])
+    if (!removedSkills.some(s => s.name === skillToRemove.name)) {
+      setRemovedSkills(prev => {
+        const updated = [...prev, skillToRemove]
+        onRemovedSkillsChange?.(updated)
+        return updated
+      })
     }
   }
 
   // Handle restoring a removed skill
-  const handleRestoreSkill = (skill: string) => {
-    if (!selectedSkills.includes(skill)) {
+  const handleRestoreSkill = (skill: SkillMatch) => {
+    if (!selectedSkills.some(s => s.name === skill.name)) {
       setSelectedSkills(prev => [...prev, skill])
-      setRemovedSkills(prev => prev.filter(s => s !== skill))
+      setRemovedSkills(prev => {
+        const updated = prev.filter(s => s.name !== skill.name)
+        onRemovedSkillsChange?.(updated)
+        return updated
+      })
     }
   }
 
   // Handle adding a manual skill
   const handleAddManualSkill = () => {
-    const trimmedSkill = newSkillInput.trim()
-    if (trimmedSkill && !selectedSkills.includes(trimmedSkill)) {
-      setSelectedSkills(prev => [...prev, trimmedSkill])
-      setManuallyAddedSkills(prev => [...prev, trimmedSkill])
+    const trimmedSkillName = newSkillInput.trim()
+    if (trimmedSkillName && !selectedSkills.some(s => s.name.toLowerCase() === trimmedSkillName.toLowerCase())) {
+      const newSkill: SkillMatch = {
+        name: trimmedSkillName,
+        score: 1.0,
+        soc_codes: [],
+        uuid: crypto.randomUUID(),
+        originalMatch: trimmedSkillName
+      }
+      setSelectedSkills(prev => [...prev, newSkill])
+      setManuallyAddedSkills(prev => [...prev, newSkill])
       setNewSkillInput('')
       // Remove from removed skills if it was there
-      setRemovedSkills(prev => prev.filter(s => s !== trimmedSkill))
+      setRemovedSkills(prev => prev.filter(s => s.name.toLowerCase() !== trimmedSkillName.toLowerCase()))
     }
   }
+
+  // Image gallery navigation handlers
+  const handleNextImage = () => {
+    if (selectedFiles.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % selectedFiles.length)
+    }
+  }
+
+  const handlePrevImage = () => {
+    if (selectedFiles.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + selectedFiles.length) % selectedFiles.length)
+    }
+  }
+
+  // Reset image index when files change
+  useEffect(() => {
+    setCurrentImageIndex(0)
+  }, [selectedFiles.length])
+
+  // Get current display image (use index if multiple files, otherwise use featured or first)
+  const currentDisplayFile = selectedFiles.length > 0
+    ? selectedFiles[currentImageIndex]
+    : null
+
+  const hasValidEvidence = Boolean(
+    (formData?.evidenceLink && formData.evidenceLink.trim() !== '') ||
+    (selectedFiles && selectedFiles.length > 0) ||
+    (formData?.portfolio && formData.portfolio.length > 0)
+  )
 
   return (
     <Box sx={{ p: 0, width: '100%', maxWidth: { xs: '100%', md: '720px' } }}>
@@ -353,123 +424,300 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                 variant='h5'
                 sx={{
                   fontFamily: 'Lato',
-                  fontSize: '32px',
+                  fontSize: '24px',
                   fontWeight: 700,
                   lineHeight: '38px',
-                  color: '#202e5b'
+                  color: '#000E40'
                 }}
               >
-                Here's what you're building
+                {currentStep === 4 ? "Please review your credential before signing!" : "Here's what you're building"}
               </Typography>
-              <Typography
-                sx={{
-                  fontFamily: 'Inter',
-                  fontSize: '16px',
-                  fontWeight: 400,
-                  lineHeight: '24px',
-                  color: '#202e5b',
-                  letterSpacing: '0.08px'
-                }}
-              >
-                {formData?.fullName || 'User'} - just now
-              </Typography>
+
             </Box>
           </Box>
         </HeaderContainer>
 
         {/* Main Content Section */}
-        <MainContentContainer>
-          <Box sx={{ width: '100%', mb: 6 }}>
+        <MainContentContainer currentStep={currentStep}>
+          <Box sx={{ width: '100%', mb: 4 }}>
             <SkillCard>
               <CardContent sx={{ p: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                  <Field label='Skill Name' value={formData?.credentialName} />
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                  <Field label='Name' value={formData?.fullName} />
+                  <Field
+                    label='Skill Name'
+                    value={formData?.credentialName}
+                    placeholder={currentStep === 1 ? '...' : 'Example: Caring For Healthy Plants'}
+                  />
                   <Field
                     label='Skill Description'
                     value={formData?.credentialDescription as string}
                     isHtml={true}
+                    placeholder={
+                      currentStep === 1
+                        ? '...'
+                        : 'Example:\nWatering And Feeding On A Routine Schedule, Diagnosing Plant Sickness, Over/Under Watering, Removing Dead Leaves, And Cultivating Rich Soil.'
+                    }
                   />
+                  {/* Enhanced Media Section with PDF support and Gallery Navigation */}
+                  <MediaContainer
+                    onMouseEnter={() => setIsHoveringMedia(true)}
+                    onMouseLeave={() => setIsHoveringMedia(false)}
+                  >
+                    <Media hasImage={!!currentDisplayFile || !!formData?.evidenceLink}>
+                      {currentDisplayFile ? (
+                        // Handle different file types with proper thumbnails
+                        <>
+                          {isPDF(currentDisplayFile.name) ? (
+                            <Image
+                              src={
+                                pdfThumbnails[currentDisplayFile.id] ??
+                                '/fallback-pdf-thumbnail.svg'
+                              }
+                              alt='PDF Preview'
+                              fill
+                              style={{
+                                borderRadius: '16px',
+                                objectFit: 'cover'
+                              }}
+                            />
+                          ) : isMP4(currentDisplayFile.name) ? (
+                            <Image
+                              src={
+                                videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'
+                              }
+                              alt='Video Thumbnail'
+                              fill
+                              style={{
+                                borderRadius: '16px',
+                                objectFit: 'cover'
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              src={currentDisplayFile.url}
+                              alt='Featured Media'
+                              fill
+                              style={{
+                                borderRadius: '16px',
+                                objectFit: 'cover'
+                              }}
+                            />
+                          )}
 
+                          {/* Navigation Controls - Show only when hovering and multiple images */}
+                          {isHoveringMedia && selectedFiles.length > 1 && (
+                            <>
+                              <Box
+                                onClick={handlePrevImage}
+                                sx={{
+                                  position: 'absolute',
+                                  left: '12px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  width: '40px',
+                                  height: '40px',
+                                  borderRadius: '50%',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  color: '#ffffff',
+                                  fontSize: '24px',
+                                  fontWeight: 'bold',
+                                  transition: 'all 0.2s',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    transform: 'translateY(-50%) scale(1.1)'
+                                  },
+                                  zIndex: 10
+                                }}
+                              >
+                                ‹
+                              </Box>
+                              <Box
+                                onClick={handleNextImage}
+                                sx={{
+                                  position: 'absolute',
+                                  right: '12px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  width: '40px',
+                                  height: '40px',
+                                  borderRadius: '50%',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  color: '#ffffff',
+                                  fontSize: '24px',
+                                  fontWeight: 'bold',
+                                  transition: 'all 0.2s',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    transform: 'translateY(-50%) scale(1.1)'
+                                  },
+                                  zIndex: 10
+                                }}
+                              >
+                                ›
+                              </Box>
+                              <Box
+                                sx={{
+                                  position: 'absolute',
+                                  bottom: '12px',
+                                  left: '50%',
+                                  transform: 'translateX(-50%)',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                  color: '#ffffff',
+                                  padding: '6px 12px',
+                                  borderRadius: '16px',
+                                  fontSize: '14px',
+                                  fontWeight: 500,
+                                  fontFamily: 'Inter',
+                                  zIndex: 10
+                                }}
+                              >
+                                {currentImageIndex + 1} / {selectedFiles.length}
+                              </Box>
+                            </>
+                          )}
+                        </>
+                      ) : formData?.evidenceLink ? (
+                        <Image
+                          src={formData.evidenceLink}
+                          alt='Featured Media'
+                          fill
+                          style={{
+                            borderRadius: '16px',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          src='/images/SkillMedia.svg'
+                          alt='Media placeholder'
+                          width={100}
+                          height={100}
+                          style={{
+                            borderRadius: '10px',
+                            objectFit: 'contain'
+                          }}
+                        />
+                      )}
+                    </Media>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter',
+                        fontSize: '16px',
+                        fontWeight: 500,
+                        lineHeight: '24px',
+                        color: '#000E40',
+                        letterSpacing: '0.08px',
+                        mt: 1
+                      }}
+                    >
+                      {(currentDisplayFile || formData?.evidenceLink) ? 'Media' : 'Media (optional)'}
+                    </Typography>
+                  </MediaContainer>
                   {/* Detected Skills Section */}
-                  <Box sx={{ mb: 2.5 }}>
+                  <Box sx={{ mb: 1.5 }}>
                     {/* Detected Skills Header */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                      <Box
-                        component='span'
-                        sx={{
-                          fontSize: '18px',
-                          color: '#003fe0'
-                        }}
-                      >
-                        ✨
-                      </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      {currentStep < 4 && <SVGSparklesBlue />}
                       <FieldLabel sx={{ mb: 0 }}>
-                        Detected Skills ({selectedSkills.length})
+                        {currentStep >= 4 ? 'Skills' : 'Detected Skills'}
                       </FieldLabel>
                     </Box>
 
                     {/* Selected Skills Display with X buttons */}
                     {selectedSkills && selectedSkills.length > 0 ? (
-                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1.5 }}>
-                        {selectedSkills.map(skill => (
-                          <Box
-                            key={skill}
-                            sx={{
-                              background: '#155dfc',
-                              color: '#ffffff',
-                              px: 2,
-                              py: 0.75,
-                              borderRadius: '20px',
-                              fontSize: '14px',
-                              fontWeight: 500,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 1,
-                              transition: 'all 0.2s',
-                              '&:hover': {
-                                background: '#003fe0'
-                              }
-                            }}
-                          >
-                            {skill}
+                      <Box sx={{
+                        backgroundColor: '#f0f8ff',
+                        borderRadius: '12px',
+                        p: 2,
+                        mb: 2
+                      }}>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                          {selectedSkills.map(skill => (
                             <Box
-                              component='span'
-                              onClick={() => handleRemoveSkill(skill)}
+                              key={skill.name}
                               sx={{
-                                cursor: 'pointer',
-                                fontWeight: 400,
-                                fontSize: '16px',
+                                background: '#155dfc',
+                                color: '#ffffff',
+                                px: 2,
+                                py: 0.75,
+                                borderRadius: '20px',
+                                fontSize: '14px',
+                                fontWeight: 500,
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                ml: 0.5,
+                                gap: 1,
+                                transition: 'all 0.2s',
                                 '&:hover': {
-                                  transform: 'scale(1.2)'
+                                  background: '#155dfc'
                                 }
                               }}
                             >
-                              ×
+                              {skill.name}
+                              {currentStep < 4 && (
+                                <Box
+                                  component='span'
+                                  onClick={() => handleRemoveSkill(skill)}
+                                  sx={{
+                                    cursor: 'pointer',
+                                    fontWeight: 400,
+                                    fontSize: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    ml: 0.5,
+                                    '&:hover': {
+                                      transform: 'scale(1.2)'
+                                    }
+                                  }}
+                                >
+                                  ×
+                                </Box>
+                              )}
                             </Box>
-                          </Box>
-                        ))}
-                      </Box>
-                    ) : null}
+                          ))}
+                        </Box>
 
-                    {/* Only show skill editing controls on step 2 */}
-                    {currentStep === 2 && (
-                      <>
+                        <Typography
+                          sx={{
+                            fontFamily: 'Inter',
+                            fontSize: '12px',
+                            color: '#000E40',
+                            mb: 0
+                          }}
+                        >
+                          {currentStep < 4 && 'Click any skill to remove it'}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <EmptySkillsState>
+                        <SVGSparkles />
                         <Typography
                           sx={{
                             fontFamily: 'Inter',
                             fontSize: '14px',
-                            color: '#6b7280',
-                            mb: 2
+                            fontWeight: 400,
+                            lineHeight: '24px',
+                            color: '#000e40',
+                            textAlign: 'center'
                           }}
                         >
-                          Click any skill to remove it
+                          Skills will appear here as you type
                         </Typography>
+                      </EmptySkillsState>
+                    )}
 
-                        <Divider sx={{ mb: 2 }} />
+                    {/* Only show skill editing controls on step 2 */}
+                    {currentStep === 2 && (
+                      <>
 
                         {/* Add Skill Manually Section */}
                         <Box sx={{ mb: 2 }}>
@@ -478,7 +726,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                               fontFamily: 'Inter',
                               fontSize: '14px',
                               fontWeight: 600,
-                              color: '#6b7280',
+                              color: '#000E40',
                               mb: 1
                             }}
                           >
@@ -522,7 +770,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                                 color: '#ffffff',
                                 transition: 'all 0.2s',
                                 '&:hover': {
-                                  background: '#003fe0'
+                                  background: '#155dfc'
                                 }
                               }}
                             >
@@ -530,260 +778,237 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                             </Box>
                           </Box>
                         </Box>
-
-                        <Divider sx={{ mb: 2 }} />
                       </>
                     )}
 
-                    {/* Issued By Section */}
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        sx={{
-                          fontFamily: 'Inter',
-                          fontSize: '14px',
-                          color: '#6b7280',
-                          mb: 0.5
-                        }}
-                      >
-                        Issued by
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontFamily: 'Inter',
-                          fontSize: '16px',
-                          fontWeight: 600,
-                          color: '#000e40'
-                        }}
-                      >
-                        Self-Issued
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Removed Skills Section */}
-                  {removedSkills.length > 0 && (
-                    <Box
-                      sx={{
-                        background: '#f9fafb',
-                        borderRadius: '12px',
-                        p: 2.5,
-                        mb: 2.5
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          mb: 2
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontFamily: 'Inter',
-                            fontSize: '16px',
-                            fontWeight: 600,
-                            color: '#000e40'
-                          }}
-                        >
-                          Removed Skills
-                        </Typography>
+                    {currentStep < 4 && removedSkills.length > 0 && (
+                      <Box sx={{ mt: 3 }}>
                         <Typography
                           sx={{
                             fontFamily: 'Inter',
                             fontSize: '14px',
-                            color: '#6b7280'
+                            fontWeight: 600,
+                            color: '#000E40',
+                            mb: 1
                           }}
                         >
-                          Click to restore
+                          Removed Skills (click to restore)
                         </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                        {removedSkills.map(skill => (
-                          <Box
-                            key={skill}
-                            onClick={() => handleRestoreSkill(skill)}
-                            sx={{
-                              background: '#ffffff',
-                              border: '1px solid #e5e7eb',
-                              color: '#9ca3af',
-                              px: 2,
-                              py: 0.75,
-                              borderRadius: '20px',
-                              fontSize: '14px',
-                              fontWeight: 400,
-                              textDecoration: 'line-through',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 1,
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              '&:hover': {
-                                background: '#f3f4f6',
-                                color: '#6b7280'
-                              }
-                            }}
-                          >
-                            {skill}
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', background: '#edf1f7ff', borderRadius: '14px', padding: '12px' }}>
+                          {removedSkills.map(skill => (
                             <Box
-                              component='span'
+                              key={skill.name}
+                              onClick={() => handleRestoreSkill(skill)}
                               sx={{
-                                fontSize: '16px',
-                                fontWeight: 400
-                              }}
-                            >
-                              ↻
-                            </Box>
-                          </Box>
-                        ))}
-                      </Box>
-                    </Box>
-                  )}
-                  {/* Enhanced Media Section with PDF support */}
-                  <MediaContainer>
-                    <Media hasImage={!!featuredFile || !!formData?.evidenceLink}>
-                      {featuredFile ? (
-                        // Handle different file types with proper thumbnails
-                        <>
-                          {isPDF(featuredFile.name) ? (
-                            <Image
-                              width={160}
-                              height={153}
-                              style={{
-                                borderRadius: '10px',
-                                objectFit: 'cover'
-                              }}
-                              src={
-                                pdfThumbnails[featuredFile.id] ??
-                                '/fallback-pdf-thumbnail.svg'
-                              }
-                              alt='PDF Preview'
-                            />
-                          ) : isMP4(featuredFile.name) ? (
-                            <Image
-                              width={160}
-                              height={153}
-                              style={{
-                                borderRadius: '10px',
-                                objectFit: 'cover'
-                              }}
-                              src={
-                                videoThumbnails[featuredFile.id] ?? '/fallback-video.png'
-                              }
-                              alt='Video Thumbnail'
-                            />
-                          ) : (
-                            <Image
-                              src={featuredFile.url}
-                              alt='Featured Media'
-                              width={160}
-                              height={153}
-                              style={{
-                                borderRadius: '10px',
-                                objectFit: 'cover'
-                              }}
-                            />
-                          )}
-                        </>
-                      ) : formData?.evidenceLink ? (
-                        <Image
-                          src={formData.evidenceLink}
-                          alt='Featured Media'
-                          width={160}
-                          height={153}
-                          style={{
-                            borderRadius: '10px',
-                            objectFit: 'cover'
-                          }}
-                        />
-                      ) : (
-                        <Image
-                          src='/images/SkillMedia.svg'
-                          alt='Media placeholder'
-                          width={160}
-                          height={153}
-                          style={{
-                            borderRadius: '10px',
-                            objectFit: 'contain'
-                          }}
-                        />
-                      )}
-                    </Media>
-                    <Typography
-                      sx={{
-                        fontFamily: 'Inter',
-                        fontSize: '16px',
-                        fontWeight: 500,
-                        lineHeight: '24px',
-                        color: '#6b7280',
-                        letterSpacing: '0.08px',
-                        mt: 1
-                      }}
-                    >
-                      Media (optional)
-                    </Typography>
-                  </MediaContainer>
-
-                  {/* Evidence Section (matches dataPreview.tsx) */}
-                  {hasValidEvidence && (
-                    <Box sx={commonTypographyStyles}>
-                      <FieldLabel sx={{ display: 'block' }}>
-                        Supporting Documentation:
-                      </FieldLabel>
-                      <ul style={evidenceListStyles}>
-                        {formData.evidenceLink &&
-                          shouldDisplayUrl(formData.evidenceLink) && (
-                            <li
-                              style={{
+                                background: '#fefefeff',
+                                color: '#666666',
+                                px: 2,
+                                py: 0.75,
+                                borderRadius: '20px',
+                                fontSize: '14px',
+                                fontWeight: 500,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
                                 cursor: 'pointer',
-                                width: 'fit-content',
-                                color: '#003fe0',
-                                textDecoration: 'underline'
+                                border: '1px dashed #cccccc',
+                                transition: 'all 0.2s',
+                                textDecoration: 'line-through',
+                                '&:hover': {
+                                  background: '#e0e0e0',
+                                  borderColor: '#999999',
+                                  color: '#333333'
+                                }
                               }}
-                              key={formData.evidenceLink}
-                              onClick={() =>
-                                handleNavigate(formData.evidenceLink, '_blank')
-                              }
                             >
-                              {formData.evidenceLink}
-                            </li>
-                          )}
-                        {Array.isArray(formData.portfolio) &&
-                          formData.portfolio.map(
-                            (porto: { name: string; url: string }) =>
-                              porto.name &&
-                              porto.url && (
-                                <li
-                                  style={{
-                                    cursor: 'pointer',
-                                    width: 'fit-content',
-                                    color: '#003fe0',
-                                    textDecoration: 'underline'
-                                  }}
-                                  key={porto.url}
-                                  onClick={() => handleNavigate(porto.url, '_blank')}
-                                >
-                                  {porto.name || porto.url}
-                                </li>
-                              )
-                          )}
-                      </ul>
-                    </Box>
-                  )}
+                              {skill.name}
+                              <Box
+                                component='span'
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  ml: 0.5,
+                                  textDecoration: 'none'
+                                }}
+                              >
+                                <RestoreIcon sx={{ fontSize: 16 }} />
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
+
 
                   <Field
                     label='Earning Criteria'
                     value={formData?.description as string}
                     isHtml={true}
+                    placeholder={
+                      currentStep === 1
+                        ? '...'
+                        : 'Example:\n• I have been a weekly volunteer at the Beloved NC garden for the past 3 years in addition to caring for my own personal garden.'
+                    }
                   />
-                  <Field label='Duration' value={formData?.credentialDuration} />
+
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter',
+                        fontSize: '16px', // Matched FieldLabel size
+                        fontWeight: 700,
+                        lineHeight: '24px',
+                        color: '#000e40',
+                        letterSpacing: '0.08px',
+
+                      }}
+                    >
+                      Duration
+                    </Typography>
+
+                    {formData?.credentialDuration ? (
+                      <Typography
+                        sx={{
+                          fontFamily: 'Inter',
+                          fontSize: '14px', // Matched FieldValue size
+                          fontWeight: 400,
+                          lineHeight: '24px',
+                          color: '#000E40',
+                          letterSpacing: '0.08px'
+                        }}
+                      >
+                        • {formData.credentialDuration}
+                      </Typography>
+                    ) : (
+                      <Typography
+                        sx={{
+                          fontFamily: 'Inter',
+                          fontSize: '14px',
+                          fontWeight: 400,
+                          lineHeight: '24px',
+                          color: '#4e4e4e',
+                          letterSpacing: '0.08px',
+                          fontStyle: 'italic'
+                        }}
+                      >
+                        {currentStep === 1 ? '...' : '• Example: 3 years'}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Box sx={{}}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter',
+                        fontSize: '14px', // Matched FieldLabel
+                        fontWeight: 700,
+                        color: '#000E40',
+                        letterSpacing: '0.08px', // Matched FieldLabel
+                        lineHeight: '24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      Supporting Documentation
+                    </Typography>
+
+                    {hasValidEvidence ? (
+                      <Box component='ul' sx={{ pl: 2, m: 0 }}>
+                        {formData?.evidenceLink &&
+                          ((formData?.portfolio?.filter((p: any) => p.url === formData.evidenceLink).length) === 0) && (
+                            <Box component='li' sx={{ color: '#155dfc', mb: 1, '::marker': { fontSize: '1.2em' } }}>
+                              <a
+                                href={ensureProtocol(formData.evidenceLink)}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                style={{
+                                  color: '#155dfc',
+                                  fontFamily: 'Inter',
+                                  textDecoration: 'underline',
+                                  fontWeight: 400,
+                                  fontSize: '14px' // Match text size
+                                }}
+                              >
+                                {formData.evidenceLink}
+                              </a>
+                            </Box>
+                          )}
+
+                        {/* Selected Files (Active Uploads) */}
+                        {selectedFiles.map((file) => (
+                          <Box key={file.id || file.url} component='li' sx={{ color: '#155dfc', mb: 1, '::marker': { fontSize: '1.2em' } }}>
+                            <a
+                              href={ensureProtocol(file.url)}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              style={{
+                                color: '#155dfc',
+                                fontFamily: 'Inter',
+                                textDecoration: 'underline',
+                                fontWeight: 400,
+                                fontSize: '14px'
+                              }}
+                            >
+                              {file.name || file.url}
+                            </a>
+                          </Box>
+                        ))}
+
+                        {/* Portfolio Items (only if not already shown via selectedFiles to avoid duplicates) */}
+                        {formData?.portfolio?.map((porto: { name: string; url: string }) => {
+                          const isAlreadyShown = selectedFiles.some(f => f.url === porto.url || (f.name && f.name === porto.name));
+                          if (porto.name && porto.url && !isAlreadyShown) {
+                            return (
+                              <Box component='li' key={porto.url} sx={{ color: '#155dfc', mb: 1, '::marker': { fontSize: '1.2em' } }}>
+                                <a
+                                  href={ensureProtocol(porto.url)}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  style={{
+                                    color: '#155dfc',
+                                    fontFamily: 'Inter',
+                                    textDecoration: 'underline',
+                                    fontWeight: 400,
+                                    fontSize: '14px' // Match text size
+                                  }}
+                                >
+                                  {porto.name || porto.url}
+                                </a>
+                              </Box>
+                            )
+                          }
+                          return null
+                        })}
+                      </Box>
+                    ) : (
+                      <Typography
+                        sx={{
+                          fontFamily: 'Inter',
+                          fontSize: '14px',
+                          fontWeight: 400, // Matched FieldValue
+                          lineHeight: '24px',
+                          color: '#4e4e4e',
+                          fontStyle: 'italic',
+                          letterSpacing: '0.08px'
+                        }}
+                      >
+                        {currentStep === 1
+                          ? '...'
+                          : '• Links to supporting documentation will appear here'}
+                      </Typography>
+                    )}
+                  </Box>
+
                 </Box>
               </CardContent>
-            </SkillCard>
-          </Box>
-        </MainContentContainer>
-      </Box>
-    </Box>
+            </SkillCard >
+          </Box >
+        </MainContentContainer >
+      </Box >
+    </Box >
   )
 }
 

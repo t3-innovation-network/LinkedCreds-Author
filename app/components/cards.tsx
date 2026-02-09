@@ -55,7 +55,7 @@ const Card = ({
         flexDirection: 'column',
         background: '#FFFFFF',
         borderRadius: '10px',
-        border: '1px solid #003FE0',
+        border: '1px solid #155dfc',
         padding: '7.5px',
         position: 'relative',
         filter: 'drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.3))'
@@ -160,7 +160,7 @@ const Card = ({
                 position: 'absolute',
                 bottom: '4px',
                 left: '4px',
-                background: '#003FE0',
+                background: '#155dfc',
                 borderRadius: '4px',
                 padding: '2px 8px',
                 display: 'flex',
@@ -263,7 +263,7 @@ const Card = ({
                 •{' '}
                 <span
                   style={{
-                    color: '#003FE0',
+                    color: '#155dfc',
                     textDecoration: 'underline',
                     cursor: 'pointer'
                   }}

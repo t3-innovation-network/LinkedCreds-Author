@@ -1,5 +1,5 @@
 import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
-import { createDID, signCred } from './signCred'
+import { createDID, signCred } from './credential'
 
 export async function saveRaw(accessToken: string | undefined, data: any) {
   if (!accessToken) {
@@ -34,7 +34,7 @@ export async function signAndSave(accessToken: string | undefined, data: any) {
       },
       type: 'DID'
     })
-    const res = await signCred(accessToken, data, issuerId, keyPair, 'VC')
+    const res = await signCred(accessToken, data, issuerId, keyPair, 'VC', null)
     const file = (await saveToGoogleDrive({ storage, data: res, type: 'VC' })) as any
 
     console.log('saved to google drive:', res)

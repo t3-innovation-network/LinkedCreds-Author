@@ -7,8 +7,8 @@ import { FormControl, Box, Slide, Button, Typography } from '@mui/material'
 import { FormData } from './types/Types'
 import { Step0 } from './Steps/Step0_connectToGoogle'
 import { Buttons } from './buttons/Buttons'
-import DataComponent from './Steps/dataPreview'
-import { createDID, signCred } from '../../utils/signCred'
+// import DataComponent from './Steps/dataPreview' // No longer needed
+import { createDID, signCred } from '../../utils/credential'
 import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
 import { useSession, signIn } from 'next-auth/react'
 import { handleSign } from '../../utils/formUtils'
@@ -21,6 +21,8 @@ import { Step1 } from './Steps/Step1_userName'
 import { Step2 } from './Steps/Step2_descreptionFields'
 import { storeFileTokens } from '../../firebase/storage'
 import CredentialTracker from '../../components/credetialTracker/Page'
+import { StepTrackShape } from './fromTexts & stepTrack/StepTrackShape'
+import { SkillMatch } from '../../utils/skillsApi'
 
 const Form = ({ onStepChange }: any) => {
   const { activeStep, handleNext, handleBack, setActiveStep, loading, handleSkip } =
@@ -36,8 +38,9 @@ const Form = ({ onStepChange }: any) => {
   const [image, setImage] = useState('')
   const [selectedFiles, setSelectedFiles] = useState<any[]>([])
   const [res, setRes] = useState<any>(null)
+  const [activeSkills, setActiveSkills] = useState<SkillMatch[]>([])
+  const [removedSkills, setRemovedSkills] = useState<SkillMatch[]>([])
 
-  const characterLimit = 294
   const { data: session } = useSession()
   const accessToken = session?.accessToken
   const refreshToken = session?.refreshToken
@@ -142,6 +145,17 @@ const Form = ({ onStepChange }: any) => {
       }
     }
   }, [])
+  //TODO Remove later
+  useEffect(() => {
+    if (activeStep === 4) {
+      console.log('Step 4 Form Data:', {
+        ...watch(),
+        skills: activeSkills,
+        removedSkills: removedSkills,
+        selectedFiles: selectedFiles
+      });
+    }
+  }, [activeStep, activeSkills, removedSkills, selectedFiles, watch]);
 
   const costumedHandleNextStep = async () => {
     if (
@@ -199,7 +213,7 @@ const Form = ({ onStepChange }: any) => {
       })
       console.log('🚀 ~ sign ~ saveResponse:', saveResponse)
 
-      const res = await signCred(accessToken, data, issuerId, keyPair, 'VC')
+      const res = await signCred(accessToken, { ...data, skills: activeSkills, removedSkills }, issuerId, keyPair, 'VC', undefined)
       const file = (await saveToGoogleDrive({
         storage,
         data: res,
@@ -216,8 +230,8 @@ const Form = ({ onStepChange }: any) => {
 
         localStorage.removeItem('vcs')
       } catch (error) {
-        console.error('Error storing file tokens:', error)
-        throw error
+        console.warn('Error storing file tokens:', error)
+        //TODO: throw error (warn->error)
       }
 
       const folderIds = await storage?.getFileParents(file.id)
@@ -254,15 +268,15 @@ const Form = ({ onStepChange }: any) => {
   return (
     <Box
       sx={{
-        m: { xs: '24px auto', sm: '40px auto', md: '120px auto' },
+        m: { xs: '24px auto', sm: '40px auto', md: '80px auto' },
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
-        gap: { xs: 3, md: '90px' },
+        gap: { xs: 3, md: '80px' },
         alignItems: { xs: 'stretch', md: 'flex-start' },
         justifyContent: 'center',
         width: '100%',
-        maxWidth: { xs: '100%', md: '1500px' },
-        px: { xs: 1, sm: 2, md: 0 }
+        maxWidth: { xs: '100%', md: activeStep === 4 ? '720px' : '1280px' },
+        px: { xs: 2, sm: 3, md: 4 }
       }}
     >
       <form
@@ -270,12 +284,13 @@ const Form = ({ onStepChange }: any) => {
           display: 'flex',
           flexDirection: 'column',
           gap: '30px',
-          alignItems: 'center',
-          justifyItems: 'center',
+          borderRadius: '14px',
+          alignItems: 'stretch', // Changed from center to prevent clipping
+          // justifyItems: 'center', // Removed
           padding: '20px 8px 20px',
-          overflow: 'auto',
+          overflow: 'visible', // Changed from auto to visible to avoid double scrollbars if parent handles it, or keep auto if needed. 'visible' is safer for layout.
           width: '100%',
-          maxWidth: '720px',
+          flex: 1,
           backgroundColor: '#FFF',
           boxSizing: 'border-box'
         }}
@@ -284,8 +299,7 @@ const Form = ({ onStepChange }: any) => {
         <Box
           sx={{
             width: '100%',
-            minWidth: { md: '400px' },
-            maxWidth: { md: '720px' }
+            minWidth: { md: '400px' }
           }}
         >
           <FormControl sx={{ width: '100%' }}>
@@ -321,6 +335,7 @@ const Form = ({ onStepChange }: any) => {
                     }
                     errors={errors}
                     control={control}
+                    activeSkills={activeSkills.map(s => s.name)}
                   />
                 </Box>
               </Slide>
@@ -345,8 +360,19 @@ const Form = ({ onStepChange }: any) => {
             )}
             {activeStep === 4 && (
               <Slide in={true} direction={direction}>
-                <Box>
-                  <DataComponent formData={watch()} selectedFiles={selectedFiles} />
+                <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <StepTrackShape />
+                  <CredentialTracker
+                    formData={{
+                      ...watch(),
+                      skills: activeSkills,
+                      removedSkills: removedSkills
+                    }}
+                    selectedFiles={selectedFiles}
+                    currentStep={activeStep}
+                    onSkillsChange={setActiveSkills}
+                    onRemovedSkillsChange={setRemovedSkills}
+                  />
                 </Box>
               </Slide>
             )}
@@ -370,44 +396,58 @@ const Form = ({ onStepChange }: any) => {
             )}
           </FormControl>
         </Box>
-        {activeStep !== 5 && (
-          <Buttons
-            activeStep={activeStep}
-            handleNext={activeStep === 0 ? costumedHandleNextStep : () => handleNext()}
-            handleSkip={handleSkip}
-            handleSign={() => handleSign(activeStep, setActiveStep, handleFormSubmit)}
-            handleBack={costumedHandleBackStep}
-            isValid={isValid}
-            handleSaveSession={handleSaveSession}
-            loading={loading}
-          />
-        )}
-        {errorMessage && (
-          <div
-            style={{
-              color: errorMessage.includes('MetaMask') ? 'red' : 'black',
-              textAlign: 'center',
-              marginTop: '20px'
-            }}
-          >
-            {errorMessage}
-          </div>
-        )}
+        {
+          activeStep !== 5 && (
+            <Buttons
+              activeStep={activeStep}
+              handleNext={activeStep === 0 ? costumedHandleNextStep : () => handleNext()}
+              handleSkip={handleSkip}
+              handleSign={() => handleSign(activeStep, setActiveStep, handleFormSubmit)}
+              handleBack={costumedHandleBackStep}
+              isValid={isValid}
+              handleSaveSession={handleSaveSession}
+              loading={loading}
+            />
+          )
+        }
+        {
+          errorMessage && (
+            <div
+              style={{
+                color: errorMessage.includes('MetaMask') ? 'red' : 'black',
+                textAlign: 'center',
+                marginTop: '20px'
+              }}
+            >
+              {errorMessage}
+            </div>
+          )
+        }
         {snackMessage ? <SnackMessage message={snackMessage} /> : ''}
-      </form>
+      </form >
 
-      {activeStep >= 1 && activeStep <= 4 && (
+      {activeStep >= 1 && activeStep <= 3 && (
         <Box
           sx={{
-            width: { xs: '100%', md: '420px' },
+            width: { xs: '100%', md: 'auto' },
+            flex: 1,
             mt: { xs: 4, md: 0 },
             alignSelf: { xs: 'stretch', md: 'auto' }
           }}
         >
-          <CredentialTracker formData={watch()} selectedFiles={selectedFiles} currentStep={activeStep} />
-        </Box>
+          <CredentialTracker
+            formData={{
+              ...watch(),
+              skills: activeSkills,
+              removedSkills: removedSkills
+            }}
+            selectedFiles={selectedFiles}
+            currentStep={activeStep}
+            onSkillsChange={setActiveSkills}
+            onRemovedSkillsChange={setRemovedSkills}
+          />  </Box>
       )}
-    </Box>
+    </Box >
   )
 }
 export default Form

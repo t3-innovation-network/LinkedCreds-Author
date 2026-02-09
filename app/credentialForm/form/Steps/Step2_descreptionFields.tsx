@@ -17,6 +17,7 @@ import {
   customTextFieldStyles,
   UseAIStyles
 } from '../../../components/Styles/appStyles'
+import { HighlightedTextArea } from '../../../components/inputs/HighlightedTextArea'
 import { UseFormRegister, FieldErrors, Controller } from 'react-hook-form'
 import { FormData } from '../types/Types'
 import { StepTrackShape } from '../fromTexts & stepTrack/StepTrackShape'
@@ -28,6 +29,7 @@ interface Step2Props {
   handleTextEditorChange: (value: any) => void
   errors: FieldErrors<FormData>
   control: any
+  activeSkills: string[]
 }
 
 // Example list of skills for auto-search
@@ -38,7 +40,7 @@ const skillsList = [
   'Software Development'
 ]
 
-export function Step2({ register, watch, control, errors }: Readonly<Step2Props>) {
+export function Step2({ register, watch, control, errors, activeSkills }: Readonly<Step2Props>) {
   return (
     <Box
       sx={{ display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center' }}
@@ -84,7 +86,12 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
                   {...params}
                   placeholder='Example: Caring for (cultivating) healthy plants'
                   variant='outlined'
-                  sx={TextFieldStyles}
+                  sx={{
+                    ...TextFieldStyles,
+                    '& .MuiInputBase-input::placeholder': {
+                      fontStyle: 'italic'
+                    }
+                  }}
                   aria-labelledby='name-label'
                   inputProps={{
                     ...params.inputProps,
@@ -104,36 +111,35 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
         <FormLabel sx={formLabelStyles} id='description-label'>
           Skill description (required):{' '}
         </FormLabel>
-        <CustomTextField
-          {...register('credentialDescription', {
-            required: 'Skill description is required'
-          })}
-          sx={customTextFieldStyles}
-          multiline
-          rows={10}
-          variant='outlined'
-          placeholder={
-            'Example:\nWatering and feeding on a routine schedule, diagnosing plant sickness, over/under watering, removing dead leaves, and cultivating rich soil.'
-          }
-          FormHelperTextProps={{
-            className: 'MuiFormHelperText-root'
-          }}
-          inputProps={{ maxLength: 1000 }}
-          error={!!errors.credentialDescription}
-          helperText={
-            errors.credentialDescription?.message
-              ? `${errors.credentialDescription.message}`
-              : `${watch('credentialDescription').length}/1000 characters`
-          }
+        <Controller
+          name="credentialDescription"
+          control={control}
+          rules={{ required: 'Skill description is required' }}
+          render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+            <HighlightedTextArea
+              value={value || ''}
+              onChange={onChange}
+              onBlur={onBlur}
+              placeholder={
+                'Example:\nWatering and feeding on a routine schedule, diagnosing plant sickness, over/under watering, removing dead leaves, and cultivating rich soil.'
+              }
+              sx={{
+                '& textarea::placeholder': {
+                  fontStyle: 'italic'
+                }
+              }}
+              maxLength={1000}
+              error={!!error}
+              helperText={
+                error?.message
+                  ? error.message
+                  : `${(value || '').length}/1000 characters`
+              }
+              keywords={activeSkills}
+            />
+          )}
         />
-        <Box sx={{ display: 'flex', gap: '5px' }}>
-          <SVGSparkles />
-          <Tooltip title='Under development' arrow>
-            <FormLabel sx={UseAIStyles} id='ai-description-label'>
-              Use AI to generate a description.
-            </FormLabel>
-          </Tooltip>
-        </Box>
+
       </Box>
       <Box position='relative' width='100%'>
         <FormLabel sx={formLabelStyles} id='description-label'>
@@ -143,7 +149,12 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
           {...register('description', {
             required: 'Description is required'
           })}
-          sx={customTextFieldStyles}
+          sx={{
+            ...customTextFieldStyles,
+            '& .MuiInputBase-input::placeholder': {
+              fontStyle: 'italic'
+            }
+          }}
           multiline
           rows={10}
           variant='outlined'
@@ -171,7 +182,12 @@ export function Step2({ register, watch, control, errors }: Readonly<Step2Props>
           {...register('credentialDuration')}
           placeholder='Example: 3 years'
           variant='outlined'
-          sx={TextFieldStyles}
+          sx={{
+            ...TextFieldStyles,
+            '& .MuiInputBase-input::placeholder': {
+              fontStyle: 'italic'
+            }
+          }}
           aria-labelledby='duration-label'
           inputProps={{
             'aria-label': 'weight',

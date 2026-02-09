@@ -1,3 +1,5 @@
+import { SkillMatch } from '../../../utils/skillsApi'
+
 // Interfaces for the credential data
 export interface Address {
   addressCountry: string
@@ -60,8 +62,9 @@ export interface FormData {
   explainAnswer: string
   howKnow: string
   qualification: string
-  skills?: string[]  // Array of detected and manually added skills for backend storage
-  [key: string]: string | number | Portfolio[] | string[] | undefined
+  skills?: SkillMatch[]
+  removedSkills?: SkillMatch[]
+  [key: string]: string | number | Portfolio[] | string[] | SkillMatch[] | undefined
 }
 
 // Component Props for the form

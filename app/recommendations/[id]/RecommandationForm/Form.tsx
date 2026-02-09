@@ -14,8 +14,7 @@ import { Buttons } from './buttons/Buttons'
 import useLocalStorage from '../../../hooks/useLocalStorage'
 import { useStepContext } from '../../../credentialForm/form/StepContext'
 import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
-import { createDID } from '../../../utils/signCred'
-import { signCred } from '../../../utils/credential'
+import { createDID, signCred } from '../../../utils/credential'
 import { useSession } from 'next-auth/react'
 import { Logo } from '../../../Assets/SVGs'
 import useGoogleDrive from '../../../hooks/useGoogleDrive'
@@ -131,7 +130,7 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
       setTooltipText('saving your recommendation')
       setTimeout(() => {
         setTooltipText('wait while we link your recommendation to the claim')
-      }, 2000)
+      }, 500)
 
       setSubmittedFullName(data.fullName)
       await saveAndAddComment()
@@ -173,7 +172,7 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
           width: '100%',
           maxWidth: '720px',
           minWidth: '320px',
-          backgroundColor: '#f0f4f8',
+          backgroundColor: '#FFF',
           margin: '0 auto',
           marginBottom: '20px'
         }}

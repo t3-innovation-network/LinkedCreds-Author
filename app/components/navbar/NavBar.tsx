@@ -2,15 +2,17 @@ import { useTheme } from '@mui/material/styles'
 import React from 'react'
 import { Box, Typography, Button } from '@mui/material'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+// import { useRouter } from 'next/navigation'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import HamburgerMenu from '../hamburgerMenu/HamburgerMenu'
 import { Logo } from '../../Assets/SVGs'
-import router from 'next/router'
+// import router from 'next/router'
 
 const NavBar = () => {
   const theme = useTheme()
   const pathname = usePathname()
+  const router = useRouter()
   const { data: session } = useSession()
 
   const isActive = (path: string): boolean => pathname === path
@@ -98,7 +100,7 @@ const NavBar = () => {
                     fontSize: '16px',
                     fontWeight: isActive('/credentialForm') ? '600' : '400',
                     color: isActive('/credentialForm')
-                      ? '#003FE0'
+                      ? '#155dfc'
                       : theme.palette.t3DarkSlateBlue,
                     cursor: 'pointer'
                   }}
@@ -111,7 +113,7 @@ const NavBar = () => {
                       height: '2px',
                       width: '100%',
                       mt: '5px',
-                      backgroundColor: '#003FE0'
+                      backgroundColor: '#155dfc'
                     }}
                   />
                 )}
@@ -126,7 +128,7 @@ const NavBar = () => {
                     fontSize: '16px',
                     fontWeight: isActive('/credentialImportForm') ? '600' : '400',
                     color: isActive('/credentialImportForm')
-                      ? '#003FE0'
+                      ? '#155dfc'
                       : theme.palette.t3DarkSlateBlue,
                     cursor: 'pointer'
                   }}
@@ -139,7 +141,7 @@ const NavBar = () => {
                       height: '2px',
                       width: '100%',
                       mt: '5px',
-                      backgroundColor: '#003FE0'
+                      backgroundColor: '#155dfc'
                     }}
                   />
                 )}

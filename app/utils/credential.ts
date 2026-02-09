@@ -12,16 +12,24 @@ interface FormDataI {
   evidenceLink: string
   evidenceDescription: string
   credentialType: string
+  alignment?: { targetName: string; targetDescription?: string; targetCode?: string; uuid?: string; score?: number }[]
 }
 
 interface RecommendationI {
   recommendationText: string
   qualifications: string
   expirationDate: string
-  fullName: string
+  fullName: string  // Recommender's name
+  recipientName?: string  // Recipient's name (who the recommendation is for)
   howKnow: string
   explainAnswer: string
   portfolio: { googleId?: string; name: string; url: string }[]
+  skillsEndorsed?: Array<{
+    targetName: string
+    soc?: string
+    uuid?: string
+    score?: number
+  }>
 }
 
 function getCredentialEngine(accessToken: string): CredentialEngine {
@@ -55,7 +63,7 @@ export async function createDIDWithMetaMask(
 export const createDID = async (accessToken: string) => {
   const credentialEngine = getCredentialEngine(accessToken)
   const { didDocument, keyPair } = await credentialEngine.createDID()
-
+  console.log('DID:', didDocument)
   return { didDocument, keyPair, issuerId: didDocument.id }
 }
 
@@ -92,6 +100,45 @@ const signCred = async (
         issuerId: issuerDid,
         vcFileId
       })
+
+
+
+
+      // Manually add skillsEndorsed and recipientName since the library doesn't include them
+      // Also ensure correct property order: skillsEndorsed should come after howKnow
+      // Extract current credentialSubject fields
+      const { name, howKnow, recommendationText, qualifications, explainAnswer, portfolio, ...rest } = signedVC.credentialSubject
+
+      // Reconstruct with proper order and additional fields
+      signedVC.credentialSubject = {
+        name,
+        recipientName: (formData as RecommendationI).recipientName,
+        howKnow,
+        ...((formData as RecommendationI).skillsEndorsed && (formData as RecommendationI).skillsEndorsed!.length > 0 ? { skillsEndorsed: (formData as RecommendationI).skillsEndorsed } : {}),
+        recommendationText,
+        qualifications,
+        explainAnswer,
+        portfolio,
+        ...rest
+      }
+
+      // Add recipientName and skillsEndorsed to @context if not already present
+      if (Array.isArray(signedVC['@context'])) {
+        const contextObj = signedVC['@context'].find((item: any) => typeof item === 'object')
+        if (contextObj) {
+          if (!contextObj.recipientName) {
+            contextObj.recipientName = 'https://schema.org/recipient'
+          }
+          if (!contextObj.skillsEndorsed) {
+            contextObj.skillsEndorsed = 'https://schema.org/skillsEndorsed'
+            contextObj.targetName = 'https://schema.org/name'
+            contextObj.soc = 'https://schema.org/identifier'
+            contextObj.uuid = 'https://schema.org/identifier'
+            contextObj.score = 'https://schema.org/value'
+          }
+        }
+      }
+
     } else {
       formData = generateCredentialData(data)
       signedVC = await credentialEngine.signVC({
@@ -100,6 +147,33 @@ const signCred = async (
         keyPair,
         issuerId: issuerDid
       })
+
+      // Post-process to add skills/alignment support
+      if ((formData as FormDataI).alignment && (formData as FormDataI).alignment!.length > 0) {
+        // Add alignment to credentialSubject.achievement[0]
+        if (signedVC.credentialSubject?.achievement && Array.isArray(signedVC.credentialSubject.achievement)) {
+          signedVC.credentialSubject.achievement[0].alignment = (formData as FormDataI).alignment!.map(align => ({
+            type: ['Alignment'],
+            targetName: align.targetName,
+            targetCode: align.targetCode,
+            uuid: align.uuid,
+            score: align.score
+          }))
+        }
+
+        // Add skill-related terms to @context
+        if (Array.isArray(signedVC['@context'])) {
+          const contextObj = signedVC['@context'].find((item: any) => typeof item === 'object')
+          if (contextObj) {
+            if (!contextObj.uuid) {
+              contextObj.uuid = 'https://schema.org/identifier'
+            }
+            if (!contextObj.score) {
+              contextObj.score = 'https://schema.org/value'
+            }
+          }
+        }
+      }
     }
 
     return signedVC
@@ -115,6 +189,14 @@ const signCred = async (
  * @returns FormDataI object
  */
 export const generateCredentialData = (data: FormData): FormDataI => {
+  const alignment = data.skills?.map(skill => ({
+    targetName: skill.name,
+    targetDescription: skill.onetName || skill.originalMatch,
+    targetCode: skill.soc_codes?.[0],
+    uuid: skill.uuid,
+    score: skill.score
+  })) || []
+
   return {
     expirationDate: new Date(
       new Date().setFullYear(new Date().getFullYear() + 1)
@@ -133,7 +215,8 @@ export const generateCredentialData = (data: FormData): FormDataI => {
         : [{ name: '', url: '' }],
     evidenceLink: data?.evidenceLink || '',
     evidenceDescription: data.evidenceDescription || '',
-    credentialType: data.persons || ''
+    credentialType: data.persons || '',
+    alignment: alignment
   }
 }
 
@@ -150,7 +233,14 @@ const generateRecommendationData = (data: any): RecommendationI => {
       new Date().setFullYear(new Date().getFullYear() + 1)
     ).toISOString(),
     fullName: data.fullName,
+    recipientName: data.recipientName,
     howKnow: data.howKnow,
+    skillsEndorsed: data.selectedSkills?.map((skill: any) => ({
+      targetName: skill.targetName,
+      soc: skill.targetCode,
+      uuid: skill.uuid,
+      score: skill.score
+    })) || [],
     explainAnswer: data.explainAnswer,
     portfolio: data.portfolio
   }

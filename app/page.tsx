@@ -2,6 +2,7 @@
 import React from 'react'
 import { Box, Button, Typography, useTheme, useMediaQuery, Theme } from '@mui/material'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import Link from 'next/link'
 import Card from './components/cards'
 interface SectionProps {
@@ -234,7 +235,7 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
           variant='body2'
           sx={{
             fontSize: { xs: '12px', sm: '14px' },
-            mt: 1,
+            mt: 2,
             color: '#4a5565',
             fontFamily: 'Inter, sans-serif',
             lineHeight: 1.5
