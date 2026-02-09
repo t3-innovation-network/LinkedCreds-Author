@@ -9,9 +9,7 @@ import { Step0 } from './Steps/Step0_connectToGoogle'
 import { Buttons } from './buttons/Buttons'
 // import DataComponent from './Steps/dataPreview' // No longer needed
 import { createDID } from '../../utils/credential'
-import { CredentialEngine, saveToGoogleDrive } from '@cooperation/vc-storage'
-import { signSkillClaim } from '../../utils/signSkillClaim'
-import useGoogleDrive from '../../hooks/useGoogleDrive'
+import { GoogleDriveStorage, saveToGoogleDrive, CredentialEngine } from '@cooperation/vc-storage'
 import { useSession, signIn } from 'next-auth/react'
 import { handleSign } from '../../utils/formUtils'
 import { saveSession } from '../../utils/saveSession'
@@ -25,6 +23,8 @@ import { storeFileTokens } from '../../firebase/storage'
 import CredentialTracker from '../../components/credetialTracker/Page'
 import { StepTrackShape } from './fromTexts & stepTrack/StepTrackShape'
 import { SkillMatch } from '../../utils/skillsApi'
+import useGoogleDrive from '../../hooks/useGoogleDrive'
+import { signSkillClaim } from '../../utils/signSkillClaim'
 
 const Form = ({ onStepChange }: any) => {
   const { activeStep, handleNext, handleBack, setActiveStep, loading, handleSkip } =
@@ -226,7 +226,8 @@ const Form = ({ onStepChange }: any) => {
         engine,
         {
           ...data,
-          skills: activeSkills?.length ? activeSkills : undefined
+          skills: activeSkills?.length ? activeSkills : undefined,
+          removedSkills: removedSkills?.length ? removedSkills : undefined
         },
         { keyPair, issuerId, saveToDrive: true }
       )

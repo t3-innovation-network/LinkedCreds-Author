@@ -83,7 +83,6 @@ class LLMExtractionTester:
         
         precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
         recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
-        hallucination_rate = false_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
         f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
         
         return {
@@ -93,7 +92,6 @@ class LLMExtractionTester:
             'true_positives': true_positives,
             'false_positives': false_positives,
             'false_negatives': false_negatives,
-            "hallucination_rate": hallucination_rate,
             'extracted_skills': list(extracted_norm),
             'expected_skills': list(expected_norm),
             'missing_skills': list(expected_norm - extracted_norm),
@@ -134,9 +132,6 @@ class LLMExtractionTester:
             all_skills.update(r)
         
         consistency_score = len(results[0]) / len(all_skills) if all_skills else 0
-
-        if len(all_skills) == 0:
-            consistency_score = 1.0
         
         return {
             'test_id': test_case['id'],
@@ -176,7 +171,7 @@ class LLMExtractionTester:
                 successful_tests += 1
             
             # Print immediate feedback
-            print(f"Precision: {result['precision']:.2%} | Recall: {result['recall']:.2%} | F1: {result['f1']:.2%} | False Positives: {result['false_positives']}")
+            print(f"Precision: {result['precision']:.2%} | Recall: {result['recall']:.2%} | F1: {result['f1']:.2%}")
             print(f"Expected: {result['expected_skills']}")
             print(f"Extracted: {result['extracted_skills']}")
             if result['missing_skills']:
@@ -189,8 +184,6 @@ class LLMExtractionTester:
         if total_cases > 0:
             results['overall']['avg_precision'] = sum(r['precision'] for r in results['per_case']) / total_cases
             results['overall']['avg_recall'] = sum(r['recall'] for r in results['per_case']) / total_cases
-            results['overall']['false_positives'] = sum(r['false_positives'] for r in results['per_case']) / total_cases
-            results['overall']['hallucination_rate'] = sum(r['hallucination_rate'] for r in results['per_case']) / total_cases
             results['overall']['avg_f1'] = sum(r['f1'] for r in results['per_case']) / total_cases
             results['overall']['avg_latency_ms'] = sum(r['latency_ms'] for r in results['per_case']) / total_cases
             results['overall']['total_tests'] = total_cases
@@ -221,19 +214,6 @@ def test_llm_extraction():
     # Create results directory if it doesn't exist
     results_dir = Path(__file__).parent / 'results'
     results_dir.mkdir(exist_ok=True)
-
-    # # Run consistency tests
-    # print("\nRunning consistency tests...")
-    # consistency_results = []
-    # test_cases = tester.load_test_cases(str(test_cases_path))
-    # for tc in test_cases:
-    #     consistency_result = tester.test_consistency(tc, num_runs=3)
-    #     consistency_results.append(consistency_result)
-    #     print(f"Test ID: {tc['id']} | Consistent: {consistency_result['is_consistent']} | Consistency Score: {consistency_result['consistency_score']:.2%} | Unique Variations: {consistency_result['unique_variations']}")
-    
-    # results['consistency'] = consistency_results
-
-    # print(f"Average Consistency Score: {sum(r['consistency_score'] for r in consistency_results) / len(consistency_results):.2%}")
     
     # Save results
     results_file = results_dir / 'llm_extraction_results.json'
@@ -247,7 +227,6 @@ def test_llm_extraction():
     print(f"Total Tests: {results['overall']['total_tests']}")
     print(f"Successful Tests: {results['overall']['successful_tests']}")
     print(f"Average Precision: {results['overall']['avg_precision']:.2%}")
-    print(f"Average Hallucination Rate: {results['overall']['hallucination_rate']:.2%}")
     print(f"Average Recall: {results['overall']['avg_recall']:.2%}")
     print(f"Average F1 Score: {results['overall']['avg_f1']:.2%}")
     print(f"Average Latency: {results['overall']['avg_latency_ms']:.2f}ms")

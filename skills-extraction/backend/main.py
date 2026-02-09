@@ -5,7 +5,7 @@ import json
 import logging
 import time
 import uuid
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any
 
 import numpy as np
 import pandas as pd
@@ -44,7 +44,6 @@ You are an expert Skill Extraction engine.
 Task:
 - Extract ONLY skills (technologies, tools, frameworks, methodologies, soft skills, hard skills) from the given text.
 - A term must be treated as a skill ONLY if it is used in a professional, technical, educational, or workplace context.
-- This skills extraction is not only meant for technical skills and soft skills but also for any other skills that can be used in a professional, technical, educational, or workplace context (It may include white-collar jobs, blue-collar jobs, etc.).
 - Ignore terms that appear in non-skill meanings such as animals, food, geography, common nouns, or everyday conversation.
 - Output list of extracted skills as shown below.
 - Output Format:
@@ -59,10 +58,6 @@ Rules:
 
 class ExtractionRequest(BaseModel):
     text: str
-    top_k: int = 2
-
-class SearchRequest(BaseModel):
-    extracted_skills: List[Union[str, Dict[str, Any]]]
     top_k: int = 2
 
 @app.on_event("startup")
@@ -105,7 +100,7 @@ async def startup_event():
         for name in onet_skills:
             onet_metadata[name]["soc_codes"] = list(onet_metadata[name]["soc_codes"])
             # Use deterministic UUID based on the skill name
-            onet_metadata[name]["uuid"] = uuid.uuid5(uuid.NAMESPACE_DNS, name).urn
+            onet_metadata[name]["uuid"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, name))
 
         logger.info(f"Loaded {len(onet_skills)} O*NET skills.")
 
@@ -181,37 +176,18 @@ def extract_skills_ollama(text: str) -> List[str]:
 async def extract_endpoint(request: ExtractionRequest):
     
     # 1. Extract skills using Ollama
-    extracted_names = extract_skills_ollama(request.text)
-    
-    extracted_skills_with_source = [
-        {
-            "name": name,
-            "source": "ollama"
-        } 
-        for name in extracted_names
-    ]
-    
-    return {
-        "extracted_skills": extracted_skills_with_source
-    }
-
-@app.post("/search")
-async def search_endpoint(request: SearchRequest):
+    extracted_skills = extract_skills_ollama(request.text)
     
     # 2. Map to O*NET skills
-    skills_response = []
-    
-    # Handle the case where the frontend sends a list of string vs list of dicts
-    for skill_item in request.extracted_skills:
-        skill_name = skill_item["name"] if isinstance(skill_item, dict) else skill_item
-        skill_source = skill_item.get("source", "ollama") if isinstance(skill_item, dict) else "ollama"
-        
-        related = retrieve_top_k_skills(onet_index, skill_name, onet_skills, k=request.top_k)
-        
-        alignments = []
+    skill_mapping = {}
+    for skill in extracted_skills:
+        related = retrieve_top_k_skills(onet_index, skill, onet_skills, k=request.top_k)
+        # Format for JSON response
+        formatted_related = []
         skills_added = set()
         for name, score in related:
             meta = onet_metadata.get(name, {})
+            # Limit SOC codes to first 5, join by comma for display if needed, or send as list
             soc_codes_list = meta.get("soc_codes", [])
             uuid_val = meta.get("uuid", "")
             
@@ -219,23 +195,18 @@ async def search_endpoint(request: SearchRequest):
             normalized_name = name.title()
             if normalized_name not in skills_added:
                 skills_added.add(normalized_name)
-                alignments.append({
-                    "type": ["Alignment"],
-                    "targetFramework": "O*NET",
-                    "similarity score": round(float(score), 2),
-                    "targetCode": soc_codes_list[:5],
-                    "targetName": normalized_name,
-                    "id": uuid_val
+                formatted_related.append({
+                    "name": normalized_name, 
+                    "score": score,
+                    "soc_codes": soc_codes_list[:5],
+                    "uuid": uuid_val
                 })
+        skill_mapping[skill] = formatted_related
         
-        skills_response.append({
-            "name": skill_name,
-            "source": skill_source,
-            "alignment": alignments
-        })
-        
+    
     return {
-        "skill": skills_response
+        "extracted_skills": extracted_skills,
+        "mapped_skills": skill_mapping
     }
 
 # Mount backend to /api if needed, or just let specific routes handle it.

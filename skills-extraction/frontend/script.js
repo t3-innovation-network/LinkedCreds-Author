@@ -42,11 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
         abortController = new AbortController();
 
         setLoading(true);
-        const startTime = performance.now();
 
         try {
-            // 1. Extract skills
-            const extractResponse = await fetch(`${API_URL}/extract`, {
+            const response = await fetch(`${API_URL}/extract`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -55,39 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 signal: abortController.signal
             });
 
-            if (!extractResponse.ok) {
-                throw new Error(`Extract Error: ${extractResponse.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
             }
 
-            const extractData = await extractResponse.json();
-            currentSkills = extractData.extracted_skills;
+            const data = await response.json();
+            currentSkills = data.extracted_skills;
 
-            if (!currentSkills || currentSkills.length === 0) {
-                renderResults({
-                    skill: [],
-                    execution_time: (performance.now() - startTime) / 1000
-                });
-                return;
-            }
 
-            // 2. Search skills (map to O*NET)
-            const searchResponse = await fetch(`${API_URL}/search`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ extracted_skills: currentSkills, top_k: 3 }),
-                signal: abortController.signal
-            });
-
-            if (!searchResponse.ok) {
-                throw new Error(`Search Error: ${searchResponse.statusText}`);
-            }
-
-            const searchData = await searchResponse.json();
-            searchData.execution_time = (performance.now() - startTime) / 1000;
-
-            renderResults(searchData);
+            renderResults(data);
 
         } catch (error) {
             if (error.name === 'AbortError') {
@@ -113,32 +87,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderResults(data) {
-        const skills = data.skill || [];
-        const execution_time = data.execution_time;
+        const { extracted_skills, mapped_skills, execution_time } = data;
 
         // Update stats
-        const timeStr = execution_time ? execution_time.toFixed(2) : '0.00';
-        statsDiv.textContent = `Found ${skills.length} skills in ${timeStr}s`;
+        statsDiv.textContent = `Found ${extracted_skills.length} skills in ${execution_time.toFixed(2)}s`;
 
         resultsSection.innerHTML = '';
 
-        if (skills.length === 0) {
+        if (extracted_skills.length === 0) {
             return;
         }
 
-        skills.forEach(skillObj => {
+        extracted_skills.forEach(skill => {
             const card = document.createElement('div');
             card.className = 'skill-card';
 
             const header = document.createElement('div');
             header.className = 'extracted-skill';
-            header.textContent = skillObj.name;
+            header.textContent = skill;
             card.appendChild(header);
 
             const mappedContainer = document.createElement('div');
             mappedContainer.className = 'mapped-skills';
 
-            const related = skillObj.alignment || [];
+            const related = mapped_skills[skill] || [];
             if (related.length > 0) {
                 related.forEach(item => {
                     const row = document.createElement('div');
@@ -152,11 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const name = document.createElement('span');
                     name.className = 'mapped-name';
-                    name.textContent = item.targetName;
+                    name.textContent = item.name;
 
                     const score = document.createElement('span');
                     score.className = 'mapped-score';
-                    score.textContent = `${(item['similarity score'] * 100).toFixed(0)}%`;
+                    score.textContent = `${(item.score * 100).toFixed(0)}%`;
 
                     headerRow.appendChild(name);
                     headerRow.appendChild(score);
@@ -168,15 +140,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     detailsDiv.style.color = '#666';
                     detailsDiv.style.marginTop = '4px';
 
-                    if (item.targetCode && item.targetCode.length > 0) {
+                    if (item.soc_codes && item.soc_codes.length > 0) {
                         const socDiv = document.createElement('div');
-                        socDiv.innerHTML = `<strong>SOC:</strong> ${item.targetCode.join(', ')}`;
+                        socDiv.innerHTML = `<strong>SOC:</strong> ${item.soc_codes.join(', ')}`;
                         detailsDiv.appendChild(socDiv);
                     }
 
-                    if (item.id) {
+                    if (item.uuid) {
                         const uuidDiv = document.createElement('div');
-                        uuidDiv.innerHTML = `<strong>UUID:</strong> <span style="font-family: monospace;">${item.id}</span>`;
+                        uuidDiv.innerHTML = `<strong>UUID:</strong> <span style="font-family: monospace;">${item.uuid}</span>`;
                         detailsDiv.appendChild(uuidDiv);
                     }
 

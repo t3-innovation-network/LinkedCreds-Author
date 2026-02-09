@@ -151,9 +151,7 @@ const MediaContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column'
 }))
 
-const Media = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'hasImage'
-})<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
+const Media = styled(Box)<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
   width: '100%',
   maxWidth: theme.breakpoints.down('sm') ? '400px' : '500px',
   aspectRatio: hasImage ? '4/3' : 'auto',
@@ -291,7 +289,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
         }
       }
       fetchSkills()
-    }, 500)
+    }, 200)
 
     return () => clearTimeout(timer)
 
