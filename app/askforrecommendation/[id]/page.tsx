@@ -94,7 +94,7 @@ export default function AskForRecommendation() {
     try {
       await navigator.clipboard.writeText(messageToCopy)
       showNotification('Text copied to clipboard!')
-      setTimeout(() => { }, 1000)
+      setTimeout(() => {}, 1000)
     } catch (err) {
       showNotification('Failed to copy text')
     }
