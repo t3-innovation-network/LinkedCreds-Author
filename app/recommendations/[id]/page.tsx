@@ -10,6 +10,7 @@ import { useParams, useSearchParams } from 'next/navigation'
 import Form from './RecommandationForm/Form'
 import ComprehensiveClaimDetails from '../../view/[id]/ComprehensiveClaimDetails'
 import { getFileViaFirebase } from '../../firebase/storage'
+import { SelectedSkill } from '../../credentialForm/form/types/Types'
 
 const CredentialData = () => {
   const { activeStep, setActiveStep } = useStepContext()
@@ -17,8 +18,10 @@ const CredentialData = () => {
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('sm'))
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
+  const [skills, setSkills] = useState<SelectedSkill[]>([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isSigned, setIsSigned] = useState(false)
   const { getContent, fetchFileMetadata, ownerEmail } = useGoogleDrive()
   const params = useParams()
   const idArray = Array.isArray(params?.id) ? params.id[0] : undefined
@@ -29,6 +32,10 @@ const CredentialData = () => {
     const stepParam = searchParams.get('step')
     if (stepParam === '1') {
       setActiveStep(1)
+    } else if (!stepParam) {
+      // If no step param, start fresh unless specific logic dictates otherwise
+      // This prevents 'Success Page' from persisting
+      setActiveStep(0)
     }
   }, [searchParams, setActiveStep])
 
@@ -53,12 +60,36 @@ const CredentialData = () => {
           setFullName('the credential holder')
         }
 
-        await fetchFileMetadata(id)
-        if (ownerEmail) {
+        const metadataResult = await fetchFileMetadata(id)
+        if (metadataResult && !metadataResult.success) {
+          console.warn('Could not fetch file metadata:', metadataResult.error)
+          // Don't fail completely, just use default email
+          setEmail('user@example.com')
+        } else if (ownerEmail) {
           setEmail(ownerEmail)
         } else {
           setEmail('user@example.com')
         }
+
+        const achievement = credentialSubject?.achievement?.[0]
+        const alignedSkills = achievement?.alignment?.map((align: any, index: number) => ({
+          targetName: align.targetName,
+          targetCode: align.targetCode || align.soc || align.targetDescription || '',
+          uuid: align.uuid || `temp-${index}-${Date.now()}`,
+          score: align.score || 1.0
+        })) || []
+
+        console.log('Extracted Skills with UUIDs:', alignedSkills)
+        setSkills([...alignedSkills])
+
+
+        if (
+          (vcData?.proof || (vcData?.issuanceDate && vcData?.issuer)) &&
+          vcData?.credentialSubject?.recommendationText
+        ) {
+          setIsSigned(true)
+        }
+
       } catch (error) {
         console.error('Error fetching data:', error)
         setErrorMessage('Failed to fetch data')
@@ -95,6 +126,24 @@ const CredentialData = () => {
     )
   }
 
+  if (isSigned) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          mt: 5,
+          px: 2
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: '720px' }}>
+          <ComprehensiveClaimDetails fileID={id} />
+        </Box>
+      </Box>
+    )
+  }
+
   return (
     <Box
       sx={{
@@ -102,40 +151,41 @@ const CredentialData = () => {
         flexDirection: isLargeScreen ? 'row' : 'column',
         justifyContent: 'center',
         overflow: 'auto',
-        mt: '20px',
+        mx: 10,
+        mt: 5,
         alignItems: 'flex-start',
-        gap: '20px',
+        gap: '30px',
         px: '20px'
       }}
     >
       <Box
         sx={{
-          flex: isLargeScreen ? '1' : 'none',
-          width: '100%',
-          maxWidth: isLargeScreen ? '720px' : '100%'
+          flex: isLargeScreen ? '1 1 0' : 'none',
+          width: isLargeScreen ? '0' : '100%',
+          maxWidth: isLargeScreen ? '720px' : '100%',
+          mt: '20px'
         }}
       >
         {activeStep === 0 && (
           <Credential setactivStep={setActiveStep} fullName={fullName} email={email} />
         )}
-        {activeStep !== 0 && <Form fullName={fullName} email={email} />}
+        {activeStep !== 0 && <Form fullName={fullName} email={email} skills={skills} />}
       </Box>
 
-      {activeStep > 1 && isLargeScreen && (
+      {activeStep > 1 && activeStep < 3 && isLargeScreen && (
         <Box
           sx={{
-            flex: '1',
-            width: '100%',
-            maxWidth: '600px',
+            flex: '1 1 0',
+            width: '0',
+            maxWidth: '720px',
             position: 'sticky',
-            top: { md: '117.97px', xs: '30px' }
           }}
         >
           <ComprehensiveClaimDetails fileID={id} />
         </Box>
       )}
 
-      {activeStep > 1 && !isLargeScreen && (
+      {activeStep > 1 && activeStep < 3 && !isLargeScreen && (
         <Box
           sx={{
             width: '100%',

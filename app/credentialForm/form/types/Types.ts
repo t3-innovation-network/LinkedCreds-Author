@@ -49,6 +49,13 @@ interface Portfolio {
 }
 
 // Interfaces for the form fields
+export interface SelectedSkill {
+  targetName: string
+  targetCode: string
+  uuid: string
+  score: number
+}
+
 export interface FormData {
   storageOption: string
   fullName: string
@@ -64,7 +71,8 @@ export interface FormData {
   qualification: string
   skills?: SkillMatch[]
   removedSkills?: SkillMatch[]
-  [key: string]: string | number | Portfolio[] | string[] | SkillMatch[] | undefined
+  selectedSkills?: SelectedSkill[]
+  [key: string]: string | number | Portfolio[] | string[] | SkillMatch[] | SelectedSkill[] | undefined
 }
 
 // Component Props for the form

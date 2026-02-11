@@ -18,6 +18,8 @@ import {
   Paper,
   Card,
   CardContent,
+  Avatar,
+  Chip,
   styled
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
@@ -35,6 +37,7 @@ import { getAccessToken, getFileViaFirebase } from '../../firebase/storage'
 import QRCode from 'qrcode'
 import GenericCredentialViewer from './GenericCredentialViewer'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
+import { verifyCredential } from '../../utils/verification'
 import { ensureProtocol } from '../../utils/urlValidation'
 
 // Set up PDF.js worker
@@ -65,12 +68,13 @@ interface CredentialSubject {
   recommendationText?: string
   qualifications?: string
   explainAnswer?: string
-  skills?: string[]
+  skillsEndorsed?: string[]
   removedSkills?: string[]
 }
 interface ClaimDetail {
   '@context': string[]
   id: string
+  uniqueId?: string
   type: string[]
   issuanceDate: string
   expirationDate: string
@@ -223,7 +227,9 @@ const MediaContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column'
 }))
 
-const Media = styled(Box)<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
+const Media = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'hasImage'
+})<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
   width: '100%',
   maxWidth: theme.breakpoints.down('sm') ? '400px' : '500px',
   aspectRatio: hasImage ? '4/3' : 'auto',
@@ -263,6 +269,12 @@ const Field: React.FC<FieldProps> = ({ label, value, isHtml, placeholder }) => (
       </FieldValue>
     )}
   </Box>
+)
+
+const GreenCheckMark = () => (
+  <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 3.625L4.5 9.125L2 6.625" stroke="#12B76A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
 )
 
 const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
@@ -509,7 +521,12 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                 try {
                   const recFile = await getFileViaFirebase(recId)
                   const body = recFile?.body ?? null
-                  return body ? JSON.parse(body) : null
+                  if (body) {
+                    const parsed = JSON.parse(body)
+                    parsed.uniqueId = recId
+                    return parsed
+                  }
+                  return null
                 } catch (e) {
                   console.warn('Failed to load recommendation file:', recId, e)
                   return null
@@ -589,155 +606,221 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
           <CircularProgress size={24} />
         </Box>
       ) : comments && comments.length > 0 ? (
-        <List sx={{ p: 0, mb: 2 }}>
-          {comments.map((comment: ClaimDetail, index: number) => (
-            <React.Fragment key={index}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Typography variant='h6' sx={{ mb: 2, color: '#000E40', fontFamily: 'Lato', fontWeight: 700 }}>
+            Recommendations ({comments.length})
+          </Typography>
+          {comments.map((comment: ClaimDetail, index: number) => {
+            const uniqueKey = comment.uniqueId || comment.id || index.toString()
+            const isExpanded = expandedComments[uniqueKey]
+
+            return (
               <Box
+                key={uniqueKey}
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-end',
-                  pr: '30px'
+                  border: '1px solid #EAECF0',
+                  borderRadius: '12px',
+                  bgcolor: '#FFFFFF',
+                  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
+                  overflow: 'hidden',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    borderColor: '#003FE0',
+                    boxShadow: '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)'
+                  }
                 }}
               >
-                <LineSVG />
-              </Box>
-              <ListItem
-                sx={{ borderRadius: '10px', border: '1px solid #003FE0' }}
-                alignItems='flex-start'
-                secondaryAction={
+                <Box
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => handleToggleComment(uniqueKey)}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: '#E0F2FE',
+                        color: '#003FE0',
+                        width: 40,
+                        height: 40,
+                        fontSize: '14px',
+                        fontWeight: 600
+                      }}
+                    >
+                      {comment.credentialSubject?.name   //Avatar of the recommender
+                        ? comment.credentialSubject.name
+                          .split(' ')
+                          .map((n: string) => n[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()
+                        : 'U'}
+                    </Avatar>
+                    <Box>
+                      <Typography variant='subtitle1' sx={{ fontWeight: 600, color: '#101828', fontSize: '14px', lineHeight: '20px' }}>
+                        {comment.credentialSubject?.name || 'Unknown User'}
+                      </Typography>
+                      <Typography variant='body2' sx={{ color: '#667085', fontSize: '14px', lineHeight: '20px' }}>
+                        <span dangerouslySetInnerHTML={{ __html: cleanHTML(comment.credentialSubject?.howKnow || '') }} />
+                      </Typography>
+                    </Box>
+                  </Box>
                   <IconButton
-                    edge='end'
-                    onClick={() => handleToggleComment(comment.id || index.toString())}
-                    aria-label='expand'
+                    size="small"
+                    sx={{ color: '#98A2B3' }}
                   >
-                    {expandedComments[comment.id || index.toString()] ? (
-                      <ExpandLess />
-                    ) : (
-                      <ExpandMore />
-                    )}
+                    {isExpanded ? <ExpandLess /> : <ExpandMore />}
                   </IconButton>
-                }
-              >
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <SVGBadge />
-                      <Box>
-                        <Typography variant='h6' component='div'>
-                          {comment.credentialSubject?.name}
+                </Box>
+
+                <Collapse in={isExpanded} timeout='auto' unmountOnExit>
+                  <Divider />
+                  <Box sx={{ p: 2 }}>
+
+                    {/* Skills Endorsed */}
+                    {comment.credentialSubject?.skillsEndorsed && comment.credentialSubject.skillsEndorsed.length > 0 && (
+                      <Box sx={{ mt: 2, mb: 2 }}>
+                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                          Skills Endorsed:
                         </Typography>
-                        <Typography variant='body2' color='text.secondary'>
-                          Vouched for {credentialSubject?.name}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  }
-                />
-              </ListItem>
-              <Collapse
-                in={expandedComments[comment.id || index.toString()]}
-                timeout='auto'
-                unmountOnExit
-              >
-                <Box sx={{ pl: 7, pr: 2, pb: 2 }}>
-                  {/* How They Know Each Other */}
-                  {comment.credentialSubject?.howKnow && (
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant='subtitle2' color='text.secondary'>
-                        How They Know Each Other:
-                      </Typography>
-                      <Typography variant='body2'>
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: cleanHTML(comment.credentialSubject.howKnow)
-                          }}
-                        />
-                      </Typography>
-                    </Box>
-                  )}
-                  {/* Recommendation Text */}
-                  {comment.credentialSubject?.recommendationText && (
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant='subtitle2' color='text.secondary'>
-                        Recommendation:
-                      </Typography>
-                      <Typography variant='body2'>
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: cleanHTML(
-                              comment.credentialSubject.recommendationText
-                            )
-                          }}
-                        />
-                      </Typography>
-                    </Box>
-                  )}
-                  {/* Your Qualifications */}
-                  {comment.credentialSubject?.qualifications && (
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant='subtitle2' color='text.secondary'>
-                        Your Qualifications:
-                      </Typography>
-                      <Typography variant='body2'>
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: cleanHTML(comment.credentialSubject.qualifications)
-                          }}
-                        />
-                      </Typography>
-                    </Box>
-                  )}
-                  {/* Explain Your Answer */}
-                  {comment.credentialSubject?.explainAnswer && (
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant='subtitle2' color='text.secondary'>
-                        Explain Your Answer:
-                      </Typography>
-                      <Typography variant='body2'>
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: cleanHTML(comment.credentialSubject.explainAnswer)
-                          }}
-                        />
-                      </Typography>
-                    </Box>
-                  )}
-                  {/* Supporting Evidence */}
-                  {Array.isArray(comment.credentialSubject?.portfolio) &&
-                    comment.credentialSubject.portfolio.length > 0 && (
-                      <Box sx={{ mt: 1 }}>
-                        <Typography variant='subtitle2' color='text.secondary'>
-                          Supporting Evidence:
-                        </Typography>
-                        {comment.credentialSubject.portfolio.map((item, idx) => (
-                          <Box key={`comment-portfolio-${idx}`} sx={{ mt: 1 }}>
-                            {item.name && item.url ? (
-                              <MuiLink
-                                href={ensureProtocol(item.url)}
-                                underline='hover'
-                                color='primary'
-                                sx={{
-                                  fontSize: '15px',
-                                  textDecoration: 'underline',
-                                  color: '#003fe0'
-                                }}
-                                target='_blank'
-                              >
-                                {item.name}
-                              </MuiLink>
-                            ) : null}
-                          </Box>
-                        ))}
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                          {comment.credentialSubject.skillsEndorsed.map((skill: any, skillIndex: number) => (
+                            <Chip
+                              key={skill.uuid || `skill-${skillIndex}`}
+                              label={skill.targetName}
+                              size="small"
+                              sx={{
+                                backgroundColor: '#EFF8FF',
+                                color: '#175CD3',
+                                borderRadius: '16px',
+                                border: '1px solid #B2DDFF',
+                                fontWeight: 500,
+                                fontSize: '12px'
+                              }}
+                            />
+                          ))}
+                        </Box>
                       </Box>
                     )}
-                </Box>
-              </Collapse>
-              {/* Add Divider between comments */}
-              {index < comments.length - 1 && <Divider component='li' />}
-            </React.Fragment>
-          ))}
-        </List>
+
+                    {/* Recommendation Text */}
+                    {comment.credentialSubject?.recommendationText && (
+                      <Box sx={{}}>
+                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                          Recommendation:
+                        </Typography>
+                        <Typography variant='body2' sx={{ color: '#475467', marginLeft: '10px' }}>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: cleanHTML(
+                                comment.credentialSubject.recommendationText
+                              )
+                            }}
+                          />
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {/* Your Qualifications */}
+                    {comment.credentialSubject?.qualifications && (
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                          Qualifications:
+                        </Typography>
+                        <Typography variant='body2' sx={{ color: '#475467' }}>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: cleanHTML(comment.credentialSubject.qualifications)
+                            }}
+                          />
+                        </Typography>
+                      </Box>
+                    )}
+                    {/* Explain Your Answer */}
+                    {comment.credentialSubject?.explainAnswer && (
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                          Additional Context:
+                        </Typography>
+                        <Typography variant='body2' sx={{ color: '#475467' }}>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: cleanHTML(comment.credentialSubject.explainAnswer)
+                            }}
+                          />
+                        </Typography>
+                      </Box>
+                    )}
+                    {/* Supporting Evidence */}
+                    {Array.isArray(comment.credentialSubject?.portfolio) &&
+                      comment.credentialSubject.portfolio.length > 0 && (
+                        <Box sx={{ mt: 2 }}>
+                          <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                            Supporting Evidence:
+                          </Typography>
+                          {comment.credentialSubject.portfolio.map((item, idx) => (
+                            <Box key={`comment-portfolio-${idx}`} sx={{ mt: 0.5 }}>
+                              {item.name && item.url ? (
+                                <MuiLink
+                                  href={ensureProtocol(item.url)}
+                                  underline='hover'
+                                  color='primary'
+                                  sx={{
+                                    fontSize: '14px',
+                                    textDecoration: 'none',
+                                    color: '#003fe0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5
+                                  }}
+                                  target='_blank'
+                                >
+                                  • {item.name}
+                                </MuiLink>
+                              ) : null}
+                            </Box>
+                          ))}
+                        </Box>
+                      )}
+                  </Box>
+
+                  {/* Credential Status Digital Signature */}
+                  {(() => {
+                    const verificationResult = verifyCredential(comment)
+                    if (verificationResult.ok) {
+                      return (
+                        <Box
+                          sx={{
+                            mx: 3,
+                            mb: 2,
+                            p: 2,
+                            bgcolor: '#F6FEF9',
+                            border: '1px solid #D1FADF',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1.5
+                          }}
+                        >
+                          <GreenCheckMark />
+                          <Typography sx={{ color: '#000E40', fontSize: '14px', fontWeight: 500 }}>
+                            Has a valid digital signature
+                          </Typography>
+                        </Box>
+                      )
+                    }
+                    return null
+                  })()}
+
+                </Collapse>
+              </Box>
+            )
+          })}
+        </Box>
       ) : (
         !isRecommendationsPage && (
           <Box
@@ -857,7 +940,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
             <Box sx={{ width: '100%', mb: 4 }}>
               <SkillCard>
                 <CardContent sx={{ p: 2 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <Field label='Name' value={credentialSubject?.name} />
                     <Field
                       label='Skill Name'
@@ -979,23 +1062,21 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     )}
 
                     {/* Skills Section */}
-                    {(achievement?.alignment && achievement.alignment.length > 0) || (credentialSubject?.skills && credentialSubject.skills.length > 0) ? (
-                      <Box sx={{ mb: 1.5 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <SVGSparklesBlue />
+                    {(achievement?.alignment && achievement.alignment.length > 0) || (credentialSubject?.skillsEndorsed && credentialSubject.skillsEndorsed.length > 0) ? (
+                      <Box sx={{}}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, }}>
                           <FieldLabel sx={{ mb: 0 }}>
                             Skills
                           </FieldLabel>
                         </Box>
 
                         <Box sx={{
-                          backgroundColor: '#f0f8ff',
                           borderRadius: '12px',
                           p: 2,
                         }}>
                           {/* Claimed Skills from Alignment (New) */}
                           {achievement?.alignment && achievement.alignment.length > 0 && (
-                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: credentialSubject?.skills?.length ? 2 : 0 }}>
+                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: credentialSubject?.skillsEndorsed?.length ? 2 : 0 }}>
                               {achievement.alignment.map((align, idx) => (
                                 <Box
                                   key={`aligned-${idx}`}
@@ -1020,9 +1101,9 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                           )}
 
                           {/* Legacy Claimed Skills (Fallback) */}
-                          {(!achievement?.alignment || achievement.alignment.length === 0) && credentialSubject?.skills && credentialSubject.skills.length > 0 && (
+                          {(!achievement?.alignment || achievement.alignment.length === 0) && credentialSubject?.skillsEndorsed && credentialSubject.skillsEndorsed.length > 0 && (
                             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                              {credentialSubject.skills.map((skill, idx) => (
+                              {credentialSubject.skillsEndorsed.map((skill, idx) => (
                                 <Box
                                   key={`claimed-${idx}`}
                                   sx={{
@@ -1111,44 +1192,6 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                         </ul>
                       </Box>
                     )}
-                    {(pathname?.includes('/view') || !!propFileID) &&
-                      claimDetail &&
-                      !isRecommendationsPage && (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px',
-                            mt: '20px'
-                          }}
-                        >
-                          <Typography
-                            sx={{ fontSize: '13px', fontWeight: 700, color: '#000E40' }}
-                          >
-                            Credential Details
-                          </Typography>
-                          <Box
-                            sx={{ display: 'flex', gap: '5px', mt: '10px', alignItems: 'center' }}
-                          >
-                            <Box sx={{ borderRadius: '4px', bgcolor: '#C2F1BE', p: '4px' }}>
-                              <CheckMarkSVG />
-                            </Box>
-                            <Typography>Has a valid digital signature</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                            <Box sx={{ borderRadius: '4px', bgcolor: '#C2F1BE', p: '4px' }}>
-                              <CheckMarkSVG />
-                            </Box>
-                            <Typography>Has not expired</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                            <Box sx={{ borderRadius: '4px', bgcolor: '#C2F1BE', p: '4px' }}>
-                              <CheckMarkSVG />
-                            </Box>
-                            <Typography>Has not been revoked by issuer</Typography>
-                          </Box>
-                        </Box>
-                      )}
 
                   </Box>
                 </CardContent>
@@ -1161,10 +1204,44 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
               claimDetail &&
               !isExternalCredential() && (
                 <Box sx={{ mt: 4 }}>
-                  <Typography variant='h6' sx={{ mb: 2, color: '#000E40', fontFamily: 'Lato', fontWeight: 700 }}>
-                    Recommendations
-                  </Typography>
                   {recommendations}
+                  {/* Credential Verification Section */}
+                  <Box
+                    sx={{
+                      m: 4,
+                      p: 3,
+                      bgcolor: '#F6FEF9',
+                      border: '1px solid #D1FADF',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '16px', fontWeight: 700, color: '#000E40', mb: 2 }}>
+                      Credential Verification
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                        <GreenCheckMark />
+                        <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has a valid digital signature</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                        <GreenCheckMark />
+                        <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has not expired</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                        <GreenCheckMark />
+                        <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has not been revoked by issuer</Typography>
+                      </Box>
+                    </Box>
+
+                    <Divider sx={{ my: 2, borderColor: '#D1FADF' }} />
+
+                    {claimDetail?.issuanceDate && (
+                      <Typography sx={{ fontSize: '14px', color: '#667085' }}>
+                        Issued: {new Date(claimDetail.issuanceDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
               )
             }
