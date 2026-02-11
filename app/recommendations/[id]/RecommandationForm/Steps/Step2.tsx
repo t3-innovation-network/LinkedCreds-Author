@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Autocomplete, Box, FormLabel, TextField, Typography } from '@mui/material'
+import { Autocomplete, Box, FormLabel, TextField, Typography, Chip } from '@mui/material'
 import {
   UseFormRegister,
   FieldErrors,
@@ -9,13 +9,13 @@ import {
   Controller
 } from 'react-hook-form'
 import TextEditor from '../TextEditor/Texteditor'
-import { FormData } from '../../../../credentialForm/form/types/Types'
 import {
   formLabelStyles,
   inputPropsStyles,
   TextFieldStyles
 } from '../../../../components/Styles/appStyles'
 import Step3 from './Step3'
+import { SelectedSkill, FormData } from '../../../../credentialForm/form/types/Types'
 
 interface Step2Props {
   register: UseFormRegister<FormData>
@@ -26,14 +26,14 @@ interface Step2Props {
   control: any
   selectedFiles: any
   setSelectedFiles: any
+  skills: SelectedSkill[]
 }
 
 const options = [
   'Friend',
   'Professional colleague',
   'Volunteered together',
-  'College',
-  'Other, enter preferred relationship label'
+  'College'
 ]
 
 const Step2: React.FC<Step2Props> = ({
@@ -44,10 +44,10 @@ const Step2: React.FC<Step2Props> = ({
   fullName,
   control,
   selectedFiles,
-  setSelectedFiles
+  setSelectedFiles,
+  skills
 }) => {
   const displayName = fullName || ''
-  const [isOther, setIsOther] = useState(false)
 
   const handleEditorChange = (field: string) => (value: string) => {
     setValue(field, value)
@@ -109,20 +109,15 @@ const Step2: React.FC<Step2Props> = ({
             rules={{ required: 'Relationship is required' }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <Autocomplete
-                freeSolo={isOther}
+                freeSolo
                 options={options}
                 value={value || ''}
                 onChange={(event, newValue) => {
-                  if (newValue === 'Other, enter preferred relationship label') {
-                    setIsOther(true)
-                    onChange('')
-                  } else {
-                    setIsOther(false)
-                    onChange(newValue)
-                  }
+                  onChange(newValue || '')
                 }}
-                onInputChange={(event, newInputValue) => {
-                  if (isOther) {
+                onInputChange={(event, newInputValue, reason) => {
+                  // Always update the value when user types
+                  if (reason === 'input') {
                     onChange(newInputValue)
                   }
                 }}
@@ -135,7 +130,6 @@ const Step2: React.FC<Step2Props> = ({
                     aria-labelledby='relationship-label'
                     inputProps={{
                       ...params.inputProps,
-                      readOnly: !isOther,
                       style: inputPropsStyles
                     }}
                     error={!!error}
@@ -145,6 +139,51 @@ const Step2: React.FC<Step2Props> = ({
               />
             )}
           />
+        </Box>
+
+        <Box
+          sx={{
+            width: '100%',
+            bgcolor: 'white',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          <Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>
+            Select skills to recommend
+          </Typography>
+          <Typography sx={{ fontSize: '14px', color: 'text.secondary', mt: '2px' }}>
+            Choose one or more skills that you're recommending for {displayName}.
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: '10px', backgroundColor: '#f6f6f6ff', borderRadius: 2, p: '10px' }}>
+            {skills?.length > 0 ? (
+              skills.map((skill: SelectedSkill, idx: number) => {
+                const currentSelected: SelectedSkill[] = watch('selectedSkills') || []
+                const isSelected = currentSelected.some(s => s.uuid === skill.uuid)
+
+                return (
+                  <Chip
+                    key={`${skill.uuid}-${idx}`}
+                    label={skill.targetName}
+                    clickable
+                    color={isSelected ? 'primary' : 'default'}
+                    onClick={() => {
+                      const newSelected = isSelected
+                        ? currentSelected.filter(s => s.uuid !== skill.uuid)
+                        : [...currentSelected, skill]
+                      console.log('Selected Skills (Step 2):', newSelected)
+                      setValue('selectedSkills', newSelected)
+                    }}
+                    variant={isSelected ? 'filled' : 'outlined'}
+                  />
+                )
+              })
+            ) : (
+              <Typography sx={{ fontSize: '14px', fontStyle: 'italic' }}>
+                No skills found in this credential.
+              </Typography>
+            )}
+          </Box>
         </Box>
 
         <Box>

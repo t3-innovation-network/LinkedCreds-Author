@@ -226,14 +226,22 @@ const Theme = createTheme({
             lineHeight: '20px',
             border: '1px solid  #155dfc',
             color: '#155dfc',
+            backgroundColor: '#ffffff',
+            flexGrow: 1,
+            fontSize: '14px',
+            width: 'fit-content',
+            minWidth: '140px',
+            maxWidth: '180px',
             '&:hover': {
-              backgroundColor: '#eff6ff'
+              backgroundColor: '#f8fafc',
+              borderColor: '#1e40af',
+              color: '#1e40af'
             },
             '&.Mui-disabled': {
-              backgroundColor: '#d1d5db', // using t3Disabled color
-              color: '#3D4048'
-            },
-            backgroundColor: '#eff6ff'
+              backgroundColor: '#d1d5db',
+              color: '#3D4048',
+              border: 'none'
+            }
           }
         }
       ]

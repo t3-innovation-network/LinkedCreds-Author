@@ -5,20 +5,7 @@ import { Box, Card, Link, Typography, IconButton, TextField } from '@mui/materia
 import { Edit } from 'lucide-react'
 import { QuoteSVG } from '../../../../Assets/SVGs'
 import LoadingOverlay from '../../../../components/Loading/LoadingOverlay'
-
-interface Portfolio {
-  name: string
-  url: string
-}
-
-interface FormData {
-  fullName?: string
-  howKnow?: string
-  recommendationText?: string
-  qualifications?: string
-  explainAnswer?: string
-  portfolio?: Portfolio[]
-}
+import { FormData } from '../../../../credentialForm/form/types/Types'
 
 interface DataPreviewProps {
   formData: FormData
@@ -200,7 +187,7 @@ const DataPreview: React.FC<DataPreviewProps> = ({
         display: 'flex',
         flexDirection: 'column',
         gap: '30px',
-        bgcolor: '#f0f4f8',
+        // bgcolor: '#f0f4f8',
         borderRadius: 2
       }}
     >
@@ -265,7 +252,7 @@ const DataPreview: React.FC<DataPreviewProps> = ({
 
         {(Array.isArray(formData.portfolio) &&
           formData.portfolio.filter(item => item.name || item.url).length > 0) ||
-        selectedFiles.length > 0 ? (
+          selectedFiles.length > 0 ? (
           <Card
             variant='outlined'
             sx={{
@@ -348,6 +335,53 @@ const DataPreview: React.FC<DataPreviewProps> = ({
               ))}
           </Card>
         ) : null}
+
+        {formData.selectedSkills && formData.selectedSkills.length > 0 && (
+          <Card
+            variant='outlined'
+            sx={{
+              p: '10px',
+              border: '1px solid #003fe0',
+              borderRadius: '8px',
+              mt: '10px'
+            }}
+          >
+            <Typography
+              variant='subtitle1'
+              sx={{
+                fontWeight: 'bold',
+                fontSize: '15px',
+                letterSpacing: '0.01em',
+                mb: 1
+              }}
+            >
+              Selected Skills
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, flexWrap: 'wrap' }}>
+              {formData.selectedSkills.map((skill, index) => (
+                <Box
+                  key={skill.uuid || index}
+                  sx={{
+                    background: '#155DFC', // Green color
+                    color: '#ffffff',
+                    px: 2,
+                    py: 0.75,
+                    borderRadius: '20px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                  }}
+                >
+                  <Typography variant='body2' fontWeight='bold' sx={{ color: '#ffffff' }}>
+                    {skill.targetName}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Card>
+        )}
       </Box>
 
       <LoadingOverlay text='Saving your recommendation...' open={isLoading} />

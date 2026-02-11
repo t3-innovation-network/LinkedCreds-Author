@@ -95,7 +95,10 @@ const useGoogleDrive = () => {
     async (fileID: string, resourceKey: string = '') => {
       if (!fileID || !accessToken) {
         console.error('FileId or Access token is missing or invalid')
-        return
+        return {
+          success: false,
+          error: !fileID ? 'File ID is missing' : 'Access token is missing or invalid'
+        }
       }
 
       try {
@@ -116,11 +119,20 @@ const useGoogleDrive = () => {
           if (metadata.owners && metadata.owners.length > 0) {
             setOwnerEmail(metadata.owners[0].emailAddress)
           }
+          return { success: true, metadata }
+        } else if (response.status === 404) {
+          console.error('File not found (404):', fileID)
+          return { success: false, error: 'File not found or has been deleted' }
         } else {
           console.error('Error fetching file metadata:', response.statusText)
+          return { success: false, error: `Failed to fetch metadata: ${response.statusText}` }
         }
       } catch (error) {
         console.error('Error fetching file metadata:', error)
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred'
+        }
       }
     },
     [accessToken]

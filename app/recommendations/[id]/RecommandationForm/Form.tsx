@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FormControl, Box, Link, Typography } from '@mui/material'
 import { useParams } from 'next/navigation'
-import { FormData } from '../../../credentialForm/form/types/Types'
+import { FormData, SelectedSkill } from '../../../credentialForm/form/types/Types'
 import { textGuid } from './fromTexts/FormTextSteps'
 import Step1 from './Steps/Step1'
 import Step2 from './Steps/Step2'
@@ -20,11 +20,12 @@ import { Logo } from '../../../Assets/SVGs'
 import useGoogleDrive from '../../../hooks/useGoogleDrive'
 import { storeFileTokens } from '../../../firebase/storage'
 interface FormProps {
-  fullName: string
+  fullName: string  // This is the recipient's name
   email: string
+  skills: SelectedSkill[]
 }
 
-const Form: React.FC<FormProps> = ({ fullName, email }) => {
+const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) => {
   const { activeStep, handleNext, handleBack, setActiveStep } = useStepContext()
   const { data: session } = useSession()
   const accessToken = session?.accessToken
@@ -37,7 +38,8 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
     recommendationText: '',
     portfolio: [{ name: '', url: '' }],
     qualifications: '',
-    explainAnswer: ''
+    explainAnswer: '',
+    selectedSkills: []
   })
   const [submittedFullName, setSubmittedFullName] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -94,9 +96,15 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
       })
 
       // Step 3: Sign the credential (recommendation)
+      // Add recipient name to formData before signing
+      const dataWithRecipient = {
+        ...formData,
+        recipientName: recipientName
+      }
+
       const signedCred = await signCred(
         accessToken,
-        formData,
+        dataWithRecipient,
         issuerId,
         keyPair,
         'RECOMMENDATION',
@@ -142,7 +150,8 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
         recommendationText: '',
         portfolio: [{ name: '', url: '' }],
         qualifications: '',
-        explainAnswer: ''
+        explainAnswer: '',
+        selectedSkills: []
       })
       setActiveStep(4)
     } catch (error) {
@@ -274,16 +283,17 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
                 watch={watch}
                 errors={errors}
                 setValue={setValue}
-                fullName={fullName}
+                fullName={recipientName}
                 control={control}
                 selectedFiles={selectedFiles}
                 setSelectedFiles={setSelectedFiles}
+                skills={skills}
               />
             )}
             {activeStep === 3 && (
               <DataPreview
                 formData={formData}
-                fullName={fullName}
+                fullName={recipientName}
                 handleNext={handleNext}
                 handleBack={handleBack}
                 handleSign={handleFormSubmit}
@@ -296,7 +306,7 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
               <SuccessPage
                 formData={formData}
                 submittedFullName={submittedFullName}
-                fullName={fullName}
+                fullName={recipientName}
                 email={email}
                 handleBack={handleBack}
                 recId={recId}
@@ -307,7 +317,7 @@ const Form: React.FC<FormProps> = ({ fullName, email }) => {
 
         <Buttons
           activeStep={activeStep}
-          maxSteps={textGuid(fullName).length}
+          maxSteps={textGuid(recipientName).length}
           handleNext={handleNext}
           handleSign={handleFormSubmit}
           handleBack={handleBack}

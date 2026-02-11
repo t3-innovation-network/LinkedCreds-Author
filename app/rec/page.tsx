@@ -31,7 +31,7 @@ const getDirectGoogleDriveUrl = (url: string): string => {
         return `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}`
       }
     }
-  } catch (e) {}
+  } catch (e) { }
   return url
 }
 
@@ -109,6 +109,12 @@ interface RecommendationData {
   name: string
   qualifications: string
   portfolio: Array<{ name: string; url: string }>
+  skillsEndorsed?: Array<{
+    targetName: string
+    targetCode?: string
+    uuid?: string
+    score?: number
+  }>
 }
 
 const Page = () => {
@@ -540,16 +546,7 @@ const Page = () => {
           />
 
           <CardContent sx={{ py: 3 }}>
-            <ContentSection>
-              <SectionTitle>Recommendation</SectionTitle>
-              <Typography color='text.primary'>
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: cleanHTML(recommendation?.recommendationText)
-                  }}
-                />
-              </Typography>
-            </ContentSection>
+
 
             <ContentSection>
               <SectionTitle>How {recommendation?.name} knows you</SectionTitle>
@@ -562,6 +559,41 @@ const Page = () => {
               </Typography>
             </ContentSection>
 
+            {recommendation?.skillsEndorsed && recommendation.skillsEndorsed.length > 0 && (
+              <ContentSection>
+                <SectionTitle>Skills Endorsed</SectionTitle>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {recommendation.skillsEndorsed.map((skill, index) => (
+                    <Box
+                      key={skill.uuid || `skill-${index}`}
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        px: 2,
+                        py: 1,
+                        borderRadius: '16px',
+                        backgroundColor: 'rgba(0, 63, 224, 0.08)',
+                        border: '1px solid rgba(0, 63, 224, 0.2)'
+                      }}
+                    >
+                      <Typography variant="body2" color="primary.main" fontWeight={500}>
+                        {skill.targetName}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </ContentSection>
+            )}
+            <ContentSection>
+              <SectionTitle>Recommendation</SectionTitle>
+              <Typography color='text.primary'>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: cleanHTML(recommendation?.recommendationText)
+                  }}
+                />
+              </Typography>
+            </ContentSection>
             <ContentSection>
               <SectionTitle>The qualifications</SectionTitle>
               <Typography color='text.primary'>

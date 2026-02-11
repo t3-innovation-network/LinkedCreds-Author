@@ -95,7 +95,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
           <SVGBadge />
         </Box>
         <Typography sx={{ letterSpacing: '0.06px' }}>
-          {submittedFullName} vouched for {fullName}.
+          vouched for {fullName}.
         </Typography>
       </Box>
 

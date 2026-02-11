@@ -18,6 +18,7 @@ export function Buttons({
   activeStep,
   handleNext,
   handleSign,
+  handleBack,
   isValid,
   isLoading = false
 }: Readonly<ButtonsProps>) {
@@ -25,10 +26,12 @@ export function Buttons({
     <Box
       sx={{
         width: { xs: '100%', md: '40%', lg: '40%' },
-        height: '40px',
+        height: 'auto',
         display: 'flex',
         gap: '15px',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        // flexDirection: activeStep === 3 ? 'column' : 'row',
+        // alignItems: activeStep === 3 ? 'center' : 'flex-start'
       }}
     >
       {activeStep === 2 && (
@@ -38,18 +41,36 @@ export function Buttons({
       )}
 
       {activeStep === 3 && handleSign && (
-        <Button
-          onClick={handleSign}
-          color='primary'
-          disabled={!isValid || isLoading}
-          variant='nextButton'
-        >
-          Finish & Sign
-        </Button>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center', width: '100%', justifyContent: 'center' }}>
+          <Button
+            onClick={handleBack}
+            sx={{
+              textTransform: 'none',
+              color: 'text.secondary',
+              textDecoration: 'underline',
+              '&:hover': {
+                textDecoration: 'underline',
+                backgroundColor: 'transparent',
+                color: 'text.primary'
+              }
+            }}
+          >
+            Back
+          </Button>
+          <Button
+            onClick={handleSign}
+            color='primary'
+            disabled={!isValid || isLoading}
+            variant='finishButton'
+            sx={{ width: 'auto', minWidth: '140px' }}
+          >
+            Finish & Sign
+          </Button>
+        </Box>
       )}
       {activeStep === 2 && (
         <Button
-          variant='nextButton'
+          variant='finishButton'
           onClick={handleNext}
           disabled={!isValid || isLoading}
           color='primary'

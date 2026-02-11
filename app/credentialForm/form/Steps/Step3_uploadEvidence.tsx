@@ -541,19 +541,42 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
               onReorder={handleReorder}
             />
 
-            <Box onClick={open} sx={{ textAlign: 'center', cursor: 'pointer' }}>
+            <Box onClick={open} sx={{ textAlign: 'center', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
               <SVGUploadMedia />
-              <Typography variant='body1' color='primary' align='center'>
-                {isDragActive ? (
-                  'Drop files here...'
-                ) : (
-                  <>
-                    + Add media
-                    <br />
-                    (images, documents, video)
-                  </>
-                )}
-              </Typography>
+              <Box
+                sx={{
+                  border: '1px solid #3B82F6',
+                  borderRadius: '9999px',
+                  padding: '8px 24px',
+                  backgroundColor: '#EFF6FF',
+                  color: '#3B82F6',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  fontFamily: 'Inter',
+                  width: 'fit-content',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    backgroundColor: '#DBEAFE',
+                    transform: 'scale(1.02)'
+                  }
+                }}
+              >
+                {isDragActive ? 'Drop files here...' : 'Add Media'}
+              </Box>
+              {!isDragActive && (
+                <Typography
+                  sx={{
+                    fontFamily: 'Inter',
+                    fontSize: '16px',
+                    fontWeight: 500,
+                    color: '#3B82F6',
+                    textAlign: 'center'
+                  }}
+                >
+                  (images, documents, video)
+                </Typography>
+              )}
             </Box>
           </CardStyle>
         </Box>
@@ -563,7 +586,9 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
     </Box>
   )
 }
-const CardStyle = styled(Card)<{ isDragActive?: boolean }>(
+const CardStyle = styled(Card, {
+  shouldForwardProp: (prop) => prop !== 'isDragActive'
+})<{ isDragActive?: boolean }>(
   ({ isDragActive = false }) => ({
     padding: '40px 20px',
     cursor: 'default',

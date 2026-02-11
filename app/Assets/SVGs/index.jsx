@@ -1289,8 +1289,8 @@ export const CheckMarkSVG = () => {
       >
         <path
           d='M10 3.625L4.5 9.125L2 6.625'
-          stroke='black'
-          strokeWidth='0.7'
+          stroke='green'
+          strokeWidth='1.5'
           strokeLinecap='round'
           strokeLinejoin='round'
         />

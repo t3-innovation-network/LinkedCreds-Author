@@ -1,6 +1,7 @@
 // Helper functions for recommendations management
 
 // Helper function to safely get recommendation name
+// Returns the RECIPIENT's name (who the recommendation is for)
 export const getRecommendationName = (recommendation: any): string => {
   try {
     if (!recommendation || typeof recommendation !== 'object') {
@@ -14,7 +15,11 @@ export const getRecommendationName = (recommendation: any): string => {
       return 'Invalid Recommendation'
     }
 
-    return recommendation.credentialSubject.name || 'Unnamed Recommendation'
+    // Return recipient's name (who the recommendation is for)
+    // Fall back to recommender's name if recipientName is not available
+    return recommendation.credentialSubject.recipientName ||
+      recommendation.credentialSubject.name ||
+      'Unnamed Recommendation'
   } catch (error) {
     console.error('Error in getRecommendationName:', error, recommendation)
     return 'Error Loading Recommendation'
@@ -88,11 +93,23 @@ export const isValidRecommendation = (recommendation: any): boolean => {
 // Safe helper to get recommendation ID
 export const getRecommendationId = (recommendation: any): string => {
   try {
-    if (recommendation?.id?.id) return recommendation.id.id
-    if (recommendation?.id) return recommendation.id
-    return 'unknown-id'
+    // Try to get the Google Drive file ID first (most reliable)
+    if (recommendation?.id?.id) {
+      return recommendation.id.id
+    }
+    // Fallback to credential ID
+    if (recommendation?.id) {
+      return recommendation.id
+    }
+    // Last resort: generate a unique ID from credential URN or timestamp
+    if (recommendation?.credentialId) {
+      return recommendation.credentialId
+    }
+    // Generate unique fallback ID
+    return `unknown-id-${Date.now()}-${Math.random()}`
   } catch (error) {
     console.error('Error getting recommendation ID:', error, recommendation)
-    return 'error-id'
+    return `error-id-${Date.now()}-${Math.random()}`
   }
 }
+

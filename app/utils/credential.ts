@@ -82,7 +82,7 @@ const signCred = async (
   issuerDid: string,
   keyPair: string,
   type: 'RECOMMENDATION' | 'VC',
-  vcFileId: any
+  vcFileId?: any
 ) => {
   if (!accessToken) {
     throw new Error('Access token is not provided')
@@ -242,7 +242,10 @@ const generateRecommendationData = (data: any): RecommendationI => {
       score: skill.score
     })) || [],
     explainAnswer: data.explainAnswer,
-    portfolio: data.portfolio
+    portfolio:
+      data.portfolio && data.portfolio.length > 0
+        ? data.portfolio.map(({ googleId, ...rest }: any) => rest)
+        : [{ name: '', url: '' }]
   }
 }
 

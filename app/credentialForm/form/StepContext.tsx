@@ -21,17 +21,17 @@ interface StepContextType {
 const StepContext = createContext<StepContextType>({
   activeStep: 0,
   loading: false,
-  setActiveStep: () => {},
-  handleNext: async () => {},
-  handleBack: () => {},
-  handleSkip: () => {},
-  setUploadImageFn: (_fn: () => Promise<void>) => {}
+  setActiveStep: () => { },
+  handleNext: async () => { },
+  handleBack: () => { },
+  handleSkip: () => { },
+  setUploadImageFn: (_fn: () => Promise<void>) => { }
 })
 
 export const StepProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeStep, setActiveStep] = useState(0)
   const [uploadImageFn, setUploadImageFn] = useState<() => Promise<void>>(
-    () => async () => {}
+    () => async () => { }
   )
   const [loading, setLoading] = useState(false)
   const excludedPaths = useMemo(

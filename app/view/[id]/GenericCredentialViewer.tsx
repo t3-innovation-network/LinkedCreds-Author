@@ -197,7 +197,7 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
         <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center', mb: 2 }}>
           <SVGBadge />
           <Typography variant='h5' sx={{ fontWeight: 700 }}>
-            {credential.name || subject.achievement?.name || 'Unnamed Credential'}
+            {subject.recipientName || credential.name || subject.achievement?.name || subject.name || 'Unnamed Credential'}
           </Typography>
         </Box>
 
@@ -276,6 +276,115 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
               )}
             </Box>
           )}
+        </Box>
+      )}
+
+      {/* Recommendation Information */}
+      {subject.howKnow && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
+            Recommendation Details
+          </Typography>
+
+          {subject.name && (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>Recommender: {subject.name}</Typography>
+            </Box>
+          )}
+
+          {subject.recipientName && (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>Issued for: {subject.recipientName}</Typography>
+            </Box>
+          )}
+
+          {subject.howKnow && (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>How They Know You:
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: subject.howKnow.replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/<br>/g, ' ')
+                  }}
+                />
+              </Typography>
+            </Box>
+          )}
+
+          {subject.skillsEndorsed && subject.skillsEndorsed.length > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontWeight: 500, mb: 1 }}>Skills Endorsed:</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {subject.skillsEndorsed.map((skill: any, index: number) => (
+                  <Chip
+                    key={skill.uuid || `skill-${index}`}
+                    label={skill.targetName}
+                    size="small"
+                    sx={{
+                      backgroundColor: 'rgba(0, 63, 224, 0.08)',
+                      border: '1px solid rgba(0, 63, 224, 0.2)',
+                      color: '#003FE0',
+                      fontWeight: 500
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+
+          {subject.recommendationText && (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>Recommendation:</Typography>
+              <Typography>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: subject.recommendationText.replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/<br>/g, ' ')
+                  }}
+                />
+              </Typography>
+            </Box>
+          )}
+
+          {subject.qualifications && (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>Qualifications:</Typography>
+              <Typography>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: subject.qualifications.replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/<br>/g, ' ')
+                  }}
+                />
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      )}
+
+      {/* Supporting Evidence / Portfolio */}
+      {subject.portfolio && subject.portfolio.length > 0 && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant='h6' sx={{ mb: 1, fontWeight: 600 }}>
+            Supporting Evidence
+          </Typography>
+
+          {/* Bulleted List */}
+          <Box component='ul' sx={{ pl: 2, m: 0 }}>
+            {subject.portfolio.map((item: any, index: number) => (
+              <Box component='li' key={index} sx={{ color: '#003FE0', mb: 1, '::marker': { fontSize: '1.2em' } }}>
+                <Link
+                  href={item.url || item.id}
+                  target='_blank'
+                  underline='hover'
+                  sx={{
+                    fontSize: '14px',
+                    color: '#003FE0',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  {item.name || item.url || 'Link'}
+                </Link>
+              </Box>
+            ))}
+          </Box>
         </Box>
       )}
 
