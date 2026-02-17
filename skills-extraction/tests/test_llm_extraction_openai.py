@@ -1,60 +1,110 @@
-# backend/tests/test_llm_extraction.py
+# tests/test_llm_extraction_openai.py
 import pytest
 import json
-import requests
-from typing import List, Dict
-from collections import Counter
+import os
 import time
 import sys
 from pathlib import Path
+from typing import List, Dict
+import openai
+from collections import Counter
 
-# Add the project root to Python path
+# Add project root to Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+SYSTEM_PROMPT = """
+You are an expert Skill Extraction engine.
+
+Task:
+- Extract ONLY skills (technologies, tools, frameworks, methodologies, soft skills, hard skills) from the given text.
+- A term must be treated as a skill ONLY if it is used in a professional, technical, educational, or workplace context.
+- Ignore terms that appear in non-skill meanings such as animals, food, geography, common nouns, or everyday conversation.
+- Do not extract skills that are not present in the text, limit yourself to the skills present in the text. Example: If the text does not contain "Python", do not extract "Python".
+- Key words like 'science based approaches', 'customer support' are not considered as skills.
+- Output list of extracted skills as shown below.
+- Output Format:
+    ["Python", "Project Management", "Machine Learning"]
+Rules:
+- Do NOT include any explanations or extra text.
+- Do NOT include duplicates (case-insensitive).
+- Skill names should be clean, human-readable phrases.
+- If a term is ambiguous, include it ONLY when surrounding context clearly indicates it is a skill.
+- If no skills are found, return [].
+"""
 
 class LLMExtractionTester:
-    def __init__(self, api_endpoint: str):
-        self.api_endpoint = api_endpoint
+    def __init__(self, model: str = "gpt-5-mini"):
+        # Try to load from .env file manually
+        env_path = Path(__file__).parent.parent / '.env'
+        if env_path.exists():
+            with open(env_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        os.environ[key.strip()] = value.strip().strip('"').strip("'")
+
+        self.api_key = os.environ.get("OPENAI_API_KEY")
+        
+        if not self.api_key:
+            print("\n" + "!"*60)
+            print("MISSING API KEY")
+            print("!"*60)
+            print("Please set the OPENAI_API_KEY environment variable.")
+            print("You can do this in two ways:")
+            print("1. Create a .env file in the project root with:")
+            print("   OPENAI_API_KEY=sk-your-key-here")
+            print("2. Run with the environment variable set:")
+            print("   OPENAI_API_KEY=sk-... python3 tests/test_llm_extraction_openai.py")
+            print("!"*60 + "\n")
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+        
+        self.client = openai.OpenAI(api_key=self.api_key)
+        self.model = model
         self.results = []
     
     def extract_skills_via_api(self, text: str) -> List[str]:
-        """Call the API endpoint to extract skills"""
+        """Call OpenAI API to extract skills"""
         try:
-            response = requests.post(
-                self.api_endpoint,
-                json={"text": text},
-                timeout=30
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": text}
+                ],
+                temperature=0.0,
             )
-            response.raise_for_status()
+            content = response.choices[0].message.content
             
-            # Adjust this based on your API response structure
-            # Common patterns:
-            # return response.json()["skills"]
-            # return response.json()["extracted_skills"]
-            # return response.json()
+            # Clean up code blocks if present (consistent with backend logic)
+            content = content.replace("```json", "").replace("```", "").strip()
             
-            data = response.json()
-            
-            # Handle different response formats
-            if isinstance(data, list):
-                return data
-            elif isinstance(data, dict):
-                # Try common key names
-                for key in ['skills', 'extracted_skills', 'results', 'data']:
-                    if key in data:
-                        return data[key]
-            
-            print(f"Warning: Unexpected response format: {data}")
-            return []
-            
-        except requests.exceptions.RequestException as e:
+            try:
+                extracted_skills = json.loads(content)
+                if isinstance(extracted_skills, list):
+                    return extracted_skills
+                elif isinstance(extracted_skills, dict):
+                     # Try common key names if it returned a dict wrapper
+                    for key in ['skills', 'extracted_skills', 'results', 'data']:
+                        if key in extracted_skills:
+                             if isinstance(extracted_skills[key], list):
+                                return extracted_skills[key]
+                    print(f"Warning: Unexpected dictionary format: {extracted_skills}")
+                    return []
+                else:
+                    print(f"Warning: Unexpected response type: {type(extracted_skills)}")
+                    return []
+
+            except json.JSONDecodeError as e:
+                print(f"Failed to parse JSON response: {e}")
+                print(f"Raw content: {content}")
+                return []
+                
+        except Exception as e:
             print(f"API request failed: {e}")
             return []
-        except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON response: {e}")
-            return []
-    
+
     def load_test_cases(self, filepath: str) -> List[Dict]:
         """Load test cases from JSON file"""
         with open(filepath, 'r') as f:
@@ -118,33 +168,6 @@ class LLMExtractionTester:
             **metrics
         }
     
-    def test_consistency(self, test_case: Dict, num_runs: int = 5) -> Dict:
-        """Test extraction consistency across multiple runs"""
-        results = []
-        for _ in range(num_runs):
-            extracted = self.extract_skills_via_api(test_case['input_text'])
-            results.append(set(self.normalize_skill(s) for s in extracted if s))
-        
-        # Check if all results are identical
-        all_same = all(r == results[0] for r in results)
-        
-        # Calculate variation
-        all_skills = set()
-        for r in results:
-            all_skills.update(r)
-        
-        consistency_score = len(results[0]) / len(all_skills) if all_skills else 0
-
-        if len(all_skills) == 0:
-            consistency_score = 1.0
-        
-        return {
-            'test_id': test_case['id'],
-            'is_consistent': all_same,
-            'consistency_score': consistency_score,
-            'unique_variations': len(all_skills)
-        }
-    
     def run_full_suite(self, test_cases_path: str) -> Dict:
         """Run complete test suite"""
         test_cases = self.load_test_cases(test_cases_path)
@@ -162,7 +185,7 @@ class LLMExtractionTester:
         }
         
         # Test each case
-        print(f"\nRunning {len(test_cases)} test cases...")
+        print(f"\nRunning {len(test_cases)} test cases using OpenAI...")
         successful_tests = 0
         
         for idx, tc in enumerate(test_cases, 1):
@@ -198,22 +221,14 @@ class LLMExtractionTester:
         
         return results
 
-
-def test_llm_extraction():
-    # API endpoint - change port if needed
-    API_ENDPOINT = "http://127.0.0.1:8001/extract"  # Adjust endpoint path if needed
-    
+def test_llm_extraction_openai():
     # Initialize tester
-    tester = LLMExtractionTester(API_ENDPOINT)
-    
-    # Check if API is running
     try:
-        response = requests.get("http://127.0.0.1:8001/")
-        print(f"API Status: {response.status_code}")
-    except requests.exceptions.RequestException:
-        print("WARNING: Cannot connect to API. Make sure the backend is running on port 8001")
+        tester = LLMExtractionTester(model="gpt-4o-mini")
+    except ValueError as e:
+        print(f"Error initializing tester: {e}")
         return
-    
+
     # Run tests
     test_cases_path = Path(__file__).parent / 'onet_test_cases.json'
     results = tester.run_full_suite(str(test_cases_path))
@@ -221,28 +236,15 @@ def test_llm_extraction():
     # Create results directory if it doesn't exist
     results_dir = Path(__file__).parent / 'results'
     results_dir.mkdir(exist_ok=True)
-
-    # # Run consistency tests
-    # print("\nRunning consistency tests...")
-    # consistency_results = []
-    # test_cases = tester.load_test_cases(str(test_cases_path))
-    # for tc in test_cases:
-    #     consistency_result = tester.test_consistency(tc, num_runs=3)
-    #     consistency_results.append(consistency_result)
-    #     print(f"Test ID: {tc['id']} | Consistent: {consistency_result['is_consistent']} | Consistency Score: {consistency_result['consistency_score']:.2%} | Unique Variations: {consistency_result['unique_variations']}")
-    
-    # results['consistency'] = consistency_results
-
-    # print(f"Average Consistency Score: {sum(r['consistency_score'] for r in consistency_results) / len(consistency_results):.2%}")
     
     # Save results
-    results_file = results_dir / 'llm_extraction_results.json'
+    results_file = results_dir / 'llm_openai_extraction_results.json'
     with open(results_file, 'w') as f:
         json.dump(results, f, indent=2)
     
     # Print summary
     print("\n" + "="*60)
-    print("OVERALL TEST RESULTS")
+    print("OVERALL TEST RESULTS (OPENAI)")
     print("="*60)
     print(f"Total Tests: {results['overall']['total_tests']}")
     print(f"Successful Tests: {results['overall']['successful_tests']}")
@@ -254,6 +256,5 @@ def test_llm_extraction():
     print(f"\nResults saved to: {results_file}")
     print("="*60)
 
-
 if __name__ == "__main__":
-    test_llm_extraction()
+    test_llm_extraction_openai()

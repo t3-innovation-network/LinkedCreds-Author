@@ -1,0 +1,661 @@
+{
+  "total_cases": 24,
+  "total_valid_expected_skills": 74,
+  "total_correctly_extracted_skills": 61,
+  "dropout_rate": 0.17567567567567569,
+  "top_missing_skills": {
+    "excel": 1,
+    "no sql databases": 1,
+    "docker": 1,
+    "classroom management": 1,
+    "instructing": 1,
+    "crm": 1,
+    "repair": 1,
+    "equipment maintenance": 1,
+    "equipment selection": 1,
+    "science principles": 1
+  },
+  "detailed_results": {
+    "per_case": [
+      {
+        "test_id": "TC001",
+        "input_text": "Developed APIs using Python and JS, containerized services, and built interfaces.",
+        "latency_ms": 1210.5810642242432,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 4,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "api development",
+          "python",
+          "containerization",
+          "js"
+        ],
+        "expected_skills": [
+          "python",
+          "containerization",
+          "api development",
+          "js"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC002",
+        "input_text": "Led cross-functional teams, resolved conflicts, and managed schedules.",
+        "latency_ms": 942.0731067657471,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 3,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "cross functional teams",
+          "conflict resolution",
+          "schedule management"
+        ],
+        "expected_skills": [
+          "cross functional teams",
+          "conflict resolution",
+          "schedule management"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC003",
+        "input_text": "Optimized supply chain operations, ran systems reviews, applied quality processes, and tracked KPIs.",
+        "latency_ms": 1178.971290588379,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 4,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "quality processes",
+          "supply chain operations",
+          "kpi tracking",
+          "systems reviews"
+        ],
+        "expected_skills": [
+          "quality processes",
+          "supply chain operations",
+          "kpi tracking",
+          "systems reviews"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC004",
+        "input_text": "Built ML models in Python and R, performed statistical work, created dashboards, and documented find...",
+        "latency_ms": 1437.4127388000488,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 6,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "machine learning",
+          "statistical work",
+          "documentation",
+          "python",
+          "dashboard creation",
+          "r"
+        ],
+        "expected_skills": [
+          "machine learning",
+          "statistical work",
+          "documentation",
+          "python",
+          "dashboard creation",
+          "r"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC005",
+        "input_text": "Managed budgets, addressed ERP issues, analyzed data in Excel.",
+        "latency_ms": 859.2269420623779,
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "true_positives": 3,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "erp",
+          "data analysis",
+          "budget management"
+        ],
+        "expected_skills": [
+          "erp",
+          "data analysis",
+          "excel",
+          "budget management"
+        ],
+        "missing_skills": [
+          "excel"
+        ],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC006",
+        "input_text": "I'm raising a python in my backyard terrarium and applying learning techniques for better feeding.",
+        "latency_ms": 305.4630756378174,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 1,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [],
+        "expected_skills": [],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC007",
+        "input_text": "The gallery installation required coordination with staff and thinking about spatial layout.",
+        "latency_ms": 460.94632148742676,
+        "precision": 0.0,
+        "recall": 0,
+        "f1": 0,
+        "true_positives": 0,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "hallucination_rate": 1.0,
+        "extracted_skills": [
+          "project management"
+        ],
+        "expected_skills": [],
+        "missing_skills": [],
+        "extra_skills": [
+          "project management"
+        ]
+      },
+      {
+        "test_id": "TC008",
+        "input_text": "Spent the weekend writing poetry and practicing speaking for theater.",
+        "latency_ms": 302.7188777923584,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 1,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [],
+        "expected_skills": [],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC010",
+        "input_text": "Science project explored perceptiveness and decision development in teens.",
+        "latency_ms": 299.12662506103516,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 1,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [],
+        "expected_skills": [],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC011",
+        "input_text": "Architected cloud systems with containers and orchestration, implemented ci/cd pipelines, managed No...",
+        "latency_ms": 1506.3629150390625,
+        "precision": 0.4,
+        "recall": 0.5,
+        "f1": 0.4444444444444445,
+        "true_positives": 2,
+        "false_positives": 3,
+        "false_negatives": 2,
+        "hallucination_rate": 0.6,
+        "extracted_skills": [
+          "ci/cd pipelines",
+          "nosql databases",
+          "streaming tools",
+          "orchestration",
+          "containers"
+        ],
+        "expected_skills": [
+          "no sql databases",
+          "ci/cd pipelines",
+          "docker",
+          "orchestration"
+        ],
+        "missing_skills": [
+          "no sql databases",
+          "docker"
+        ],
+        "extra_skills": [
+          "streaming tools",
+          "nosql databases",
+          "containers"
+        ]
+      },
+      {
+        "test_id": "TC012",
+        "input_text": "Provided weekly instruction, applied active learning in curriculum design, and managed classroom beh...",
+        "latency_ms": 994.6320056915283,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "f1": 0.3333333333333333,
+        "true_positives": 1,
+        "false_positives": 2,
+        "false_negatives": 2,
+        "hallucination_rate": 0.6666666666666666,
+        "extracted_skills": [
+          "classroom behavior management",
+          "curriculum design",
+          "active learning"
+        ],
+        "expected_skills": [
+          "classroom management",
+          "instructing",
+          "active learning"
+        ],
+        "missing_skills": [
+          "classroom management",
+          "instructing"
+        ],
+        "extra_skills": [
+          "classroom behavior management",
+          "curriculum design"
+        ]
+      },
+      {
+        "test_id": "TC013",
+        "input_text": "Used enterprise ERP and database systems, managed CRM workflows, and built tableau dashboards.",
+        "latency_ms": 1052.9828071594238,
+        "precision": 0.75,
+        "recall": 0.75,
+        "f1": 0.75,
+        "true_positives": 3,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "hallucination_rate": 0.25,
+        "extracted_skills": [
+          "erp",
+          "database systems",
+          "tableau",
+          "crm workflows"
+        ],
+        "expected_skills": [
+          "erp",
+          "database systems",
+          "tableau",
+          "crm"
+        ],
+        "missing_skills": [
+          "crm"
+        ],
+        "extra_skills": [
+          "crm workflows"
+        ]
+      },
+      {
+        "test_id": "TC014",
+        "input_text": "Maintained industrial equipment, improved efficiency through analysis, selected new tech, and instal...",
+        "latency_ms": 864.0611171722412,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0,
+        "true_positives": 0,
+        "false_positives": 3,
+        "false_negatives": 3,
+        "hallucination_rate": 1.0,
+        "extracted_skills": [
+          "maintenance",
+          "efficiency analysis",
+          "system installation"
+        ],
+        "expected_skills": [
+          "repair",
+          "equipment maintenance",
+          "equipment selection"
+        ],
+        "missing_skills": [
+          "repair",
+          "equipment maintenance",
+          "equipment selection"
+        ],
+        "extra_skills": [
+          "maintenance",
+          "efficiency analysis",
+          "system installation"
+        ]
+      },
+      {
+        "test_id": "TC015",
+        "input_text": "Applied critical thinking to engineering problems, used math for calculations, performed QC on desig...",
+        "latency_ms": 803.1668663024902,
+        "precision": 0.3333333333333333,
+        "recall": 0.25,
+        "f1": 0.28571428571428575,
+        "true_positives": 1,
+        "false_positives": 2,
+        "false_negatives": 3,
+        "hallucination_rate": 0.6666666666666666,
+        "extracted_skills": [
+          "math",
+          "quality control",
+          "critical thinking"
+        ],
+        "expected_skills": [
+          "science principles",
+          "advanced mathematics",
+          "quality control analysis",
+          "critical thinking"
+        ],
+        "missing_skills": [
+          "science principles",
+          "advanced mathematics",
+          "quality control analysis"
+        ],
+        "extra_skills": [
+          "math",
+          "quality control"
+        ]
+      },
+      {
+        "test_id": "TC017",
+        "input_text": "Managed AWS environments, automated deployments, monitored health checks, and secured networks.",
+        "latency_ms": 1134.6733570098877,
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571428571428571,
+        "true_positives": 3,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "hallucination_rate": 0.25,
+        "extracted_skills": [
+          "network security",
+          "health checks",
+          "aws",
+          "automated deployments"
+        ],
+        "expected_skills": [
+          "network security",
+          "aws",
+          "automated deployments"
+        ],
+        "missing_skills": [],
+        "extra_skills": [
+          "health checks"
+        ]
+      },
+      {
+        "test_id": "TC018",
+        "input_text": "Designed UI with Adobe tools, built frontend apps using React and JS, styled layouts, and version co...",
+        "latency_ms": 1588.4811878204346,
+        "precision": 0.42857142857142855,
+        "recall": 0.75,
+        "f1": 0.5454545454545454,
+        "true_positives": 3,
+        "false_positives": 4,
+        "false_negatives": 1,
+        "hallucination_rate": 0.5714285714285714,
+        "extracted_skills": [
+          "frontend development",
+          "version control",
+          "javascript",
+          "react",
+          "ui design",
+          "adobe",
+          "styling"
+        ],
+        "expected_skills": [
+          "react",
+          "adobe",
+          "java script",
+          "ui design"
+        ],
+        "missing_skills": [
+          "java script"
+        ],
+        "extra_skills": [
+          "version control",
+          "javascript",
+          "styling",
+          "frontend development"
+        ]
+      },
+      {
+        "test_id": "TC019",
+        "input_text": "Analyzed large datasets using pandas and numpy, modeled trends in R, and built data pipelines.",
+        "latency_ms": 763.0569934844971,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 3,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "numpy",
+          "pandas",
+          "r"
+        ],
+        "expected_skills": [
+          "numpy",
+          "pandas",
+          "r"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC020",
+        "input_text": "Developed Android and iOS apps, managed source control, and published to app stores.",
+        "latency_ms": 1032.3479175567627,
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571428571428571,
+        "true_positives": 3,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "hallucination_rate": 0.25,
+        "extracted_skills": [
+          "android",
+          "app stores",
+          "ios",
+          "source control"
+        ],
+        "expected_skills": [
+          "android",
+          "ios",
+          "source control"
+        ],
+        "missing_skills": [],
+        "extra_skills": [
+          "app stores"
+        ]
+      },
+      {
+        "test_id": "TC021",
+        "input_text": "Administered Linux servers, configured web servers, implemented SQL databases, and wrote shell scrip...",
+        "latency_ms": 1235.320806503296,
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571428571428571,
+        "true_positives": 3,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "hallucination_rate": 0.25,
+        "extracted_skills": [
+          "shell scripts",
+          "web server configuration",
+          "sql databases",
+          "linux"
+        ],
+        "expected_skills": [
+          "shell scripts",
+          "sql databases",
+          "linux"
+        ],
+        "missing_skills": [],
+        "extra_skills": [
+          "web server configuration"
+        ]
+      },
+      {
+        "test_id": "TC022",
+        "input_text": "Performed security testing using Linux tools, ran vulnerability scans, and analyzed network traffic.",
+        "latency_ms": 1369.3339824676514,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 4,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "vulnerability scans",
+          "network traffic analysis",
+          "linux tools",
+          "security testing"
+        ],
+        "expected_skills": [
+          "vulnerability scans",
+          "security testing",
+          "network traffic analysis",
+          "linux tools"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC023",
+        "input_text": "Managed schedules in project tools, facilitated agile ceremonies, coordinated teams, and made decisi...",
+        "latency_ms": 933.391809463501,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 3,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "project management",
+          "decision making",
+          "agile methodology"
+        ],
+        "expected_skills": [
+          "project management",
+          "decision making",
+          "agile methodology"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC025",
+        "input_text": "Designed database schemas, optimized SQL queries, implemented ETL workflows, and created dashboards.",
+        "latency_ms": 1197.383165359497,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 4,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "dashboards",
+          "database schemas",
+          "etl workflows",
+          "sql queries"
+        ],
+        "expected_skills": [
+          "dashboards",
+          "database schemas",
+          "etl workflows",
+          "sql queries"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC027",
+        "input_text": "Provided customer support, understood client concerns, listened carefully, and communicated solution...",
+        "latency_ms": 847.4881649017334,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 3,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "problem solving",
+          "customer support",
+          "communication"
+        ],
+        "expected_skills": [
+          "problem solving",
+          "customer support",
+          "communication"
+        ],
+        "missing_skills": [],
+        "extra_skills": []
+      },
+      {
+        "test_id": "TC028",
+        "input_text": "Managed personnel across departments, coordinated training, scheduled tasks, and handled labor discu...",
+        "latency_ms": 648.8020420074463,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285715,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 3,
+        "hallucination_rate": 0.0,
+        "extracted_skills": [
+          "project management",
+          "coordination"
+        ],
+        "expected_skills": [
+          "coordination",
+          "management of personnel resources",
+          "project management",
+          "negotiation",
+          "time management"
+        ],
+        "missing_skills": [
+          "management of personnel resources",
+          "time management",
+          "negotiation"
+        ],
+        "extra_skills": []
+      }
+    ],
+    "overall": {
+      "avg_precision": 0.7706349206349206,
+      "avg_recall": 0.7805555555555556,
+      "avg_f1": 0.7649561087061088,
+      "avg_latency_ms": 957.000215848287,
+      "total_tests": 24,
+      "successful_tests": 22,
+      "false_positives": 0.7916666666666666,
+      "hallucination_rate": 0.22936507936507936
+    }
+  }
+}

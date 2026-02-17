@@ -16,7 +16,7 @@
         "Python",
         "Scripting Software"
       ],
-      "latency_ms": 290.84205627441406,
+      "latency_ms": 325.3190517425537,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -72,7 +72,7 @@
         "Project Planning Software",
         "Project Management Software"
       ],
-      "latency_ms": 14.33420181274414,
+      "latency_ms": 10.182857513427734,
       "hits_at_k": 2,
       "precision": 0.6666666666666666,
       "recall": 0.6666666666666666,
@@ -133,7 +133,7 @@
         "Systems Analysis",
         "Data analysis software"
       ],
-      "latency_ms": 9.647130966186523,
+      "latency_ms": 8.49008560180664,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -189,7 +189,7 @@
         "Active Learning",
         "Machine control software"
       ],
-      "latency_ms": 9.19795036315918,
+      "latency_ms": 10.4522705078125,
       "hits_at_k": 2,
       "precision": 0.6666666666666666,
       "recall": 0.6666666666666666,
@@ -250,7 +250,7 @@
         "Database management software",
         "Database management system software"
       ],
-      "latency_ms": 8.713960647583008,
+      "latency_ms": 9.779930114746094,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -306,7 +306,7 @@
         "Coordination",
         "agency master"
       ],
-      "latency_ms": 7.90715217590332,
+      "latency_ms": 8.667945861816406,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -378,7 +378,7 @@
         "Salesforce",
         "Amazon DynamoDB"
       ],
-      "latency_ms": 8.984804153442383,
+      "latency_ms": 9.374856948852539,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -434,7 +434,7 @@
         "Node.js",
         "jquery"
       ],
-      "latency_ms": 10.302066802978516,
+      "latency_ms": 9.293079376220703,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -490,7 +490,7 @@
         "Security testing software",
         "Network security auditing software"
       ],
-      "latency_ms": 11.296987533569336,
+      "latency_ms": 9.46187973022461,
       "hits_at_k": 2,
       "precision": 0.6666666666666666,
       "recall": 0.6666666666666666,
@@ -551,7 +551,7 @@
         "Financial Analysis Software",
         "Financial Transaction Analysis Software"
       ],
-      "latency_ms": 9.959936141967773,
+      "latency_ms": 8.94021987915039,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -607,7 +607,7 @@
         "Compugov DocketView",
         "Court docket management software"
       ],
-      "latency_ms": 8.761882781982422,
+      "latency_ms": 6.3419342041015625,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -663,7 +663,7 @@
         "Customer service knowledge generation software",
         "Salesforce"
       ],
-      "latency_ms": 11.340856552124023,
+      "latency_ms": 8.014678955078125,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -719,7 +719,7 @@
         "unit testing software",
         "Testing software"
       ],
-      "latency_ms": 8.567094802856445,
+      "latency_ms": 5.414724349975586,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -775,7 +775,7 @@
         "Data visualization software",
         "Tablet application software"
       ],
-      "latency_ms": 9.22393798828125,
+      "latency_ms": 8.43191146850586,
       "hits_at_k": 1,
       "precision": 0.3333333333333333,
       "recall": 0.3333333333333333,
@@ -839,7 +839,7 @@
         "Endeavour Agile Alm",
         "Epic Practice Management"
       ],
-      "latency_ms": 8.86225700378418,
+      "latency_ms": 8.89277458190918,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -901,7 +901,7 @@
         "computer operating systems",
         "Operating system software"
       ],
-      "latency_ms": 6.864786148071289,
+      "latency_ms": 7.28607177734375,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -957,7 +957,7 @@
         "Automated underwriting software",
         "Report writing software"
       ],
-      "latency_ms": 7.627964019775391,
+      "latency_ms": 8.957147598266602,
       "hits_at_k": 1,
       "precision": 0.3333333333333333,
       "recall": 0.3333333333333333,
@@ -1023,7 +1023,7 @@
         "Web page design and editing software",
         "Propeller Multimedia React2"
       ],
-      "latency_ms": 8.844852447509766,
+      "latency_ms": 7.188081741333008,
       "hits_at_k": 2,
       "precision": 0.6666666666666666,
       "recall": 0.6666666666666666,
@@ -1084,7 +1084,7 @@
         "Jenkins CI",
         "Computational Dynamics STAR-CD"
       ],
-      "latency_ms": 8.448123931884766,
+      "latency_ms": 8.784294128417969,
       "hits_at_k": 1,
       "precision": 0.3333333333333333,
       "recall": 0.3333333333333333,
@@ -1148,7 +1148,7 @@
         "Customer relationship management CRM software",
         "Salesforce.com Salesforce CRM"
       ],
-      "latency_ms": 10.605812072753906,
+      "latency_ms": 8.37397575378418,
       "hits_at_k": 3,
       "precision": 1.0,
       "recall": 1.0,
@@ -1204,9 +1204,9 @@
     "successful_matches": 20
   },
   "speed_benchmark": {
-    "total_time_ms": 76.72905921936035,
-    "avg_time_per_query_ms": 3.8364529609680176,
-    "queries_per_second": 260.65743804862893,
+    "total_time_ms": 79.08201217651367,
+    "avg_time_per_query_ms": 3.9541006088256836,
+    "queries_per_second": 252.9020120954856,
     "num_queries": 20
   }
 }

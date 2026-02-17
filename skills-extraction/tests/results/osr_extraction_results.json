@@ -1,0 +1,608 @@
+{
+  "per_case": [
+    {
+      "test_id": "OSR001",
+      "input_text": "Built REST APIs using Python and Flask and tested endpoints with Postman.",
+      "latency_ms": 1121.2401390075684,
+      "extracted_raw": [
+        "Python",
+        "Flask",
+        "REST API",
+        "Postman"
+      ],
+      "osr_score": 100.0,
+      "do_count": 4,
+      "po_count": 0,
+      "total_extracted": 4,
+      "matched_skills": [
+        [
+          "Python",
+          "DO"
+        ],
+        [
+          "Flask",
+          "DO"
+        ],
+        [
+          "REST API",
+          "DO"
+        ],
+        [
+          "Postman",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR002",
+      "input_text": "Used active listening and empathy to resolve customer complaints calmly.",
+      "latency_ms": 670.3832149505615,
+      "extracted_raw": [
+        "Active Listening",
+        "Empathy"
+      ],
+      "osr_score": 100.0,
+      "do_count": 2,
+      "po_count": 0,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Active Listening",
+          "DO"
+        ],
+        [
+          "Empathy",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.6666666666666666
+    },
+    {
+      "test_id": "OSR003",
+      "input_text": "Installed electrical outlets, tested circuits using a multimeter, and followed safety procedures.",
+      "latency_ms": 661.2508296966553,
+      "extracted_raw": [
+        "Multimeter",
+        "Safety Procedures"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 1,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Multimeter",
+          "DO"
+        ],
+        [
+          "Safety Procedures",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.6666666666666666
+    },
+    {
+      "test_id": "OSR004",
+      "input_text": "Analyzed financial data in Microsoft Excel and prepared monthly budget reports.",
+      "latency_ms": 466.54677391052246,
+      "extracted_raw": [
+        "Microsoft Excel"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 0,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Microsoft Excel",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.5
+    },
+    {
+      "test_id": "OSR005",
+      "input_text": "Operated a forklift to move inventory and organized pallets in the warehouse.",
+      "latency_ms": 743.9060211181641,
+      "extracted_raw": [
+        "Forklift Operation",
+        "Inventory Management"
+      ],
+      "osr_score": 100.0,
+      "do_count": 0,
+      "po_count": 2,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Forklift Operation",
+          "PO"
+        ],
+        [
+          "Inventory Management",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR006",
+      "input_text": "Demonstrated time management while coordinating multiple deadlines.",
+      "latency_ms": 462.51392364501953,
+      "extracted_raw": [
+        "Time Management"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 0,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Time Management",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.5
+    },
+    {
+      "test_id": "OSR007",
+      "input_text": "Configured Linux servers and deployed web services using Nginx.",
+      "latency_ms": 677.0460605621338,
+      "extracted_raw": [
+        "Linux",
+        "Nginx"
+      ],
+      "osr_score": 100.0,
+      "do_count": 2,
+      "po_count": 0,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Linux",
+          "DO"
+        ],
+        [
+          "Nginx",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.6666666666666666
+    },
+    {
+      "test_id": "OSR008",
+      "input_text": "Measured materials accurately, cut lumber, and assembled wooden frames.",
+      "latency_ms": 711.9669914245605,
+      "extracted_raw": [
+        "Lumber Cutting",
+        "Frame Assembly"
+      ],
+      "osr_score": 50.0,
+      "do_count": 0,
+      "po_count": 1,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Lumber Cutting",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [
+        "Frame Assembly"
+      ],
+      "recall": 0.3333333333333333
+    },
+    {
+      "test_id": "OSR009",
+      "input_text": "Presented project updates clearly and persuaded stakeholders to approve changes.",
+      "latency_ms": 757.209062576294,
+      "extracted_raw": [
+        "Project Management",
+        "Stakeholder Communication"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 1,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Project Management",
+          "DO"
+        ],
+        [
+          "Stakeholder Communication",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR010",
+      "input_text": "Performed vehicle maintenance including oil changes and tire inspections.",
+      "latency_ms": 463.02294731140137,
+      "extracted_raw": [
+        "Vehicle Maintenance"
+      ],
+      "osr_score": 100.0,
+      "do_count": 0,
+      "po_count": 1,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Vehicle Maintenance",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.3333333333333333
+    },
+    {
+      "test_id": "OSR011",
+      "input_text": "Created dashboards in Tableau and summarized insights for leadership.",
+      "latency_ms": 470.8058834075928,
+      "extracted_raw": [
+        "Tableau"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 0,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Tableau",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.3333333333333333
+    },
+    {
+      "test_id": "OSR013",
+      "input_text": "Applied critical thinking to troubleshoot mechanical equipment failures.",
+      "latency_ms": 473.4189510345459,
+      "extracted_raw": [
+        "Critical Thinking"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 0,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Critical Thinking",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.5
+    },
+    {
+      "test_id": "OSR014",
+      "input_text": "Used Python and Pandas to clean datasets and generate reports.",
+      "latency_ms": 627.8362274169922,
+      "extracted_raw": [
+        "Python",
+        "Pandas"
+      ],
+      "osr_score": 100.0,
+      "do_count": 2,
+      "po_count": 0,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Python",
+          "DO"
+        ],
+        [
+          "Pandas",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.6666666666666666
+    },
+    {
+      "test_id": "OSR015",
+      "input_text": "Handled cash transactions, balanced registers, and assisted customers politely.",
+      "latency_ms": 933.0348968505859,
+      "extracted_raw": [
+        "Cash Transactions",
+        "Register Balancing",
+        "Customer Assistance"
+      ],
+      "osr_score": 66.66666666666666,
+      "do_count": 0,
+      "po_count": 2,
+      "total_extracted": 3,
+      "matched_skills": [
+        [
+          "Cash Transactions",
+          "PO"
+        ],
+        [
+          "Customer Assistance",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [
+        "Register Balancing"
+      ],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR016",
+      "input_text": "Demonstrated adaptability when priorities changed unexpectedly.",
+      "latency_ms": 525.5849361419678,
+      "extracted_raw": [
+        "Adaptability"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 0,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Adaptability",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR018",
+      "input_text": "Used negotiation skills to reach agreement on vendor pricing.",
+      "latency_ms": 576.3468742370605,
+      "extracted_raw": [
+        "Negotiation Skills"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 0,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Negotiation Skills",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR019",
+      "input_text": "Monitored patient vital signs and assisted with mobility.",
+      "latency_ms": 781.3313007354736,
+      "extracted_raw": [
+        "Patient Vital Signs Monitoring",
+        "Assisted Mobility"
+      ],
+      "osr_score": 0.0,
+      "do_count": 0,
+      "po_count": 0,
+      "total_extracted": 2,
+      "matched_skills": [],
+      "hallucinated_skills": [
+        "Patient Vital Signs Monitoring",
+        "Assisted Mobility"
+      ],
+      "recall": 0.0
+    },
+    {
+      "test_id": "OSR020",
+      "input_text": "Prepared technical documentation using Markdown and Git.",
+      "latency_ms": 585.8449935913086,
+      "extracted_raw": [
+        "Markdown",
+        "Git"
+      ],
+      "osr_score": 100.0,
+      "do_count": 2,
+      "po_count": 0,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Markdown",
+          "DO"
+        ],
+        [
+          "Git",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.6666666666666666
+    },
+    {
+      "test_id": "OSR022",
+      "input_text": "Demonstrated professionalism and ethical judgment in sensitive situations.",
+      "latency_ms": 713.2160663604736,
+      "extracted_raw": [
+        "Professionalism",
+        "Ethical Judgment"
+      ],
+      "osr_score": 100.0,
+      "do_count": 2,
+      "po_count": 0,
+      "total_extracted": 2,
+      "matched_skills": [
+        [
+          "Professionalism",
+          "DO"
+        ],
+        [
+          "Ethical Judgment",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR023",
+      "input_text": "Used Jira to track tasks and manage sprint planning.",
+      "latency_ms": 900.6800651550293,
+      "extracted_raw": [
+        "Jira",
+        "Task Tracking",
+        "Sprint Planning"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 2,
+      "total_extracted": 3,
+      "matched_skills": [
+        [
+          "Jira",
+          "DO"
+        ],
+        [
+          "Task Tracking",
+          "PO"
+        ],
+        [
+          "Sprint Planning",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR024",
+      "input_text": "Sorted recyclable materials and followed environmental safety procedures.",
+      "latency_ms": 517.9939270019531,
+      "extracted_raw": [
+        "Environmental Safety Procedures"
+      ],
+      "osr_score": 100.0,
+      "do_count": 0,
+      "po_count": 1,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Environmental Safety Procedures",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR025",
+      "input_text": "Used public speaking techniques to engage large audiences.",
+      "latency_ms": 458.9550495147705,
+      "extracted_raw": [
+        "Public Speaking"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 0,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Public Speaking",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.5
+    },
+    {
+      "test_id": "OSR027",
+      "input_text": "Analyzed survey responses and summarized findings in written reports.",
+      "latency_ms": 455.04117012023926,
+      "extracted_raw": [
+        "Report Writing"
+      ],
+      "osr_score": 100.0,
+      "do_count": 0,
+      "po_count": 1,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Report Writing",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.5
+    },
+    {
+      "test_id": "OSR028",
+      "input_text": "Used ladders and safety harnesses during roof inspections.",
+      "latency_ms": 508.5561275482178,
+      "extracted_raw": [
+        "Safety Harnesses"
+      ],
+      "osr_score": 100.0,
+      "do_count": 0,
+      "po_count": 1,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Safety Harnesses",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    },
+    {
+      "test_id": "OSR029",
+      "input_text": "Maintained attention to detail while inspecting finished products.",
+      "latency_ms": 503.04412841796875,
+      "extracted_raw": [
+        "Attention to Detail"
+      ],
+      "osr_score": 100.0,
+      "do_count": 1,
+      "po_count": 0,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Attention to Detail",
+          "DO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 0.5
+    },
+    {
+      "test_id": "OSR030",
+      "input_text": "Managed schedules and prioritized tasks across multiple workstreams.",
+      "latency_ms": 454.50592041015625,
+      "extracted_raw": [
+        "Project Management"
+      ],
+      "osr_score": 100.0,
+      "do_count": 0,
+      "po_count": 1,
+      "total_extracted": 1,
+      "matched_skills": [
+        [
+          "Project Management",
+          "PO"
+        ]
+      ],
+      "hallucinated_skills": [],
+      "recall": 1.0
+    }
+  ],
+  "overall": {
+    "avg_osr": 92.94871794871796,
+    "avg_recall": 0.7051282051282051,
+    "avg_latency_ms": 623.8954800825852,
+    "total_tests": 26,
+    "total_do": 25,
+    "total_po": 14,
+    "total_extracted_skills": 43
+  }
+}

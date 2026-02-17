@@ -1,0 +1,218 @@
+{
+  "test_cases": [
+    {
+      "id": "TC001",
+      "input_text": "Developed APIs using Python and JS, containerized services, and built interfaces.",
+      "expected_skills": [
+        "Python",
+        "API Development",
+        "containerization",
+        "JS"
+      ]
+    },
+    {
+      "id": "TC002",
+      "input_text": "Led cross-functional teams, resolved conflicts, and managed schedules.",
+      "expected_skills": [
+        "Schedule Management",
+        "Conflict Resolution",
+        "cross functional teams"
+      ]
+    },
+    {
+      "id": "TC003",
+      "input_text": "Optimized supply chain operations, ran systems reviews, applied quality processes, and tracked KPIs.",
+      "expected_skills": [
+        "Supply Chain Operations",
+        "Systems Reviews",
+        "KPI tracking",
+        "Quality processes"
+      ]
+    },
+    {
+      "id": "TC004",
+      "input_text": "Built ML models in Python and R, performed statistical work, created dashboards, and documented findings.",
+      "expected_skills": [
+        "Python",
+        "R",
+        "Machine Learning",
+        "Statistical work",
+        "Dashboard creation",
+        "Documentation"
+      ]
+    },
+    {
+      "id": "TC005",
+      "input_text": "Managed budgets, addressed ERP issues, analyzed data in Excel.",
+      "expected_skills": [
+        "Data Analysis",
+        "Excel",
+        "Budget Management",
+        "ERP"
+      ]
+    },
+    {
+      "id": "TC006",
+      "input_text": "I'm raising a python in my backyard terrarium and applying learning techniques for better feeding.",
+      "expected_skills": []
+    },
+    {
+      "id": "TC007",
+      "input_text": "The gallery installation required coordination with staff and thinking about spatial layout.",
+      "expected_skills": []
+    },
+    {
+      "id": "TC008",
+      "input_text": "Spent the weekend writing poetry and practicing speaking for theater.",
+      "expected_skills": []
+    },
+    {
+      "id": "TC010",
+      "input_text": "Science project explored perceptiveness and decision development in teens.",
+      "expected_skills": []
+    },
+    {
+      "id": "TC011",
+      "input_text": "Architected cloud systems with containers and orchestration, implemented ci/cd pipelines, managed NoSQL databases, and used streaming tools.",
+      "expected_skills": [
+        "Docker",
+        "No SQL Databases",
+        "CI/CD pipelines",
+        "Orchestration"
+      ]
+    },
+    {
+      "id": "TC012",
+      "input_text": "Provided weekly instruction, applied active learning in curriculum design, and managed classroom behavior.",
+      "expected_skills": [
+        "Instructing",
+        "Active Learning",
+        "Classroom Management"
+      ]
+    },
+    {
+      "id": "TC013",
+      "input_text": "Used enterprise ERP and database systems, managed CRM workflows, and built tableau dashboards.",
+      "expected_skills": [
+        "ERP",
+        "Database Systems",
+        "CRM",
+        "Tableau"
+      ]
+    },
+    {
+      "id": "TC014",
+      "input_text": "Maintained industrial equipment, improved efficiency through analysis, selected new tech, and installed systems.",
+      "expected_skills": [
+        "Equipment Maintenance",
+        "Repair",
+        "Equipment Selection"
+      ]
+    },
+    {
+      "id": "TC015",
+      "input_text": "Applied critical thinking to engineering problems, used math for calculations, performed QC on designs.",
+      "expected_skills": [
+        "Critical Thinking",
+        "Advanced Mathematics",
+        "Quality Control Analysis",
+        "Science Principles"
+      ]
+    },
+    {
+      "id": "TC017",
+      "input_text": "Managed AWS environments, automated deployments, monitored health checks, and secured networks.",
+      "expected_skills": [
+        "AWS",
+        "Automated Deployments",
+        "Network Security"
+      ]
+    },
+    {
+      "id": "TC018",
+      "input_text": "Designed UI with Adobe tools, built frontend apps using React and JS, styled layouts, and version controlled.",
+      "expected_skills": [
+        "Adobe",
+        "UI Design",
+        "Java Script",
+        "React"
+      ]
+    },
+    {
+      "id": "TC019",
+      "input_text": "Analyzed large datasets using pandas and numpy, modeled trends in R, and built data pipelines.",
+      "expected_skills": [
+        "R",
+        "Numpy",
+        "Pandas"
+      ]
+    },
+    {
+      "id": "TC020",
+      "input_text": "Developed Android and iOS apps, managed source control, and published to app stores.",
+      "expected_skills": [
+        "Android",
+        "IOS",
+        "Source Control"
+      ]
+    },
+    {
+      "id": "TC021",
+      "input_text": "Administered Linux servers, configured web servers, implemented SQL databases, and wrote shell scripts.",
+      "expected_skills": [
+        "Linux",
+        "SQL Databases",
+        "Shell Scripts"
+      ]
+    },
+    {
+      "id": "TC022",
+      "input_text": "Performed security testing using Linux tools, ran vulnerability scans, and analyzed network traffic.",
+      "expected_skills": [
+        "Network Traffic Analysis",
+        "Vulnerability Scans",
+        "linux tools",
+        "Security Testing"
+      ]
+    },
+    {
+      "id": "TC023",
+      "input_text": "Managed schedules in project tools, facilitated agile ceremonies, coordinated teams, and made decisions under pressure.",
+      "expected_skills": [
+        "Project Management",
+        "Agile methodology",
+        "Decision making"
+      ]
+    },
+    {
+      "id": "TC025",
+      "input_text": "Designed database schemas, optimized SQL queries, implemented ETL workflows, and created dashboards.",
+      "expected_skills": [
+        "Database Schemas",
+        "SQL Queries",
+        "ETL Workflows",
+        "Dashboards"
+      ]
+    },
+    {
+      "id": "TC027",
+      "input_text": "Provided customer support, understood client concerns, listened carefully, and communicated solutions.",
+      "expected_skills": [
+        "Customer Support",
+        "Problem Solving",
+        "Communication"
+      ]
+    },
+    {
+      "id": "TC028",
+      "input_text": "Managed personnel across departments, coordinated training, scheduled tasks, and handled labor discussions.",
+      "expected_skills": [
+        "Management of Personnel Resources",
+        "Coordination",
+        "Project Management",
+        "Time Management",
+        "Negotiation"
+      ]
+    }
+  ]
+}

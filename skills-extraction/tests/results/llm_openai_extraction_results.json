@@ -3,75 +3,69 @@
     {
       "test_id": "TC001",
       "input_text": "Developed RESTful APIs using Python and JavaScript, implemented Docker containers for microservices,...",
-      "latency_ms": 3373.706102371216,
-      "precision": 1.0,
+      "latency_ms": 567.3599243164062,
+      "precision": 0.8571428571428571,
       "recall": 1.0,
-      "f1": 1.0,
+      "f1": 0.923076923076923,
       "true_positives": 6,
-      "false_positives": 0,
+      "false_positives": 1,
       "false_negatives": 0,
-      "hallucination_rate": 0.0,
+      "hallucination_rate": 0.14285714285714285,
       "extracted_skills": [
-        "javascript",
-        "microservices",
-        "html",
-        "python",
         "css",
-        "docker"
+        "docker",
+        "restful apis",
+        "javascript",
+        "html",
+        "microservices",
+        "python"
       ],
       "expected_skills": [
-        "javascript",
-        "microservices",
-        "html",
-        "python",
         "css",
-        "docker"
+        "docker",
+        "javascript",
+        "html",
+        "microservices",
+        "python"
       ],
       "missing_skills": [],
-      "extra_skills": []
+      "extra_skills": [
+        "restful apis"
+      ]
     },
     {
       "test_id": "TC002",
       "input_text": "Led cross-functional teams of 15 members, facilitated coordination meetings, resolved conflicts thro...",
-      "latency_ms": 1691.331148147583,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0,
-      "true_positives": 0,
-      "false_positives": 4,
-      "false_negatives": 5,
-      "hallucination_rate": 1.0,
+      "latency_ms": 315.63401222229004,
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.7499999999999999,
+      "true_positives": 3,
+      "false_positives": 0,
+      "false_negatives": 2,
+      "hallucination_rate": 0.0,
       "extracted_skills": [
-        "project timeline management",
-        "conflict resolution through active listening and negotiation",
-        "cross functional team leadership",
-        "coordination meeting facilitation"
+        "negotiation",
+        "active listening",
+        "project management"
       ],
       "expected_skills": [
-        "project management",
-        "active listening",
-        "management of personnel resources",
         "negotiation",
-        "coordination"
+        "active listening",
+        "project management",
+        "coordination",
+        "management of personnel resources"
       ],
       "missing_skills": [
-        "project management",
-        "active listening",
         "management of personnel resources",
-        "negotiation",
         "coordination"
       ],
-      "extra_skills": [
-        "project timeline management",
-        "cross functional team leadership",
-        "coordination meeting facilitation",
-        "conflict resolution through active listening and negotiation"
-      ]
+      "extra_skills": []
     },
     {
       "test_id": "TC003",
       "input_text": "Performed complex problem solving to optimize supply chain operations, conducted systems analysis an...",
-      "latency_ms": 1458.6749076843262,
+      "latency_ms": 528.5229682922363,
       "precision": 0.2,
       "recall": 0.2,
       "f1": 0.20000000000000004,
@@ -80,28 +74,28 @@
       "false_negatives": 4,
       "hallucination_rate": 0.8,
       "extracted_skills": [
-        "quality control",
-        "systems analysis",
-        "kpi monitoring",
         "supply chain optimization",
-        "problem solving"
+        "kpi monitoring",
+        "problem solving",
+        "quality control",
+        "systems analysis"
       ],
       "expected_skills": [
-        "systems analysis",
-        "monitoring kpis",
-        "systems evaluation",
         "quality control analysis",
-        "complex problem solving"
+        "complex problem solving",
+        "systems evaluation",
+        "monitoring kpis",
+        "systems analysis"
       ],
       "missing_skills": [
-        "complex problem solving",
         "quality control analysis",
         "monitoring kpis",
-        "systems evaluation"
+        "systems evaluation",
+        "complex problem solving"
       ],
       "extra_skills": [
-        "supply chain optimization",
         "quality control",
+        "supply chain optimization",
         "problem solving",
         "kpi monitoring"
       ]
@@ -109,34 +103,34 @@
     {
       "test_id": "TC004",
       "input_text": "Built machine learning models using Python and R, performed statistical analysis with SPSS, created ...",
-      "latency_ms": 1784.336805343628,
-      "precision": 0.5714285714285714,
-      "recall": 0.6666666666666666,
-      "f1": 0.6153846153846153,
-      "true_positives": 4,
+      "latency_ms": 593.8570499420166,
+      "precision": 0.625,
+      "recall": 0.8333333333333334,
+      "f1": 0.7142857142857143,
+      "true_positives": 5,
       "false_positives": 3,
-      "false_negatives": 2,
-      "hallucination_rate": 0.42857142857142855,
+      "false_negatives": 1,
+      "hallucination_rate": 0.375,
       "extracted_skills": [
-        "technical documentation",
-        "statistical analysis",
         "r",
+        "technical documentation",
         "spss",
         "tableau",
+        "machine learning",
         "data visualization",
+        "statistical analysis",
         "python"
       ],
       "expected_skills": [
-        "statistical analysis",
         "r",
-        "tableau",
         "technical documentaion",
+        "tableau",
         "machine learning",
+        "statistical analysis",
         "python"
       ],
       "missing_skills": [
-        "technical documentaion",
-        "machine learning"
+        "technical documentaion"
       ],
       "extra_skills": [
         "technical documentation",
@@ -147,73 +141,83 @@
     {
       "test_id": "TC005",
       "input_text": "Managed financial resources and departmental budgets, performed troubleshooting of Oracle ERP system...",
-      "latency_ms": 1449.8507976531982,
-      "precision": 0.6,
-      "recall": 0.6,
-      "f1": 0.6,
-      "true_positives": 3,
-      "false_positives": 2,
-      "false_negatives": 2,
-      "hallucination_rate": 0.4,
+      "latency_ms": 278.60212326049805,
+      "precision": 0.5,
+      "recall": 0.2,
+      "f1": 0.28571428571428575,
+      "true_positives": 1,
+      "false_positives": 1,
+      "false_negatives": 4,
+      "hallucination_rate": 0.5,
       "extracted_skills": [
-        "microsoft excel",
-        "oracle erp systems",
-        "troubleshooting",
-        "financial data analysis",
-        "budget management"
+        "oracle erp",
+        "microsoft excel"
       ],
       "expected_skills": [
+        "management of financial resources",
         "microsoft excel",
-        "oracle erp systems",
-        "troubleshooting",
         "oracle",
-        "management of financial resources"
+        "oracle erp systems",
+        "troubleshooting"
       ],
       "missing_skills": [
+        "oracle erp systems",
+        "management of financial resources",
         "oracle",
-        "management of financial resources"
+        "troubleshooting"
       ],
       "extra_skills": [
-        "budget management",
-        "financial data analysis"
+        "oracle erp"
       ]
     },
     {
       "test_id": "TC006",
       "input_text": "I'm raising a python snake in my backyard terrarium and using active learning techniques to train it...",
-      "latency_ms": 316.0419464111328,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "true_positives": 1,
-      "false_positives": 0,
+      "latency_ms": 272.57394790649414,
+      "precision": 0.0,
+      "recall": 0,
+      "f1": 0,
+      "true_positives": 0,
+      "false_positives": 1,
       "false_negatives": 0,
-      "hallucination_rate": 0.0,
-      "extracted_skills": [],
+      "hallucination_rate": 1.0,
+      "extracted_skills": [
+        "active learning techniques"
+      ],
       "expected_skills": [],
       "missing_skills": [],
-      "extra_skills": []
+      "extra_skills": [
+        "active learning techniques"
+      ]
     },
     {
       "test_id": "TC007",
       "input_text": "The art installation at the downtown gallery required coordination with staff and critical thinking ...",
-      "latency_ms": 286.2250804901123,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "true_positives": 1,
-      "false_positives": 0,
+      "latency_ms": 368.9718246459961,
+      "precision": 0.0,
+      "recall": 0,
+      "f1": 0,
+      "true_positives": 0,
+      "false_positives": 3,
       "false_negatives": 0,
-      "hallucination_rate": 0.0,
-      "extracted_skills": [],
+      "hallucination_rate": 1.0,
+      "extracted_skills": [
+        "critical thinking",
+        "coordination",
+        "spatial arrangement"
+      ],
       "expected_skills": [],
       "missing_skills": [],
-      "extra_skills": []
+      "extra_skills": [
+        "critical thinking",
+        "coordination",
+        "spatial arrangement"
+      ]
     },
     {
       "test_id": "TC008",
       "input_text": "I spent the weekend writing poetry for my creative writing class and practicing my speaking skills f...",
-      "latency_ms": 284.7929000854492,
+      "latency_ms": 307.6319694519043,
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
@@ -229,7 +233,7 @@
     {
       "test_id": "TC009",
       "input_text": "The hospital's monitoring equipment displayed vital signs during the operation and control of the pa...",
-      "latency_ms": 284.1660976409912,
+      "latency_ms": 257.74097442626953,
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
@@ -245,7 +249,7 @@
     {
       "test_id": "TC010",
       "input_text": "My science fair project studied social perceptiveness in teenagers and how judgment and decision mak...",
-      "latency_ms": 284.8830223083496,
+      "latency_ms": 268.84913444519043,
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
@@ -261,7 +265,7 @@
     {
       "test_id": "TC011",
       "input_text": "Architected cloud infrastructure using Docker and Kubernetes, implemented CI/CD pipelines with Jenki...",
-      "latency_ms": 1654.6049118041992,
+      "latency_ms": 498.0788230895996,
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
@@ -271,19 +275,19 @@
       "hallucination_rate": 0.0,
       "extracted_skills": [
         "mongodb",
-        "apache kafka",
+        "ci/cd",
         "jenkins",
-        "kubernetes",
         "docker",
-        "ci/cd"
+        "kubernetes",
+        "apache kafka"
       ],
       "expected_skills": [
         "mongodb",
-        "docker",
-        "apache kafka",
+        "ci/cd",
         "jenkins",
+        "docker",
         "kubernetes",
-        "ci/cd"
+        "apache kafka"
       ],
       "missing_skills": [],
       "extra_skills": []
@@ -291,122 +295,7 @@
     {
       "test_id": "TC012",
       "input_text": "Provided instruction to 50+ students weekly, demonstrated active learning strategies in curriculum d...",
-      "latency_ms": 1244.079828262329,
-      "precision": 1.0,
-      "recall": 0.75,
-      "f1": 0.8571428571428571,
-      "true_positives": 3,
-      "false_positives": 0,
-      "false_negatives": 1,
-      "hallucination_rate": 0.0,
-      "extracted_skills": [
-        "classroom management",
-        "active learning strategies",
-        "social perceptiveness"
-      ],
-      "expected_skills": [
-        "classroom management",
-        "active learning strategies",
-        "instructing",
-        "social perceptiveness"
-      ],
-      "missing_skills": [
-        "instructing"
-      ],
-      "extra_skills": []
-    },
-    {
-      "test_id": "TC013",
-      "input_text": "Utilized SAP ERP for enterprise resource planning, Oracle Database for data management, implemented ...",
-      "latency_ms": 1333.8229656219482,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "true_positives": 4,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "hallucination_rate": 0.0,
-      "extracted_skills": [
-        "sap erp",
-        "salesforce crm",
-        "tableau",
-        "oracle database"
-      ],
-      "expected_skills": [
-        "sap erp",
-        "salesforce crm",
-        "tableau",
-        "oracle database"
-      ],
-      "missing_skills": [],
-      "extra_skills": []
-    },
-    {
-      "test_id": "TC014",
-      "input_text": "Performed equipment maintenance and repair on industrial machinery, conducted operations analysis to...",
-      "latency_ms": 1341.7479991912842,
-      "precision": 0.6,
-      "recall": 0.5,
-      "f1": 0.5454545454545454,
-      "true_positives": 3,
-      "false_positives": 2,
-      "false_negatives": 3,
-      "hallucination_rate": 0.4,
-      "extracted_skills": [
-        "operations analysis",
-        "technology selection",
-        "system installation",
-        "maintenance",
-        "repair"
-      ],
-      "expected_skills": [
-        "operations analysis",
-        "equipment maintenance",
-        "system installation",
-        "repair",
-        "technology design",
-        "equipment selection"
-      ],
-      "missing_skills": [
-        "technology design",
-        "equipment maintenance",
-        "equipment selection"
-      ],
-      "extra_skills": [
-        "maintenance",
-        "technology selection"
-      ]
-    },
-    {
-      "test_id": "TC015",
-      "input_text": "Applied critical thinking to solve complex engineering challenges, used advanced mathematics for str...",
-      "latency_ms": 1288.2709503173828,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "true_positives": 4,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "hallucination_rate": 0.0,
-      "extracted_skills": [
-        "science principles",
-        "advanced mathematics",
-        "critical thinking",
-        "quality control analysis"
-      ],
-      "expected_skills": [
-        "science principles",
-        "advanced mathematics",
-        "critical thinking",
-        "quality control analysis"
-      ],
-      "missing_skills": [],
-      "extra_skills": []
-    },
-    {
-      "test_id": "TC016",
-      "input_text": "Delivered persuasive presentations to C-level executives, demonstrated strong speaking proficiency i...",
-      "latency_ms": 1516.0582065582275,
+      "latency_ms": 358.17408561706543,
       "precision": 0.75,
       "recall": 0.75,
       "f1": 0.75,
@@ -415,63 +304,181 @@
       "false_negatives": 1,
       "hallucination_rate": 0.25,
       "extracted_skills": [
-        "negotiation skills",
-        "speaking proficiency",
-        "active listening",
-        "persuasive presentations"
+        "classroom management",
+        "curriculum design",
+        "social perceptiveness",
+        "active learning strategies"
       ],
       "expected_skills": [
-        "speaking",
-        "negotiation skills",
-        "active listening",
-        "persuasive presentations"
+        "instructing",
+        "classroom management",
+        "social perceptiveness",
+        "active learning strategies"
       ],
       "missing_skills": [
+        "instructing"
+      ],
+      "extra_skills": [
+        "curriculum design"
+      ]
+    },
+    {
+      "test_id": "TC013",
+      "input_text": "Utilized SAP ERP for enterprise resource planning, Oracle Database for data management, implemented ...",
+      "latency_ms": 1094.9208736419678,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "true_positives": 4,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "hallucination_rate": 0.0,
+      "extracted_skills": [
+        "salesforce crm",
+        "oracle database",
+        "tableau",
+        "sap erp"
+      ],
+      "expected_skills": [
+        "salesforce crm",
+        "oracle database",
+        "tableau",
+        "sap erp"
+      ],
+      "missing_skills": [],
+      "extra_skills": []
+    },
+    {
+      "test_id": "TC014",
+      "input_text": "Performed equipment maintenance and repair on industrial machinery, conducted operations analysis to...",
+      "latency_ms": 373.71063232421875,
+      "precision": 0.75,
+      "recall": 0.5,
+      "f1": 0.6,
+      "true_positives": 3,
+      "false_positives": 1,
+      "false_negatives": 3,
+      "hallucination_rate": 0.25,
+      "extracted_skills": [
+        "operations analysis",
+        "equipment maintenance",
+        "system installation",
+        "technology selection"
+      ],
+      "expected_skills": [
+        "technology design",
+        "repair",
+        "system installation",
+        "operations analysis",
+        "equipment maintenance",
+        "equipment selection"
+      ],
+      "missing_skills": [
+        "technology design",
+        "equipment selection",
+        "repair"
+      ],
+      "extra_skills": [
+        "technology selection"
+      ]
+    },
+    {
+      "test_id": "TC015",
+      "input_text": "Applied critical thinking to solve complex engineering challenges, used advanced mathematics for str...",
+      "latency_ms": 336.101770401001,
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5,
+      "true_positives": 2,
+      "false_positives": 2,
+      "false_negatives": 2,
+      "hallucination_rate": 0.5,
+      "extracted_skills": [
+        "quality control",
+        "critical thinking",
+        "material selection",
+        "advanced mathematics"
+      ],
+      "expected_skills": [
+        "quality control analysis",
+        "critical thinking",
+        "advanced mathematics",
+        "science principles"
+      ],
+      "missing_skills": [
+        "quality control analysis",
+        "science principles"
+      ],
+      "extra_skills": [
+        "quality control",
+        "material selection"
+      ]
+    },
+    {
+      "test_id": "TC016",
+      "input_text": "Delivered persuasive presentations to C-level executives, demonstrated strong speaking proficiency i...",
+      "latency_ms": 426.8381595611572,
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5,
+      "true_positives": 2,
+      "false_positives": 2,
+      "false_negatives": 2,
+      "hallucination_rate": 0.5,
+      "extracted_skills": [
+        "speaking proficiency",
+        "active listening",
+        "presentation skills",
+        "negotiation skills"
+      ],
+      "expected_skills": [
+        "persuasive presentations",
+        "active listening",
+        "speaking",
+        "negotiation skills"
+      ],
+      "missing_skills": [
+        "persuasive presentations",
         "speaking"
       ],
       "extra_skills": [
-        "speaking proficiency"
+        "speaking proficiency",
+        "presentation skills"
       ]
     },
     {
       "test_id": "TC017",
       "input_text": "Managed cloud infrastructure on Amazon Web Services, automated deployments using Ansible and Puppet,...",
-      "latency_ms": 2282.62996673584,
-      "precision": 0.5,
+      "latency_ms": 439.0270709991455,
+      "precision": 0.8,
       "recall": 1.0,
-      "f1": 0.6666666666666666,
+      "f1": 0.888888888888889,
       "true_positives": 4,
-      "false_positives": 4,
+      "false_positives": 1,
       "false_negatives": 0,
-      "hallucination_rate": 0.5,
+      "hallucination_rate": 0.2,
       "extracted_skills": [
-        "network security",
-        "monitoring",
         "ansible",
-        "nagios",
-        "automated deployments",
-        "firewall configurations",
-        "puppet",
-        "amazon web services"
-      ],
-      "expected_skills": [
         "amazon web services",
         "firewall configurations",
+        "nagios",
+        "puppet"
+      ],
+      "expected_skills": [
         "ansible",
+        "firewall configurations",
+        "amazon web services",
         "puppet"
       ],
       "missing_skills": [],
       "extra_skills": [
-        "network security",
-        "nagios",
-        "automated deployments",
-        "monitoring"
+        "nagios"
       ]
     },
     {
       "test_id": "TC018",
       "input_text": "Designed user interfaces with Adobe Photoshop and Adobe Illustrator, developed frontend applications...",
-      "latency_ms": 1458.5011005401611,
+      "latency_ms": 543.4551239013672,
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
@@ -480,20 +487,20 @@
       "false_negatives": 0,
       "hallucination_rate": 0.0,
       "extracted_skills": [
-        "git",
         "adobe illustrator",
-        "javascript",
-        "adobe photoshop",
+        "css",
         "react",
-        "css"
+        "adobe photoshop",
+        "javascript",
+        "git"
       ],
       "expected_skills": [
-        "git",
         "adobe illustrator",
-        "javascript",
-        "adobe photoshop",
+        "css",
         "react",
-        "css"
+        "adobe photoshop",
+        "javascript",
+        "git"
       ],
       "missing_skills": [],
       "extra_skills": []
@@ -501,37 +508,40 @@
     {
       "test_id": "TC019",
       "input_text": "Analyzed large datasets using Python pandas and NumPy libraries, created interactive visualizations ...",
-      "latency_ms": 1593.238115310669,
-      "precision": 1.0,
+      "latency_ms": 447.46899604797363,
+      "precision": 0.8571428571428571,
       "recall": 1.0,
-      "f1": 1.0,
+      "f1": 0.923076923076923,
       "true_positives": 6,
-      "false_positives": 0,
+      "false_positives": 1,
       "false_negatives": 0,
-      "hallucination_rate": 0.0,
+      "hallucination_rate": 0.14285714285714285,
       "extracted_skills": [
         "r",
-        "tableau",
-        "python",
         "numpy",
+        "tableau",
         "pandas",
-        "apache spark"
+        "statistical modeling",
+        "apache spark",
+        "python"
       ],
       "expected_skills": [
         "r",
-        "tableau",
-        "python",
         "numpy",
+        "tableau",
         "pandas",
-        "apache spark"
+        "apache spark",
+        "python"
       ],
       "missing_skills": [],
-      "extra_skills": []
+      "extra_skills": [
+        "statistical modeling"
+      ]
     },
     {
       "test_id": "TC020",
       "input_text": "Developed native mobile applications for Android using Java and Kotlin, built iOS apps with Swift an...",
-      "latency_ms": 1291.963815689087,
+      "latency_ms": 499.65620040893555,
       "precision": 1.0,
       "recall": 0.8333333333333334,
       "f1": 0.9090909090909091,
@@ -540,19 +550,19 @@
       "false_negatives": 1,
       "hallucination_rate": 0.0,
       "extracted_skills": [
-        "git",
         "objective c",
-        "java",
+        "swift",
         "kotlin",
-        "swift"
+        "java",
+        "git"
       ],
       "expected_skills": [
-        "git",
         "objective c",
+        "swift",
         "android",
-        "java",
         "kotlin",
-        "swift"
+        "java",
+        "git"
       ],
       "missing_skills": [
         "android"
@@ -562,168 +572,191 @@
     {
       "test_id": "TC021",
       "input_text": "Administered Linux servers running Red Hat Enterprise Linux, configured Apache HTTP Server and Nginx...",
-      "latency_ms": 2153.5630226135254,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "true_positives": 8,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "hallucination_rate": 0.0,
+      "latency_ms": 559.851884841919,
+      "precision": 0.8571428571428571,
+      "recall": 0.75,
+      "f1": 0.7999999999999999,
+      "true_positives": 6,
+      "false_positives": 1,
+      "false_negatives": 2,
+      "hallucination_rate": 0.14285714285714285,
       "extracted_skills": [
-        "apache http server",
-        "red hat enterprise linux",
-        "bash",
-        "mysql",
+        "bash shell scripting",
         "postgresql",
+        "mysql",
+        "red hat enterprise linux",
+        "linux",
         "nginx",
-        "shell scripting",
-        "linux"
+        "apache http server"
       ],
       "expected_skills": [
-        "apache http server",
-        "red hat enterprise linux",
-        "bash",
-        "mysql",
         "postgresql",
-        "nginx",
+        "mysql",
+        "bash",
+        "red hat enterprise linux",
         "shell scripting",
-        "linux"
+        "linux",
+        "nginx",
+        "apache http server"
       ],
-      "missing_skills": [],
-      "extra_skills": []
+      "missing_skills": [
+        "bash",
+        "shell scripting"
+      ],
+      "extra_skills": [
+        "bash shell scripting"
+      ]
     },
     {
       "test_id": "TC022",
       "input_text": "Conducted penetration testing using Kali Linux and Metasploit framework, implemented network securit...",
-      "latency_ms": 2312.814235687256,
-      "precision": 0.8571428571428571,
-      "recall": 1.0,
-      "f1": 0.923076923076923,
-      "true_positives": 6,
-      "false_positives": 1,
-      "false_negatives": 0,
-      "hallucination_rate": 0.14285714285714285,
+      "latency_ms": 524.9302387237549,
+      "precision": 0.5714285714285714,
+      "recall": 0.6666666666666666,
+      "f1": 0.6153846153846153,
+      "true_positives": 4,
+      "false_positives": 3,
+      "false_negatives": 2,
+      "hallucination_rate": 0.42857142857142855,
       "extracted_skills": [
-        "network security",
-        "vulnerability assessment",
-        "kali linux",
         "firewall software",
+        "network security",
+        "kali linux",
+        "nessus",
+        "metasploit",
         "wireshark",
-        "nessus scanner",
-        "metasploit framework"
+        "vulnerability assessments"
       ],
       "expected_skills": [
+        "firewall software",
+        "nessus scanner",
         "network security",
         "kali linux",
-        "firewall software",
         "wireshark",
+        "metasploit framework"
+      ],
+      "missing_skills": [
         "nessus scanner",
         "metasploit framework"
       ],
-      "missing_skills": [],
       "extra_skills": [
-        "vulnerability assessment"
+        "vulnerability assessments",
+        "metasploit",
+        "nessus"
       ]
     },
     {
       "test_id": "TC023",
       "input_text": "Managed project schedules using Microsoft Project and Jira, facilitated Agile Scrum ceremonies, coor...",
-      "latency_ms": 1600.8141040802002,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "true_positives": 5,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "hallucination_rate": 0.0,
+      "latency_ms": 357.87487030029297,
+      "precision": 0.6,
+      "recall": 0.6,
+      "f1": 0.6,
+      "true_positives": 3,
+      "false_positives": 2,
+      "false_negatives": 2,
+      "hallucination_rate": 0.4,
       "extracted_skills": [
-        "project management",
         "jira",
-        "microsoft project",
         "time management",
-        "agile scrum"
+        "scrum",
+        "microsoft project",
+        "agile"
       ],
       "expected_skills": [
-        "project management",
         "jira",
-        "microsoft project",
         "time management",
+        "project management",
+        "microsoft project",
         "agile scrum"
       ],
-      "missing_skills": [],
-      "extra_skills": []
+      "missing_skills": [
+        "project management",
+        "agile scrum"
+      ],
+      "extra_skills": [
+        "scrum",
+        "agile"
+      ]
     },
     {
       "test_id": "TC024",
       "input_text": "Built deep learning models with TensorFlow and PyTorch frameworks, processed natural language using ...",
-      "latency_ms": 1545.7649230957031,
-      "precision": 0.8,
+      "latency_ms": 488.05689811706543,
+      "precision": 0.5714285714285714,
       "recall": 0.8,
-      "f1": 0.8000000000000002,
+      "f1": 0.6666666666666666,
       "true_positives": 4,
-      "false_positives": 1,
+      "false_positives": 3,
       "false_negatives": 1,
-      "hallucination_rate": 0.2,
+      "hallucination_rate": 0.42857142857142855,
       "extracted_skills": [
-        "version control",
+        "tensorflow",
+        "deep learning",
         "docker",
-        "python nltk",
+        "natural language processing",
+        "version control",
         "pytorch",
-        "tensorflow"
+        "python nltk"
       ],
       "expected_skills": [
         "tensorflow",
-        "python nltk",
-        "python",
+        "docker",
         "pytorch",
-        "docker"
+        "python",
+        "python nltk"
       ],
       "missing_skills": [
         "python"
       ],
       "extra_skills": [
+        "deep learning",
+        "natural language processing",
         "version control"
       ]
     },
     {
       "test_id": "TC025",
       "input_text": "Designed normalized database schemas, optimized complex SQL queries for Oracle and Microsoft SQL Ser...",
-      "latency_ms": 1531.0778617858887,
-      "precision": 0.8,
+      "latency_ms": 480.9103012084961,
+      "precision": 0.5714285714285714,
       "recall": 0.6666666666666666,
-      "f1": 0.7272727272727272,
+      "f1": 0.6153846153846153,
       "true_positives": 4,
-      "false_positives": 1,
+      "false_positives": 3,
       "false_negatives": 2,
-      "hallucination_rate": 0.2,
+      "hallucination_rate": 0.42857142857142855,
       "extracted_skills": [
         "etl",
-        "microsoft sql server",
-        "informatica powercenter",
+        "database design",
         "tableau",
-        "oracle"
+        "oracle",
+        "sql",
+        "informatica powercenter",
+        "microsoft sql server"
       ],
       "expected_skills": [
-        "microsoft sql server",
-        "database schemas",
-        "informatica powercenter",
         "tableau",
         "sql queries",
-        "oracle"
+        "oracle",
+        "database schemas",
+        "informatica powercenter",
+        "microsoft sql server"
       ],
       "missing_skills": [
         "sql queries",
         "database schemas"
       ],
       "extra_skills": [
-        "etl"
+        "database design",
+        "etl",
+        "sql"
       ]
     },
     {
       "test_id": "TC026",
       "input_text": "Executed equipment selection for new manufacturing line, performed installation of robotic systems, ...",
-      "latency_ms": 1954.815149307251,
+      "latency_ms": 458.3780765533447,
       "precision": 0.3333333333333333,
       "recall": 0.4,
       "f1": 0.3636363636363636,
@@ -732,36 +765,36 @@
       "false_negatives": 3,
       "hallucination_rate": 0.6666666666666666,
       "extracted_skills": [
-        "troubleshooting",
-        "conveyor belts repair",
+        "control systems",
+        "conveyor belt repair",
         "robotic systems installation",
-        "control systems monitoring",
         "operation monitoring",
-        "equipment selection"
+        "equipment selection",
+        "troubleshooting"
       ],
       "expected_skills": [
         "troubleshooting",
-        "monitoring",
-        "installation",
         "repair",
-        "equipment selection"
+        "installation",
+        "equipment selection",
+        "monitoring"
       ],
       "missing_skills": [
-        "installation",
         "repair",
+        "installation",
         "monitoring"
       ],
       "extra_skills": [
-        "robotic systems installation",
-        "control systems monitoring",
         "operation monitoring",
-        "conveyor belts repair"
+        "control systems",
+        "conveyor belt repair",
+        "robotic systems installation"
       ]
     },
     {
       "test_id": "TC027",
       "input_text": "Demonstrated service orientation in customer support role, applied social perceptiveness to understa...",
-      "latency_ms": 1332.0362567901611,
+      "latency_ms": 378.2837390899658,
       "precision": 1.0,
       "recall": 0.8,
       "f1": 0.888888888888889,
@@ -770,17 +803,17 @@
       "false_negatives": 1,
       "hallucination_rate": 0.0,
       "extracted_skills": [
-        "service orientation",
+        "social perceptiveness",
         "effective speaking",
         "active listening",
-        "social perceptiveness"
+        "service orientation"
       ],
       "expected_skills": [
         "effective speaking",
-        "active listening",
-        "service orientation",
         "persuasion",
-        "social perceptiveness"
+        "active listening",
+        "social perceptiveness",
+        "service orientation"
       ],
       "missing_skills": [
         "persuasion"
@@ -790,91 +823,103 @@
     {
       "test_id": "TC028",
       "input_text": "Managed personnel resources across three departments, coordinated training programs, instructed new ...",
-      "latency_ms": 1073.0750560760498,
-      "precision": 1.0,
-      "recall": 0.6,
-      "f1": 0.7499999999999999,
-      "true_positives": 3,
-      "false_positives": 0,
-      "false_negatives": 2,
-      "hallucination_rate": 0.0,
+      "latency_ms": 406.34703636169434,
+      "precision": 0.5,
+      "recall": 0.4,
+      "f1": 0.4444444444444445,
+      "true_positives": 2,
+      "false_positives": 2,
+      "false_negatives": 3,
+      "hallucination_rate": 0.5,
       "extracted_skills": [
-        "project management",
         "time management",
-        "negotiation"
+        "negotiation",
+        "training coordination",
+        "personnel management"
       ],
       "expected_skills": [
-        "project management",
-        "management of personnel resources",
         "negotiation",
         "time management",
-        "coordination"
-      ],
-      "missing_skills": [
+        "project management",
         "coordination",
         "management of personnel resources"
       ],
-      "extra_skills": []
+      "missing_skills": [
+        "coordination",
+        "management of personnel resources",
+        "project management"
+      ],
+      "extra_skills": [
+        "training coordination",
+        "personnel management"
+      ]
     },
     {
       "test_id": "TC029",
       "input_text": "Performed systems evaluation of legacy infrastructure, conducted operations analysis to identify bot...",
-      "latency_ms": 1121.964931488037,
-      "precision": 0.6666666666666666,
-      "recall": 0.6666666666666666,
-      "f1": 0.6666666666666666,
-      "true_positives": 2,
-      "false_positives": 1,
-      "false_negatives": 1,
-      "hallucination_rate": 0.3333333333333333,
+      "latency_ms": 446.85983657836914,
+      "precision": 0.6,
+      "recall": 1.0,
+      "f1": 0.7499999999999999,
+      "true_positives": 3,
+      "false_positives": 2,
+      "false_negatives": 0,
+      "hallucination_rate": 0.4,
       "extracted_skills": [
-        "operations analysis",
+        "mathematics",
         "throughput optimization",
-        "performance improvement modeling"
+        "performance improvement",
+        "systems evaluation",
+        "operations analysis"
       ],
       "expected_skills": [
-        "operations analysis",
+        "systems evaluation",
         "throughput optimization",
-        "systems evaluation"
+        "operations analysis"
       ],
-      "missing_skills": [
-        "systems evaluation"
-      ],
+      "missing_skills": [],
       "extra_skills": [
-        "performance improvement modeling"
+        "mathematics",
+        "performance improvement"
       ]
     },
     {
       "test_id": "TC030",
       "input_text": "The Python programming course covered reading comprehension of documentation, writing clean code, an...",
-      "latency_ms": 785.6519222259521,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "true_positives": 2,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "hallucination_rate": 0.0,
+      "latency_ms": 307.07788467407227,
+      "precision": 0.3333333333333333,
+      "recall": 0.5,
+      "f1": 0.4,
+      "true_positives": 1,
+      "false_positives": 2,
+      "false_negatives": 1,
+      "hallucination_rate": 0.6666666666666666,
       "extracted_skills": [
-        "active learning",
-        "python"
+        "python",
+        "algorithms",
+        "active learning techniques"
       ],
       "expected_skills": [
-        "active learning",
-        "python"
+        "python",
+        "active learning"
       ],
-      "missing_skills": [],
-      "extra_skills": []
+      "missing_skills": [
+        "active learning"
+      ],
+      "extra_skills": [
+        "algorithms",
+        "active learning techniques"
+      ]
     }
   ],
   "overall": {
-    "avg_precision": 0.8226190476190477,
-    "avg_recall": 0.8077777777777779,
-    "avg_f1": 0.8087760387760388,
-    "avg_latency_ms": 1387.6834710439045,
+    "avg_precision": 0.6759126984126984,
+    "avg_recall": 0.6833333333333333,
+    "avg_f1": 0.6696179746179746,
+    "avg_latency_ms": 439.5248810450236,
     "total_tests": 30,
-    "successful_tests": 29,
-    "false_positives": 0.9333333333333333,
-    "hallucination_rate": 0.17738095238095236
+    "successful_tests": 28,
+    "false_positives": 1.4333333333333333,
+    "hallucination_rate": 0.3240873015873016
   }
 }

@@ -44,6 +44,7 @@ You are an expert Skill Extraction engine.
 Task:
 - Extract ONLY skills (technologies, tools, frameworks, methodologies, soft skills, hard skills) from the given text.
 - A term must be treated as a skill ONLY if it is used in a professional, technical, educational, or workplace context.
+- This skills extraction is not only meant for technical skills and soft skills but also for any other skills that can be used in a professional, technical, educational, or workplace context (It may include white-collar jobs, blue-collar jobs, etc.).
 - Ignore terms that appear in non-skill meanings such as animals, food, geography, common nouns, or everyday conversation.
 - Output list of extracted skills as shown below.
 - Output Format:
@@ -196,8 +197,8 @@ async def extract_endpoint(request: ExtractionRequest):
             if normalized_name not in skills_added:
                 skills_added.add(normalized_name)
                 formatted_related.append({
-                    "name": normalized_name, 
-                    "score": score,
+                    "onet_skill_name": normalized_name, 
+                    "similarity_score": score,
                     "soc_codes": soc_codes_list[:5],
                     "uuid": uuid_val
                 })

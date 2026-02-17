@@ -1,0 +1,218 @@
+{
+    "observable_skill_tests": [
+        {
+            "id": "OSR001",
+            "input_text": "Built REST APIs using Python and Flask and tested endpoints with Postman.",
+            "expected_classification": {
+                "Python": "DO",
+                "Flask": "DO",
+                "Postman": "DO",
+                "REST API": "DO"
+            }
+        },
+        {
+            "id": "OSR002",
+            "input_text": "Used active listening and empathy to resolve customer complaints calmly.",
+            "expected_classification": {
+                "Active Listening": "DO",
+                "Empathy": "DO",
+                "Conflict Resolution": "PO"
+            }
+        },
+        {
+            "id": "OSR003",
+            "input_text": "Installed electrical outlets, tested circuits using a multimeter, and followed safety procedures.",
+            "expected_classification": {
+                "Safety Procedures": "PO",
+                "Multimeter": "DO",
+                "Circuits Testing": "PO"
+            }
+        },
+        {
+            "id": "OSR004",
+            "input_text": "Analyzed financial data in Microsoft Excel and prepared monthly budget reports.",
+            "expected_classification": {
+                "Microsoft Excel": "DO",
+                "Financial Analysis": "PO"
+            }
+        },
+        {
+            "id": "OSR005",
+            "input_text": "Operated a forklift to move inventory and organized pallets in the warehouse.",
+            "expected_classification": {
+                "Forklift Operation": "PO",
+                "Inventory Management": "PO"
+            }
+        },
+        {
+            "id": "OSR006",
+            "input_text": "Demonstrated time management while coordinating multiple deadlines.",
+            "expected_classification": {
+                "Time Management": "DO",
+                "Coordination": "PO"
+            }
+        },
+        {
+            "id": "OSR007",
+            "input_text": "Configured Linux servers and deployed web services using Nginx.",
+            "expected_classification": {
+                "Linux": "DO",
+                "NGINX": "DO",
+                "Server Deployment": "PO"
+            }
+        },
+        {
+            "id": "OSR008",
+            "input_text": "Measured materials accurately, cut lumber, and assembled wooden frames.",
+            "expected_classification": {
+                "Accurate Measurement": "PO",
+                "Lumber Cutting": "PO",
+                "Wooden Frame Assembly": "PO"
+            }
+        },
+        {
+            "id": "OSR009",
+            "input_text": "Presented project updates clearly and persuaded stakeholders to approve changes.",
+            "expected_classification": {
+                "Project Management": "DO",
+                "Stakeholder Communication": "PO"
+            }
+        },
+        {
+            "id": "OSR010",
+            "input_text": "Performed vehicle maintenance including oil changes and tire inspections.",
+            "expected_classification": {
+                "Vehicle Maintenance": "PO",
+                "Oil Change": "PO",
+                "Tire Inspection": "PO"
+            }
+        },
+        {
+            "id": "OSR011",
+            "input_text": "Created dashboards in Tableau and summarized insights for leadership.",
+            "expected_classification": {
+                "Tableau": "DO",
+                "Data Visualization": "PO",
+                "Insight Communication": "PO"
+            }
+        },
+        {
+            "id": "OSR013",
+            "input_text": "Applied critical thinking to troubleshoot mechanical equipment failures.",
+            "expected_classification": {
+                "Critical Thinking": "DO",
+                "Mechanical Troubleshooting": "PO"
+            }
+        },
+        {
+            "id": "OSR014",
+            "input_text": "Used Python and Pandas to clean datasets and generate reports.",
+            "expected_classification": {
+                "Python": "DO",
+                "Pandas": "DO",
+                "Data Cleaning": "PO"
+            }
+        },
+        {
+            "id": "OSR015",
+            "input_text": "Handled cash transactions, balanced registers, and assisted customers politely.",
+            "expected_classification": {
+                "Cash Transactions": "PO",
+                "Customer Assistance": "PO"
+            }
+        },
+        {
+            "id": "OSR016",
+            "input_text": "Demonstrated adaptability when priorities changed unexpectedly.",
+            "expected_classification": {
+                "Adaptability": "DO"
+            }
+        },
+        {
+            "id": "OSR018",
+            "input_text": "Used negotiation skills to reach agreement on vendor pricing.",
+            "expected_classification": {
+                "Negotiation Skills": "DO"
+            }
+        },
+        {
+            "id": "OSR019",
+            "input_text": "Monitored patient vital signs and assisted with mobility.",
+            "expected_classification": {
+                "Vital Signs Monitoring": "PO",
+                "Patient Assistance": "PO"
+            }
+        },
+        {
+            "id": "OSR020",
+            "input_text": "Prepared technical documentation using Markdown and Git.",
+            "expected_classification": {
+                "Markdown": "DO",
+                "Git": "DO",
+                "Technical Documentation": "PO"
+            }
+        },
+        {
+            "id": "OSR022",
+            "input_text": "Demonstrated professionalism and ethical judgment in sensitive situations.",
+            "expected_classification": {
+                "Professionalism": "DO",
+                "Ethical Judgment": "DO"
+            }
+        },
+        {
+            "id": "OSR023",
+            "input_text": "Used Jira to track tasks and manage sprint planning.",
+            "expected_classification": {
+                "Jira": "DO",
+                "Sprint Planning": "PO",
+                "Task Tracking": "PO"
+            }
+        },
+        {
+            "id": "OSR024",
+            "input_text": "Sorted recyclable materials and followed environmental safety procedures.",
+            "expected_classification": {
+                "Environmental Safety Procedures": "PO"
+            }
+        },
+        {
+            "id": "OSR025",
+            "input_text": "Used public speaking techniques to engage large audiences.",
+            "expected_classification": {
+                "Public Speaking": "DO",
+                "Audience Engagement": "PO"
+            }
+        },
+        {
+            "id": "OSR027",
+            "input_text": "Analyzed survey responses and summarized findings in written reports.",
+            "expected_classification": {
+                "Data Analysis": "PO",
+                "Report Writing": "PO"
+            }
+        },
+        {
+            "id": "OSR028",
+            "input_text": "Used ladders and safety harnesses during roof inspections.",
+            "expected_classification": {
+                "Safety Harnesses": "PO"
+            }
+        },
+        {
+            "id": "OSR029",
+            "input_text": "Maintained attention to detail while inspecting finished products.",
+            "expected_classification": {
+                "Attention to Detail": "DO",
+                "Quality Inspection": "PO"
+            }
+        },
+        {
+            "id": "OSR030",
+            "input_text": "Managed schedules and prioritized tasks across multiple workstreams.",
+            "expected_classification": {
+                "Project Management": "PO"
+            }
+        }
+    ]
+}
