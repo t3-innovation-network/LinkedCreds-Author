@@ -73,9 +73,11 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: process.env.PLAYWRIGHT_WEB_SERVER ?? 'CI=1 yarn start',
+    command:
+      process.env.PLAYWRIGHT_WEB_SERVER ??
+      (process.env.CI ? 'npm run build && npm run start' : 'npm run dev'),
     url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === 'false' ? false : true,
     timeout: 120 * 1000,
   },
 });
