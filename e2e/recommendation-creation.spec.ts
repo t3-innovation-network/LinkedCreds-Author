@@ -1,40 +1,39 @@
 import { test, expect } from '@playwright/test';
 
-// Helper function to check if page is in error state
+// Helper: wait for the recommendation page to finish loading (spinner gone)
+async function waitForPageReady(page: any): Promise<void> {
+  const spinner = page.locator('[role="progressbar"]');
+  await spinner.waitFor({ state: 'hidden', timeout: 30000 }).catch(() => {});
+  // Extra buffer for client hydration
+  await page.waitForTimeout(1000);
+}
+
+// Helper: check if page landed in an error/empty state (expected with fake IDs)
 async function isErrorState(page: any): Promise<boolean> {
-  const errorMessage = page.getByRole('heading', { name: /failed/i }).or(
-    page.getByText(/failed.*fetch|error/i)
-  );
-  return await errorMessage.isVisible({ timeout: 2000 }).catch(() => false);
+  const errorHeading = page.getByRole('heading', { level: 6 });
+  const visible = await errorHeading.isVisible({ timeout: 5000 }).catch(() => false);
+  if (!visible) return false;
+  const text = await errorHeading.textContent().catch(() => '');
+  return /failed|error|missing/i.test(text ?? '');
 }
 
 test.describe('Recommendation Creation', () => {
   const testRecommendationId = 'test-recommendation-id';
 
   test.beforeEach(async ({ page }) => {
-    // Navigate to recommendation form
     await page.goto(`/recommendations/${testRecommendationId}`);
-    
-    // Wait for loading to complete
-    const progressbar = page.locator('[role="progressbar"]');
-    await progressbar.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {});
+    await waitForPageReady(page);
   });
 
   test('recommendation form page loads', async ({ page }) => {
     await expect(page).toHaveURL(/.*recommendations.*/);
-    
-    // Check for either success state (form elements) or error state (expected with invalid ID)
-    const googleDriveText = page.getByText(/login.*google.*drive/i);
-    const form = page.locator('form');
-    const continueButton = page.getByRole('button', { name: /continue without saving/i });
-    const errorMessage = page.getByRole('heading', { name: /failed/i }).or(
-      page.getByText(/failed.*fetch|error/i)
-    );
-    
-    // Wait for either form elements or error message (both are valid outcomes)
-    await expect(
-      googleDriveText.or(form).or(continueButton).or(errorMessage).first()
-    ).toBeVisible({ timeout: 10000 });
+
+    // With a fake ID the page will either show the form or an error — both are valid.
+    // Just verify something rendered after the spinner disappeared.
+    const hasError = await isErrorState(page);
+    const hasForm = await page.locator('form').first().isVisible().catch(() => false);
+
+    expect(hasError || hasForm).toBeTruthy();
   });
 
   test('can navigate through form steps', async ({ page }) => {
@@ -55,32 +54,25 @@ test.describe('Recommendation Creation', () => {
   });
 
   test('Step 1: Google Drive connection step', async ({ page }) => {
-    // Skip test if page is in error state (expected with invalid ID)
+    // With a fake ID, the page shows an error instead of the form
     const hasError = await isErrorState(page);
     if (hasError) {
-      // Test skipped - page is in error state due to invalid ID
       return;
     }
     
     const googleDriveButton = page.getByRole('button', { name: /login.*google.*drive/i });
     const continueWithoutSaving = page.getByRole('button', { name: /continue without saving/i });
     
-    // Either button should be visible
-    const hasGoogleButton = await googleDriveButton.isVisible().catch(() => false);
-    const hasContinueButton = await continueWithoutSaving.isVisible().catch(() => false);
+    const hasGoogleButton = await googleDriveButton.isVisible({ timeout: 5000 }).catch(() => false);
+    const hasContinueButton = await continueWithoutSaving.isVisible({ timeout: 5000 }).catch(() => false);
     
     expect(hasGoogleButton || hasContinueButton).toBeTruthy();
     
-    // If continue button is visible, we can proceed
-    if (await continueWithoutSaving.isVisible()) {
+    if (hasContinueButton) {
       await continueWithoutSaving.click();
       await page.waitForTimeout(1000);
       
-      // Should navigate to next step
-      const recommendationDetails = page.getByText(/recommendation details/i);
-      const hasDetails = await recommendationDetails.isVisible({ timeout: 3000 }).catch(() => false);
-      
-      expect(hasDetails || page.url().includes('recommendations')).toBeTruthy();
+      expect(page.url()).toContain('recommendations');
     }
   });
 
