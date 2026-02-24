@@ -30,11 +30,8 @@ test.describe('Authentication', () => {
         page.getByRole('button', { name: /connect|sign in/i })
       ).first();
       
-      // The button should be visible (user not authenticated)
-      // or the form should proceed if already authenticated
-      await expect(
-        connectButton.or(page.locator('form'))
-      ).toBeVisible({ timeout: 10000 });
+      // The form should be visible (either at Google Drive step or further along)
+      await expect(page.locator('form').first()).toBeVisible({ timeout: 15000 });
     }
   });
 

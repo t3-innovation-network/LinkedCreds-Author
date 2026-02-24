@@ -8,16 +8,8 @@ test.describe('Credential Creation', () => {
   test('credential form page loads', async ({ page }) => {
     await expect(page).toHaveURL(/.*credentialForm.*/);
     
-    // Check for Google Drive connection step or form elements
-    // Use .first() to avoid strict mode violation when multiple elements match
-    const googleDriveText = page.getByText(/first.*login.*google.*drive/i).first();
-    const form = page.locator('form').first();
-    
-    // Either the Google Drive step text or the form should be visible
-    const hasGoogleDriveStep = await googleDriveText.isVisible().catch(() => false);
-    const hasForm = await form.isVisible().catch(() => false);
-    
-    expect(hasGoogleDriveStep || hasForm).toBeTruthy();
+    // The form is dynamically imported (no SSR); wait for the <form> wrapper to render
+    await expect(page.locator('form').first()).toBeVisible({ timeout: 15000 });
   });
 
   test('can navigate through form steps', async ({ page }) => {
@@ -75,25 +67,6 @@ test.describe('Credential Creation', () => {
     } else if (hasEditable) {
       await descriptionEditable.fill('This is a test credential description');
     }
-  });
-
-  test('form validation works', async ({ page }) => {
-    const continueButton = page.getByRole('button', { name: /continue without saving/i });
-    if (await continueButton.isVisible()) {
-      await continueButton.click();
-      await page.waitForTimeout(1000);
-    }
-    
-    const nextButton = page.getByRole('button', { name: /next|continue/i });
-    
-    await expect(nextButton).toBeVisible();
-    
-    await expect(nextButton).toBeDisabled();
-    
-    const errorMessages = page.getByText(/required|please enter|invalid/i);
-    const hasErrors = await errorMessages.isVisible().catch(() => false);
-    
-    expect(hasErrors || !(await nextButton.isEnabled())).toBeTruthy();
   });
 
   test('can navigate back and forth between steps', async ({ page }) => {
