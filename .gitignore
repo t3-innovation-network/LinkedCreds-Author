@@ -39,3 +39,10 @@ next-env.d.ts
 # packages
 /package-lock.json
 /yarn.lock
+
+# playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/playwright/.cache/
