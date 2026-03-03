@@ -153,7 +153,7 @@ const Step2: React.FC<Step2Props> = ({
             Select skills to recommend
           </Typography>
           <Typography sx={{ fontSize: '14px', color: 'text.secondary', mt: '2px' }}>
-            Choose one or more skills that you're recommending for {displayName}.
+            Choose one or more skills that you&apos;re recommending for {displayName}.
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: '10px', backgroundColor: '#f6f6f6ff', borderRadius: 2, p: '10px' }}>
             {skills?.length > 0 ? (

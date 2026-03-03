@@ -124,11 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const name = document.createElement('span');
                     name.className = 'mapped-name';
-                    name.textContent = item.name;
+                    name.textContent = item.onet_skill_name;
 
                     const score = document.createElement('span');
                     score.className = 'mapped-score';
-                    score.textContent = `${(item.score * 100).toFixed(0)}%`;
+                    score.textContent = `${(item.similarity_score * 100).toFixed(0)}%`;
 
                     headerRow.appendChild(name);
                     headerRow.appendChild(score);
