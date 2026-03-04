@@ -2,28 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { GoogleDriveStorage } from '@cooperation/vc-storage'
 
-interface ClaimDetail {
-  data: {
-    '@context': string[]
-    id: string
-    type: string[]
-    issuer: {
-      id: string
-      type: string[]
-    }
-    issuanceDate: string
-    expirationDate: string
-    credentialSubject: {
-      [x: string]: any
-      type: string[]
-      name: string
-      achievement: any
-      duration: string
-      portfolio: any
-    }
-  }
-}
-
 const useGoogleDrive = () => {
   const [fileMetadata, setFileMetadata] = useState<any | null>(null)
   const [ownerEmail, setOwnerEmail] = useState<string | null>(null)

@@ -8,8 +8,10 @@ import { FormData } from './types/Types'
 import { Step0 } from './Steps/Step0_connectToGoogle'
 import { Buttons } from './buttons/Buttons'
 // import DataComponent from './Steps/dataPreview' // No longer needed
-import { createDID, signCred } from '../../utils/credential'
-import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
+import { createDID } from '../../utils/credential'
+import { CredentialEngine, saveToGoogleDrive } from '@cooperation/vc-storage'
+import { signSkillClaim } from '../../utils/signSkillClaim'
+import useGoogleDrive from '../../hooks/useGoogleDrive'
 import { useSession, signIn } from 'next-auth/react'
 import { handleSign } from '../../utils/formUtils'
 import { saveSession } from '../../utils/saveSession'
@@ -45,7 +47,8 @@ const Form = ({ onStepChange }: any) => {
   const accessToken = session?.accessToken
   const refreshToken = session?.refreshToken
 
-  const storage = new GoogleDriveStorage(accessToken as string)
+  const { storage } = useGoogleDrive()
+  const engine = React.useMemo(() => (storage ? new CredentialEngine(storage) : null), [storage])
 
   const {
     register,
@@ -79,7 +82,7 @@ const Form = ({ onStepChange }: any) => {
 
   const handleFetchinguserSessions = async () => {
     try {
-      if (!accessToken) return
+      if (!accessToken || !storage) return
       const sessionFiles = await storage.getAllFilesByType('SESSIONs')
       if (!sessionFiles || sessionFiles.length === 0) return
       console.log('userSessions', sessionFiles)
@@ -114,7 +117,7 @@ const Form = ({ onStepChange }: any) => {
 
   useEffect(() => {
     handleFetchinguserSessions()
-  }, [])
+  }, [storage])
 
   // Check for imported form data from credential import
   useEffect(() => {
@@ -182,6 +185,7 @@ const Form = ({ onStepChange }: any) => {
 
   const handleFormSubmit = handleSubmit(async (data: FormData) => {
     try {
+      console.log('🚀 ~ Form ~ data:', data)
       await sign(data)
     } catch (error: any) {
       if (error.message === 'MetaMask address could not be retrieved') {
@@ -200,6 +204,10 @@ const Form = ({ onStepChange }: any) => {
         setErrorMessage('Access token is missing')
         return
       }
+      if (!storage || !engine) {
+        setErrorMessage('Storage not ready. Please wait or reconnect.')
+        return
+      }
 
       const { didDocument, keyPair, issuerId } = await createDID(accessToken)
 
@@ -213,12 +221,19 @@ const Form = ({ onStepChange }: any) => {
       })
       console.log('🚀 ~ sign ~ saveResponse:', saveResponse)
 
-      const res = await signCred(accessToken, { ...data, skills: activeSkills, removedSkills }, issuerId, keyPair, 'VC', undefined)
-      const file = (await saveToGoogleDrive({
+      const result = await signSkillClaim(
         storage,
-        data: res,
-        type: 'VC'
-      })) as any
+        engine,
+        {
+          ...data,
+          skills: activeSkills?.length ? activeSkills : undefined
+        },
+        { keyPair, issuerId, saveToDrive: true }
+      )
+      console.log('🚀 ~ sign ~ result:', result)
+
+      const res = result.signedVC
+      const file = result.file
       try {
         const savedFile = await storeFileTokens({
           googleFileId: file.id,
