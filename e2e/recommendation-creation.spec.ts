@@ -1,11 +1,21 @@
 import { test, expect } from '@playwright/test';
 
-// Helper: wait for the recommendation page to finish loading (spinner gone)
+// Helper: wait for the recommendation page to finish loading (spinner gone) and reach a terminal state.
+// In CI, hydration and network can be slow, so we wait for form, error, or step-0 UI to appear.
 async function waitForPageReady(page: any): Promise<void> {
   const spinner = page.locator('[role="progressbar"]');
   await spinner.waitFor({ state: 'hidden', timeout: 30000 }).catch(() => {});
-  // Extra buffer for client hydration
-  await page.waitForTimeout(1000);
+  const readyTimeout = process.env.CI ? 20000 : 5000;
+  const deadline = Date.now() + readyTimeout;
+  while (Date.now() < deadline) {
+    const hasError = await isErrorState(page);
+    if (hasError) return;
+    const hasForm = await page.locator('form').first().isVisible().catch(() => false);
+    if (hasForm) return;
+    const hasStep0 = await page.getByRole('button', { name: /continue without saving|login.*google.*drive/i }).first().isVisible().catch(() => false);
+    if (hasStep0) return;
+    await page.waitForTimeout(400);
+  }
 }
 
 // Helper: check if page landed in an error/empty state (expected with fake IDs)
@@ -29,11 +39,12 @@ test.describe('Recommendation Creation', () => {
     await expect(page).toHaveURL(/.*recommendations.*/);
 
     // With a fake ID the page will either show the form or an error — both are valid.
-    // Just verify something rendered after the spinner disappeared.
-    const hasError = await isErrorState(page);
-    const hasForm = await page.locator('form').first().isVisible().catch(() => false);
-
-    expect(hasError || hasForm).toBeTruthy();
+    // Poll for terminal state so CI (slower hydration) doesn't flake.
+    await expect(async () => {
+      const hasError = await isErrorState(page);
+      const hasForm = await page.locator('form').first().isVisible().catch(() => false);
+      expect(hasError || hasForm).toBeTruthy();
+    }).toPass({ timeout: process.env.CI ? 15000 : 5000 });
   });
 
   test('can navigate through form steps', async ({ page }) => {
@@ -63,11 +74,14 @@ test.describe('Recommendation Creation', () => {
     const googleDriveButton = page.getByRole('button', { name: /login.*google.*drive/i });
     const continueWithoutSaving = page.getByRole('button', { name: /continue without saving/i });
     
-    const hasGoogleButton = await googleDriveButton.isVisible({ timeout: 5000 }).catch(() => false);
+    // Poll so CI (slower render) doesn't flake
+    await expect(async () => {
+      const hasGoogleButton = await googleDriveButton.isVisible({ timeout: 2000 }).catch(() => false);
+      const hasContinueButton = await continueWithoutSaving.isVisible({ timeout: 2000 }).catch(() => false);
+      expect(hasGoogleButton || hasContinueButton).toBeTruthy();
+    }).toPass({ timeout: process.env.CI ? 15000 : 5000 });
+    
     const hasContinueButton = await continueWithoutSaving.isVisible({ timeout: 5000 }).catch(() => false);
-    
-    expect(hasGoogleButton || hasContinueButton).toBeTruthy();
-    
     if (hasContinueButton) {
       await continueWithoutSaving.click();
       await page.waitForTimeout(1000);
