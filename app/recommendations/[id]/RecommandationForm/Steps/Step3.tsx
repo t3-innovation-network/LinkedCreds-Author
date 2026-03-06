@@ -29,7 +29,7 @@ interface LinkItem {
   url: string
 }
 
-interface PortfolioItem {
+interface EvidenceItem {
   name: string
   url: string
   googleId?: string
@@ -77,18 +77,16 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
   const handleFileUploadClick = () => {
     if (fileInputRef.current) fileInputRef.current.click()
   }
-  const portfolio = watch<PortfolioItem[]>('portfolio')
+  const evidence = watch<EvidenceItem[]>('evidence')
 
   useEffect(() => {
     setFiles([...selectedFiles])
   }, [selectedFiles])
 
-  // Initialize links from portfolio to handle persisted/updates data
-  // We only update if 'links' is in its default (empty) state to avoid overwriting user edits.
   useEffect(() => {
-    const currentPortfolio = portfolio || []
-    if (currentPortfolio.length > 0) {
-      const existingLinks = currentPortfolio
+    const currentEvidence = evidence || []
+    if (currentEvidence.length > 0) {
+      const existingLinks = currentEvidence
         .filter(item => !item.googleId && !item.wasId && (item.name || item.url))
         .map(item => ({
           id: crypto.randomUUID(),
@@ -98,9 +96,6 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
 
       if (existingLinks.length > 0) {
         setLinks(prev => {
-          // Only populate if we have exactly 1 item and it's the default empty one
-          // AND we haven't already populated (check if prev matches existing?)
-          // Simpler: Just check if we are in "initial" state.
           const isInitial = prev.length === 1 && !prev[0].name && !prev[0].url
           if (isInitial) {
             return existingLinks
@@ -109,7 +104,7 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
         })
       }
     }
-  }, [portfolio]) // React to portfolio changes (e.g. hydration), but guard updates
+  }, [evidence])
 
 
   const handleFilesSelected = useCallback(
@@ -126,7 +121,7 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
       setFiles(reorderedFiles)
       setSelectedFiles(reorderedFiles)
 
-      // Reconstruct file items for portfolio
+      // Reconstruct file items for evidence
       const newFileItems = reorderedFiles
         .filter(file => file.googleId || file.wasId)
         .map(file => {
@@ -148,7 +143,7 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
           url: ensureProtocol(l.url)
         }))
 
-      const newPortfolio = [...newFileItems, ...manualLinkItems]
+      const newEvidence = [...newFileItems, ...manualLinkItems]
 
       // If there's a featured file (first in the list), update the evidenceLink
       if (reorderedFiles[0]?.googleId || reorderedFiles[0]?.wasId) {
@@ -159,8 +154,8 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
         setValue('evidenceLink', evidenceUrl)
       }
 
-      // Update the portfolio with the new merged list
-      setValue('portfolio', newPortfolio)
+      // Update the evidence with the new merged list
+      setValue('evidence', newEvidence)
     },
     [setValue, watch, setSelectedFiles, links]
   )
@@ -182,8 +177,6 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
     (index: number) => {
       setLinks(prev => {
         const newLinks = prev.filter((_, i) => i !== index)
-
-        // Rebuild portfolio
         const fileItems = files
           .filter(file => file.googleId || file.wasId)
           .map(file => ({
@@ -201,21 +194,18 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
             url: ensureProtocol(l.url)
           }))
 
-        const newPortfolio = [...fileItems, ...linkItems]
-        setValue('portfolio', newPortfolio)
+        const newEvidence = [...fileItems, ...linkItems]
+        setValue('evidence', newEvidence)
 
         return newLinks
       })
     },
     [setValue, files]
   )
-
   const handleLinkChange = useCallback(
     (index: number, field: 'name' | 'url', value: string) => {
       setLinks(prev => {
         const newLinks = prev.map((link, i) => (i === index ? { ...link, [field]: value } : link))
-
-        // Rebuild portfolio to ensure sync and correct indexing
         const fileItems = files
           .filter(file => file.googleId || file.wasId)
           .map(file => ({
@@ -233,8 +223,8 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
             url: ensureProtocol(l.url)
           }))
 
-        const newPortfolio = [...fileItems, ...linkItems]
-        setValue('portfolio', newPortfolio)
+        const newEvidence = [...fileItems, ...linkItems]
+        setValue('evidence', newEvidence)
 
         return newLinks
       })
@@ -278,8 +268,8 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
       setSelectedFiles(prevFiles =>
         prevFiles.filter(file => file.googleId !== id && file.id !== id)
       )
-      const currentPortfolio = watch<PortfolioItem[]>('portfolio') || []
-      let updatedPortfolio = currentPortfolio.filter(
+      const currentEvidence = watch<EvidenceItem[]>('evidence') || []
+      let updatedEvidence = currentEvidence.filter(
         file => file.googleId !== id && file.wasId !== id
       )
       const newFeaturedFile = files[1]
@@ -288,11 +278,11 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
           'evidenceLink',
           `https://drive.google.com/uc?export=view&id=${newFeaturedFile.googleId}`
         )
-        updatedPortfolio = updatedPortfolio.filter(
+        updatedEvidence = updatedEvidence.filter(
           file => file.googleId !== newFeaturedFile.googleId
         )
       }
-      setValue('portfolio', updatedPortfolio)
+      setValue('evidence', updatedEvidence)
     },
     [setValue, watch, files, setSelectedFiles]
   )
@@ -432,7 +422,6 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
         p: '20px'
       }}
     >
-
       <Box>
         <Typography sx={formLabelStyles} id='qualifications-label'>
           Supporting Documents and Links{' '}
@@ -524,7 +513,7 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
               <LightbulbSVG />
               <Typography
                 sx={{
-                  fontFamily: 'Lato',
+                  fontFamily: 'Inter',
                   fontSize: '13px',
                   fontStyle: 'medium',
                   fontWeight: 500,

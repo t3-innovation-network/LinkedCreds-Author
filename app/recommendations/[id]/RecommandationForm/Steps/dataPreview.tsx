@@ -129,9 +129,7 @@ const EditableCard = ({
           {title === 'Your name' ? (
             <Typography
               sx={{
-                fontSize: '13px',
-                fontWeight: '700',
-                ml: '5px',
+                fontSize: '15px',
                 letterSpacing: '0.01em',
                 position: 'relative'
               }}
@@ -250,8 +248,8 @@ const DataPreview: React.FC<DataPreviewProps> = ({
           />
         )}
 
-        {(Array.isArray(formData.portfolio) &&
-          formData.portfolio.filter(item => item.name || item.url).length > 0) ||
+        {(Array.isArray(formData.evidence) &&
+          (formData.evidence as any[]).filter(item => item.name || item.url).length > 0) ||
           selectedFiles.length > 0 ? (
           <Card
             variant='outlined'
@@ -312,10 +310,10 @@ const DataPreview: React.FC<DataPreviewProps> = ({
               </Box>
             )}
 
-            {formData.portfolio
+            {(formData.evidence as any[])
               ?.filter(item => item.name || item.url)
               .map((item, index) => (
-                <Box key={`portfolio-item-${index}`} sx={{ mt: 1 }}>
+                <Box key={`evidence-item-${index}`} sx={{ mt: 1 }}>
                   {item.name && item.url ? (
                     <Link
                       href={item.url}
@@ -358,24 +356,24 @@ const DataPreview: React.FC<DataPreviewProps> = ({
               Selected Skills
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, flexWrap: 'wrap' }}>
-              {formData.selectedSkills.map((skill, index) => (
+              {formData.selectedSkills.map((skill: any, index: number) => (
                 <Box
-                  key={skill.uuid || index}
+                  key={(skill.id ?? skill.uuid) || index}
                   sx={{
-                    background: '#155DFC', // Green color
+                    background: '#2563EB',
                     color: '#ffffff',
-                    px: 2,
-                    py: 0.75,
-                    borderRadius: '20px',
-                    fontSize: '14px',
-                    fontWeight: 500,
+                    px: '8px',
+                    py: '2px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 'medium',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1
+                    gap: '3px'
                   }}
                 >
-                  <Typography variant='body2' fontWeight='bold' sx={{ color: '#ffffff' }}>
-                    {skill.targetName}
+                  <Typography variant='body2' sx={{ color: '#ffffff' }}>
+                    {skill.name ?? skill.targetName}
                   </Typography>
                 </Box>
               ))}

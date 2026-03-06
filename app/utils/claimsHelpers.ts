@@ -23,23 +23,36 @@ export const formatDate = (date: Date): string => {
   })
 }
 
-export const getTimeAgo = (isoDateString: string): string => {
-  const date = new Date(isoDateString)
+export const getTimeAgo = (claim: any): string => {
+  const dateStr =
+    claim?.proof?.created ||
+    claim?.issuanceDate ||
+    claim?.validFrom ||
+    claim?.id?.createdTime ||
+    new Date().toISOString()
+  const date = new Date(dateStr)
   if (isNaN(date.getTime())) {
     return 'Invalid date'
   }
   return formatDate(date)
 }
 
-export const getTimeDifference = (isoDateString: string): string => {
-  const date = new Date(isoDateString)
+export const getTimeDifference = (claim: any): string => {
+  const dateStr =
+    claim?.proof?.created ||
+    claim?.issuanceDate ||
+    claim?.validFrom ||
+    claim?.id?.createdTime ||
+    new Date().toISOString()
+  const date = new Date(dateStr)
   if (isNaN(date.getTime())) {
     return '0 seconds'
   }
 
   const now = new Date()
   const diffInMilliseconds = now.getTime() - date.getTime()
-  const diffInSeconds = Math.floor(diffInMilliseconds / 1000)
+  // Ensure we don't return negative time if clocks are slightly out of sync
+  const diffInSeconds = Math.max(0, Math.floor(diffInMilliseconds / 1000))
   const diffInMinutes = Math.floor(diffInSeconds / 60)
   const diffInHours = Math.floor(diffInMinutes / 60)
   const diffInDays = Math.floor(diffInHours / 24)
@@ -53,6 +66,24 @@ export const getTimeDifference = (isoDateString: string): string => {
   if (diffInMinutes > 0)
     return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'}`
   return `${diffInSeconds} ${diffInSeconds === 1 ? 'second' : 'seconds'}`
+}
+
+export const getDuration = (claim: any): string => {
+  try {
+    const subject = claim?.credentialSubject
+    if (!subject) return ''
+
+    // New SkillClaim format
+    if (subject.durationPerformed) return subject.durationPerformed
+
+    // Support for other fields
+    if (subject.duration) return subject.duration
+
+    // Fallback to time since issuance if no experience duration is found
+    return getTimeDifference(claim)
+  } catch (error) {
+    return ''
+  }
 }
 
 // Credential helper functions
@@ -84,6 +115,22 @@ export const getCredentialName = (claim: any): string => {
     }
     if (credentialSubject.credentialName) {
       return credentialSubject.credentialName
+    }
+
+    // Handle new ISkillClaimCredential format (hr-context) — name at VC top-level
+    if (claim.name) {
+      return claim.name
+    }
+
+    if (credentialSubject.name && typeof credentialSubject.name === 'string') {
+      return credentialSubject.name
+    }
+    if (
+      credentialSubject.skill &&
+      Array.isArray(credentialSubject.skill) &&
+      credentialSubject.skill.length > 0
+    ) {
+      return credentialSubject.skill[0].name || 'Skill Credential'
     }
 
     // Handle old credential format (achievement array)
@@ -153,16 +200,24 @@ export const getClaimId = (claim: any): string => {
 // Helper function to check if a credential is a skill credential
 export const isSkillCredential = (claim: any): boolean => {
   try {
-    // First validate the claim is valid
-    if (!isValidClaim(claim)) {
-      return false
+    if (!isValidClaim(claim)) return false
+
+    const subject = claim.credentialSubject
+
+    // New ISkillClaimCredential format (hr-context): credentialSubject.type includes 'SkillClaim'
+    // OR credentialSubject.skill is an array
+    if (
+      (Array.isArray(subject?.type) && subject.type.includes('SkillClaim')) ||
+      Array.isArray(subject?.skill)
+    ) {
+      return true
     }
 
-    // Check if it has the achievement array structure (skill credentials)
+    // Old OBv3 format: achievement array
     return (
-      claim.credentialSubject?.achievement &&
-      Array.isArray(claim.credentialSubject.achievement) &&
-      claim.credentialSubject.achievement.length > 0
+      subject?.achievement &&
+      Array.isArray(subject.achievement) &&
+      subject.achievement.length > 0
     )
   } catch (error) {
     console.error('Error in isSkillCredential:', error, claim)
@@ -175,7 +230,7 @@ export const generateLinkedInUrl = (claim: any): string => {
   try {
     const claimId = getClaimId(claim)
     const credentialName = getCredentialName(claim)
-    const issuanceDate = new Date(claim.issuanceDate || new Date())
+    const issuanceDate = new Date(claim.issuanceDate || claim.proof?.created || new Date())
     const expirationDate = new Date(claim.expirationDate || new Date())
     const baseLinkedInUrl = 'https://www.linkedin.com/profile/add'
     const params = new URLSearchParams({
@@ -184,8 +239,6 @@ export const generateLinkedInUrl = (claim: any): string => {
       organizationName: 'LinkedTrust',
       issueYear: issuanceDate.getFullYear().toString(),
       issueMonth: (issuanceDate.getMonth() + 1).toString(),
-      expirationYear: expirationDate.getFullYear().toString(),
-      expirationMonth: (expirationDate.getMonth() + 1).toString(),
       certUrl: `https://linkedcreds.allskillscount.org/view/${claimId}`,
       certId: claimId
     })

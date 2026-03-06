@@ -39,9 +39,9 @@ const NavBar = () => {
         backgroundColor: 'white',
         justifyContent: 'space-between',
         my: { xs: '18px', md: '0px' },
-        boxShadow: {
-          md: '0px 4px 10px rgba(209, 213, 219, 0.5)'
-        }
+        zIndex: 100,
+        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)'
+
       }}
     >
       {/* Logo and Name */}
@@ -87,7 +87,7 @@ const NavBar = () => {
       >
         {session && (
           <>
-            <Link href='/credentialForm' passHref>
+            <Link href='/credentialForm#step1' passHref>
               <Box
                 sx={{
                   display: 'flex',
@@ -100,7 +100,7 @@ const NavBar = () => {
                     fontSize: '16px',
                     fontWeight: isActive('/credentialForm') ? '600' : '400',
                     color: isActive('/credentialForm')
-                      ? '#155dfc'
+                      ? '#2563EB'
                       : theme.palette.t3DarkSlateBlue,
                     cursor: 'pointer'
                   }}
@@ -113,7 +113,7 @@ const NavBar = () => {
                       height: '2px',
                       width: '100%',
                       mt: '5px',
-                      backgroundColor: '#155dfc'
+                      backgroundColor: '#2563EB'
                     }}
                   />
                 )}
@@ -128,7 +128,7 @@ const NavBar = () => {
                     fontSize: '16px',
                     fontWeight: isActive('/credentialImportForm') ? '600' : '400',
                     color: isActive('/credentialImportForm')
-                      ? '#155dfc'
+                      ? '#2563EB'
                       : theme.palette.t3DarkSlateBlue,
                     cursor: 'pointer'
                   }}
@@ -141,7 +141,7 @@ const NavBar = () => {
                       height: '2px',
                       width: '100%',
                       mt: '5px',
-                      backgroundColor: '#155dfc'
+                      backgroundColor: '#2563EB'
                     }}
                   />
                 )}

@@ -109,7 +109,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
       >
         <Typography
           sx={{
-            fontFamily: 'Lato',
+            fontFamily: 'Inter',
             fontSize: '16px',
             mb: 3,
             fontWeight: 600,
@@ -124,7 +124,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             marginBottom: '20px',
             paddingLeft: '20px',
             color: '#202E5B',
-            fontFamily: 'Lato'
+            fontFamily: 'Inter'
           }}
         >
           <li style={{ marginBottom: '8px' }}>
@@ -153,7 +153,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             }}
           >
             <Typography
-              sx={{ fontFamily: 'Lato', color: '#333', fontSize: '14px', pr: 4 }}
+              sx={{ fontFamily: 'Inter', color: '#333', fontSize: '14px', pr: 4 }}
             >
               {email}
             </Typography>
@@ -195,7 +195,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             }}
           >
             <Typography
-              sx={{ fontFamily: 'Lato', color: '#333', fontSize: '14px', pr: 4 }}
+              sx={{ fontFamily: 'Inter', color: '#333', fontSize: '14px', pr: 4 }}
             >
               {subject}
             </Typography>
@@ -238,7 +238,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
           >
             <Typography
               sx={{
-                fontFamily: 'Lato',
+                fontFamily: 'Inter',
                 color: '#333',
                 fontSize: '14px',
                 pr: 4,

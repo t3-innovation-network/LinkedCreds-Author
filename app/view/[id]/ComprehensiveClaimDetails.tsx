@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import {
   Box,
   CircularProgress,
@@ -20,65 +20,76 @@ import {
   CardContent,
   Avatar,
   Chip,
-  styled
+  styled,
+  OutlinedInput,
+  Stack
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
-import { SVGDate, SVGBadge, CheckMarkSVG, LineSVG, SVGSparklesBlue, Logo } from '../../Assets/SVGs'
-import { Restore as RestoreIcon } from '@mui/icons-material'
+import { SVGSparklesBlue } from '../../Assets/SVGs'
+import InsertLinkIcon from '@mui/icons-material/InsertLink'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
 import { useSession } from 'next-auth/react'
-import useGoogleDrive from '../../hooks/useGoogleDrive'
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
 import { GoogleDriveStorage } from '@cooperation/vc-storage'
-
+import { BadgePill, CredentialTitle, DescriptionText, ExperienceText, MediaContainer, RecipientName, SectionHeader, publicLinkBoxStyles, publicLinkInputStyles, copyButtonStyles, qrCodeBoxStyles, credentialCardStyles } from '../../components/Styles/appStyles'
 import EvidencePreview from './EvidencePreview'
 import { getAccessToken, getFileViaFirebase } from '../../firebase/storage'
-import QRCode from 'qrcode'
+import QRCode from "react-qr-code";
+import { Media } from '../../components/Styles/appStyles'
 import GenericCredentialViewer from './GenericCredentialViewer'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import { verifyCredential } from '../../utils/verification'
 import { ensureProtocol } from '../../utils/urlValidation'
+import { generateLinkedInUrl } from '../../utils/claimsHelpers'
+import { copyFormValuesToClipboard } from '../../utils/formUtils'
 
 // Set up PDF.js worker
 if (typeof window !== 'undefined') {
   GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 }
 // Define types
-interface Portfolio {
-  name: string
-  url: string
-}
-interface Achievement {
-  name: string
-  description: string
-  criteria?: { narrative: string }
-  image?: { id: string }
-  alignment?: { targetName: string, targetDescription?: string, targetCode?: string, uuid?: string, score?: number }[]
-}
 interface CredentialSubject {
-  name?: string // Made optional since external creds might not have it
-  credentialType?: string // Added as optional for native detection
-  achievement?: Achievement[]
-  duration?: string
-  portfolio?: Portfolio[]
-  createdTime?: string
-  evidenceLink?: string
+  type?: string[]        // e.g. ['SkillClaim'] in new ISkillClaimCredential format
+  name?: string
+  durationPerformed?: string
   howKnow?: string
   recommendationText?: string
   qualifications?: string
   explainAnswer?: string
   skillsEndorsed?: string[]
   removedSkills?: string[]
+  // ISkillClaimCredential format (new)
+  skill?: { id: string; name: string; description?: string; source?: string; frameworkMatch?: { framework?: string; socCode?: string[]; name?: string; similarityScore?: number }[] }[]
+  narrative?: string
+  person?: { type: string[]; id?: string; name?: string; email?: string }
+  evidence?: { id?: string; url?: string; name: string }[]
+  portfolio?: { id?: string; url?: string; name: string }[]
 }
 interface ClaimDetail {
   '@context': string[]
   id: string
+  name?: string          // W3C VC top-level credential title
   uniqueId?: string
   type: string[]
-  issuanceDate: string
-  expirationDate: string
+  issuanceDate?: string
+  validFrom?: string
+  expirationDate?: string
   credentialSubject: CredentialSubject
+  proof?: {
+    created: string
+    [key: string]: any
+  }
+  evidence?: { id: string; name: string }[]
+}
+interface SnackbarState {
+  open: boolean
+  message: string
+  severity: 'success' | 'error'
 }
 interface ComprehensiveClaimDetailsProps {
   onAchievementLoad?: (achievementName: string) => void
@@ -165,7 +176,7 @@ const isGoogleDriveImageUrl = (url: string): boolean => {
 // Styled components
 const HeaderContainer = styled(Paper)(({ theme }) => ({
   width: '100%',
-  maxWidth: '720px',
+  maxWidth: '800px',
   padding: theme.breakpoints.down('sm') ? '18px' : '30px',
   borderRadius: '20px 20px 0 0',
   borderLeft: '1px solid #d1e4ff',
@@ -181,20 +192,16 @@ const MainContentContainer = styled(Box, {
 })<{ currentStep?: number }>(({ theme, currentStep }) => ({
   width: '100%',
   maxWidth: '720px',
-  padding: theme.breakpoints.down('sm') ? '24px 8px' : '45px 30px',
   backgroundColor: '#fff', // Always white for view mode
   borderRadius: '0 0 20px 20px',
-  borderTop: '1px solid #d1e4ff',
-  borderLeft: '1px solid #d1e4ff',
-  borderRight: '1px solid #d1e4ff',
-  margin: '0 auto'
+  gap: '24px'
 }))
 
 const SkillCard = styled(Card)(({ theme }) => ({
   padding: theme.breakpoints.down('sm') ? '10px 8px' : '15px 30px',
   backgroundColor: '#fff',
   borderRadius: '10px',
-  border: '1px solid #155dfc',
+  border: '1px solid #2563EB',
   width: '100%'
 }))
 
@@ -219,32 +226,7 @@ const FieldValue = styled(Typography)(({ theme }) => ({
   overflowWrap: 'anywhere'
 }))
 
-const MediaContainer = styled(Box)(({ theme }) => ({
-  width: '100%',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  flexDirection: 'column'
-}))
 
-const Media = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'hasImage'
-})<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
-  width: '100%',
-  maxWidth: theme.breakpoints.down('sm') ? '400px' : '500px',
-  aspectRatio: hasImage ? '4/3' : 'auto',
-  position: 'relative',
-  backgroundImage: 'none',
-  backgroundSize: 'contain',
-  backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat',
-  overflow: 'hidden',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: '16px',
-  boxShadow: hasImage ? '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
-}))
 
 // Field component for consistent styling
 interface FieldProps {
@@ -289,17 +271,99 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
   const [loading, setLoading] = useState<boolean>(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('')
-  const [qrCodeDataUrlMobile, setQrCodeDataUrlMobile] = useState<string>('')
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const pathname = usePathname()
   const { data: session, status } = useSession()
   const accessToken = session?.accessToken
-  const isAskForRecommendation = pathname?.includes('/askforrecommendation')
   const isView = pathname?.includes('/view')
   const isRecommendationsPage = pathname?.includes('/recommendations/')
-  const { } = useGoogleDrive()
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({})
+
+  const credentialSubject = claimDetail?.credentialSubject
+
+  const [snackbar, setSnackbar] = useState<SnackbarState>({
+    open: false,
+    message: '',
+    severity: 'success'
+  })
+
+  const showNotification = (message: string, severity: 'success' | 'error') => {
+    setSnackbar({
+      open: true,
+      message,
+      severity
+    })
+  }
+
+  const handleShareOption = (
+    option: 'LinkedIn' | 'Email' | 'CopyURL' | 'View' | 'LinkedTrust'
+  ) => {
+    const credentialLink = `https://linkedcreds.allskillscount.org/view/${fileID}`
+
+    if (option === 'LinkedIn') {
+      const linkedInUrl = generateLinkedInUrl(claimDetail)
+      window.open(linkedInUrl, '_blank', 'noopener noreferrer')
+      return
+    }
+
+    if (option === 'CopyURL') {
+      copyFormValuesToClipboard(credentialLink)
+      showNotification('Link copied to clipboard!', 'success')
+      return
+    }
+
+    if (option === 'View') {
+      window.location.href = credentialLink
+      return
+    }
+
+    if (option === 'Email') {
+      const mailPageUrl = `${window.location.origin}/mail/${fileID}`
+      window.location.href = mailPageUrl
+    }
+  }
+
+  const credentialTitle = claimDetail?.name || credentialSubject?.name || ''
+  const personName = credentialSubject?.person?.name || ''
+  const credentialNarrative = credentialSubject?.narrative || ''
+
+  useEffect(() => {
+    if (onAchievementLoad && credentialTitle) {
+      onAchievementLoad(credentialTitle)
+    }
+  }, [onAchievementLoad, credentialTitle])
+
+  const displayEvidence = useMemo(() => {
+    if (!claimDetail && !credentialSubject) return []
+    const evidenceItems = credentialSubject?.evidence || claimDetail?.evidence || (credentialSubject as any)?.portfolio || (claimDetail as any)?.portfolio
+    if (!evidenceItems || !Array.isArray(evidenceItems)) return []
+
+    const evidence: { name: string, url: string, googleId?: string, wasId?: string, type?: string[] }[] = []
+
+    // Add evidence items
+    evidenceItems.forEach(item => {
+      const itemUrl = item.url || item.id
+      if (itemUrl) {
+        // Extract googleId from URL if possible
+        let googleId = undefined
+        const match = itemUrl.match(/\/file\/d\/([^/]+)/) || itemUrl.match(/[?&]id=([^&]+)/)
+        if (match && match[1]) {
+          googleId = match[1]
+        }
+
+        evidence.push({
+          name: item.name || itemUrl,
+          url: itemUrl,
+          googleId: googleId,
+          wasId: undefined,
+          type: ['Evidence']
+        })
+      }
+    })
+
+    return evidence
+  }, [claimDetail, credentialSubject])
 
   // Helper to convert Google Drive share links to direct view links
   const getGoogleDriveDirectLink = (url: string): string => {
@@ -325,8 +389,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
   const [isHoveringMedia, setIsHoveringMedia] = useState<boolean>(false)
   const [displayFiles, setDisplayFiles] = useState<{ id: string, name: string, url: string, isFeatured?: boolean }[]>([])
 
-  const credentialSubject = claimDetail?.credentialSubject
-  const achievement = credentialSubject?.achievement && credentialSubject.achievement[0]
+
 
   const isImage = (url: string) => /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url) || isGoogleDriveImageUrl(url)
 
@@ -335,28 +398,15 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
     if (credentialSubject) {
       const files: { id: string, name: string, url: string, isFeatured?: boolean }[] = []
 
-      // Main evidence link - Add only if visual
-      if (credentialSubject.evidenceLink) {
-        const url = getGoogleDriveDirectLink(ensureProtocol(credentialSubject.evidenceLink))
-        if (isImage(url) || isPDF(credentialSubject.evidenceLink) || isMP4(credentialSubject.evidenceLink)) {
-          files.push({
-            id: 'main-evidence',
-            name: 'Main Evidence',
-            url: url,
-            isFeatured: true
-          })
-        }
-      }
-
-      // Portfolio items - Add only if visual
-      if (credentialSubject.portfolio && Array.isArray(credentialSubject.portfolio)) {
-        credentialSubject.portfolio.forEach((item, index) => {
-          if (item.url && item.url !== credentialSubject.evidenceLink) {
-            const url = getGoogleDriveDirectLink(ensureProtocol(item.url))
+      // Top-level evidence items - Add only if visual
+      if (claimDetail?.evidence && Array.isArray(claimDetail.evidence)) {
+        claimDetail.evidence.forEach((item, index) => {
+          if (item.id) {
+            const url = getGoogleDriveDirectLink(ensureProtocol(item.id))
             const name = item.name || `Evidence ${index + 1}`
-            if (isImage(url) || isPDF(name) || isPDF(item.url) || isMP4(name) || isMP4(item.url)) {
+            if (isImage(url) || isPDF(name) || isPDF(item.id) || isMP4(name) || isMP4(item.id)) {
               files.push({
-                id: `portfolio-${index}`,
+                id: `evidence-${index}`,
                 name: name,
                 url: url
               })
@@ -439,41 +489,6 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
   const currentDisplayFile = displayFiles.length > 0
     ? displayFiles[currentImageIndex]
     : null
-  useEffect(() => {
-    if (fileID) {
-      const sourceUrl = `${window.location.origin}/api/credential-raw/${fileID}`
-
-      QRCode.toDataURL(sourceUrl, {
-        width: 120,
-        margin: 1,
-        color: {
-          dark: '#2563eb',
-          light: '#F0F4F8'
-        }
-      })
-        .then(url => {
-          setQrCodeDataUrl(url)
-        })
-        .catch(err => {
-          console.error('Error generating QR code:', err)
-        })
-
-      QRCode.toDataURL(sourceUrl, {
-        width: 80,
-        margin: 1,
-        color: {
-          dark: '#2563eb',
-          light: '#F0F4F8'
-        }
-      })
-        .then(url => {
-          setQrCodeDataUrlMobile(url)
-        })
-        .catch(err => {
-          console.error('Error generating mobile QR code:', err)
-        })
-    }
-  }, [fileID])
 
   useEffect(() => {
     if (!fileID) {
@@ -487,14 +502,51 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
     const fetchDriveData = async () => {
       try {
         setLoading(true)
-        const accessToken1 = await getAccessToken(fileID)
+        // Try Firestore token first; fall back to live session token if null
+        let accessToken1: string | null = await getAccessToken(fileID)
+        if (!accessToken1) {
+          accessToken1 = accessToken ?? null
+        }
+        if (!accessToken1) {
+          setErrorMessage('Your Google session has expired. Please sign out and sign back in.')
+          setLoading(false)
+          return
+        }
         setViewToken(accessToken1)
-        const uncachedStorage = new GoogleDriveStorage(accessToken1)
-        let vcData = await getFileViaFirebase(fileID)
-        vcData = JSON.parse(vcData.body)
+        let vcResponse = await fetch(
+          `https://www.googleapis.com/drive/v3/files/${fileID}?alt=media`,
+          { headers: { Authorization: `Bearer ${accessToken1}` } }
+        )
 
-        if (vcData) {
-          setClaimDetail(vcData as unknown as ClaimDetail)
+        // If the stored token returns Unauthorized, fallback to the user's live session token
+        if (vcResponse.status === 401 && accessToken) {
+          console.warn('Stored token was unauthorized. Retrying with active session token...')
+          accessToken1 = accessToken
+          setViewToken(accessToken1)
+
+          vcResponse = await fetch(
+            `https://www.googleapis.com/drive/v3/files/${fileID}?alt=media`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken1}`
+              }
+            }
+          )
+        }
+
+        if (!vcResponse.ok) {
+          setErrorMessage('Failed to load credential data.')
+          setLoading(false)
+          return
+        }
+
+        // Reinstantiate storage with the final working token
+        const uncachedStorage = new GoogleDriveStorage(accessToken1)
+
+        const vcData = await vcResponse.json()
+        const parsedVc = vcData?.body ? JSON.parse(vcData.body) : vcData
+        if (parsedVc) {
+          setClaimDetail(parsedVc as unknown as ClaimDetail)
         }
 
         const shouldFetchRecommendations = isView || !!propFileID
@@ -574,13 +626,6 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
     )
   }
 
-  const validPortfolio = Array.isArray(credentialSubject?.portfolio)
-    ? credentialSubject.portfolio.filter(item => {
-      if (!item || !item.name || !item.url) return false
-      return true
-    })
-    : []
-  const hasValidEvidence = validPortfolio.length > 0
 
   // Check if this is an external credential
   const isExternalCredential = () => {
@@ -588,13 +633,10 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
 
     const subject = claimDetail.credentialSubject || {}
 
-    const hasNativeName = typeof subject.name === 'string'
-    const hasCredentialType = typeof subject.credentialType === 'string'
-    const hasArrayAchievement = Array.isArray(subject.achievement)
-
-    if (hasNativeName && hasCredentialType && hasArrayAchievement) {
-      return false
-    }
+    // New ISkillClaimCredential format (hr-context): type includes 'SkillClaim' or has skill array
+    const isSkillClaim = Array.isArray(subject.type) && subject.type.includes('SkillClaim')
+    const hasSkillArray = Array.isArray(subject.skill)
+    if (isSkillClaim || hasSkillArray) return false
 
     return true
   }
@@ -607,7 +649,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
         </Box>
       ) : comments && comments.length > 0 ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography variant='h6' sx={{ mb: 2, color: '#000E40', fontFamily: 'Lato', fontWeight: 700 }}>
+          <Typography variant='h6' sx={{ mb: 2, color: '#000E40', fontFamily: 'Inter', fontWeight: 700 }}>
             Recommendations ({comments.length})
           </Typography>
           {comments.map((comment: ClaimDetail, index: number) => {
@@ -664,9 +706,6 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                       <Typography variant='subtitle1' sx={{ fontWeight: 600, color: '#101828', fontSize: '14px', lineHeight: '20px' }}>
                         {comment.credentialSubject?.name || 'Unknown User'}
                       </Typography>
-                      <Typography variant='body2' sx={{ color: '#667085', fontSize: '14px', lineHeight: '20px' }}>
-                        <span dangerouslySetInnerHTML={{ __html: cleanHTML(comment.credentialSubject?.howKnow || '') }} />
-                      </Typography>
                     </Box>
                   </Box>
                   <IconButton
@@ -681,25 +720,37 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                   <Divider />
                   <Box sx={{ p: 2 }}>
 
+                    {/* How they know you */}
+                    {comment.credentialSubject?.howKnow && (
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                          How {comment.credentialSubject.name || 'this person'} knows you:
+                        </Typography>
+                        <Typography variant='body2' sx={{ color: '#475467', marginLeft: '10px' }}>
+                          <span dangerouslySetInnerHTML={{ __html: cleanHTML(comment.credentialSubject.howKnow) }} />
+                        </Typography>
+                      </Box>
+                    )}
+
                     {/* Skills Endorsed */}
                     {comment.credentialSubject?.skillsEndorsed && comment.credentialSubject.skillsEndorsed.length > 0 && (
                       <Box sx={{ mt: 2, mb: 2 }}>
                         <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
-                          Skills Endorsed:
+                          Skills Endorsed: ({comment.credentialSubject.skillsEndorsed.length})
                         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                           {comment.credentialSubject.skillsEndorsed.map((skill: any, skillIndex: number) => (
                             <Chip
-                              key={skill.uuid || `skill-${skillIndex}`}
-                              label={skill.targetName}
+                              key={skill.id ?? skill.uuid ?? `skill-${skillIndex}`}
+                              label={skill.name ?? skill.targetName}
                               size="small"
                               sx={{
                                 backgroundColor: '#EFF8FF',
                                 color: '#175CD3',
-                                borderRadius: '16px',
                                 border: '1px solid #B2DDFF',
-                                fontWeight: 500,
-                                fontSize: '12px'
+                                py: 0.75,
+                                borderRadius: '8px',
+                                fontSize: '12px',
                               }}
                             />
                           ))}
@@ -756,36 +807,43 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                       </Box>
                     )}
                     {/* Supporting Evidence */}
-                    {Array.isArray(comment.credentialSubject?.portfolio) &&
-                      comment.credentialSubject.portfolio.length > 0 && (
-                        <Box sx={{ mt: 2 }}>
-                          <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
-                            Supporting Evidence:
-                          </Typography>
-                          {comment.credentialSubject.portfolio.map((item, idx) => (
-                            <Box key={`comment-portfolio-${idx}`} sx={{ mt: 0.5 }}>
-                              {item.name && item.url ? (
-                                <MuiLink
-                                  href={ensureProtocol(item.url)}
-                                  underline='hover'
-                                  color='primary'
-                                  sx={{
-                                    fontSize: '14px',
-                                    textDecoration: 'none',
-                                    color: '#003fe0',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 0.5
-                                  }}
-                                  target='_blank'
-                                >
-                                  • {item.name}
-                                </MuiLink>
-                              ) : null}
-                            </Box>
-                          ))}
-                        </Box>
-                      )}
+                    {(() => {
+                      const evidenceItems = comment.credentialSubject?.evidence || (comment.credentialSubject as any)?.portfolio || comment.evidence
+                      if (Array.isArray(evidenceItems) && evidenceItems.length > 0) {
+                        return (
+                          <Box sx={{ mt: 2 }}>
+                            <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                              Supporting Evidence:
+                            </Typography>
+                            {evidenceItems.map((item: any, idx: number) => {
+                              const itemUrl = item.url || item.id
+                              if (!itemUrl) return null
+                              return (
+                                <Box key={`comment-portfolio-${idx}`} sx={{ mt: 0.5 }}>
+                                  <MuiLink
+                                    href={ensureProtocol(itemUrl)}
+                                    underline='hover'
+                                    color='primary'
+                                    sx={{
+                                      fontSize: '14px',
+                                      textDecoration: 'none',
+                                      color: '#003fe0',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 0.5
+                                    }}
+                                    target='_blank'
+                                  >
+                                    • {item.name || itemUrl}
+                                  </MuiLink>
+                                </Box>
+                              )
+                            })}
+                          </Box>
+                        )
+                      }
+                      return null
+                    })()}
                   </Box>
 
                   {/* Credential Status Digital Signature */}
@@ -807,7 +865,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                           }}
                         >
                           <GreenCheckMark />
-                          <Typography sx={{ color: '#000E40', fontSize: '14px', fontWeight: 500 }}>
+                          <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>
                             Has a valid digital signature
                           </Typography>
                         </Box>
@@ -867,7 +925,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
   }
 
   return (
-    <Container sx={{ maxWidth: '800px', pb: 4 }}>
+    <Container sx={{ maxWidth: '800px' }}>
       {claimDetail && (
         <Box
           sx={{
@@ -875,377 +933,402 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
             flexDirection: 'column',
             width: '100%',
             margin: '20px auto',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            maxWidth: '800px',
+            ...credentialCardStyles,
+            p: '25px',
+            border: '1px solid #E2E8F0', // Overriding just in case or keeping specific
           }}
         >
-          {/* Header Section */}
-          <HeaderContainer elevation={0}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
-              <Box sx={{ flexShrink: 1, minWidth: 0, overflow: 'hidden', maxWidth: '300px' }}>
-                <Logo />
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography
-                  variant='h5'
-                  sx={{
-                    fontFamily: 'Lato',
-                    fontSize: '24px',
-                    fontWeight: 700,
-                    lineHeight: '38px',
-                    color: '#000E40'
-                  }}
-                >
-                  Credential View
-                </Typography>
 
-                {/* View Source and QR Code Links in Header for desktop */}
-                {fileID && !isMobile && (
-                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 1 }}>
-                    <Link
-                      href={`/api/credential-raw/${fileID}`}
-                      target='_blank'
-                      style={{ textDecoration: 'none' }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          fontFamily: 'Lato',
-                          color: '#003FE0',
-                          textDecoration: 'underline',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        View Source
-                      </Typography>
-                    </Link>
-                  </Box>
-                )}
-              </Box>
-              {/* QR Code in Header */}
-              {fileID && !isMobile && qrCodeDataUrl && (
-                <Box sx={{ ml: 'auto' }}>
-                  <img
-                    src={qrCodeDataUrl}
-                    alt='QR Code'
-                    style={{ width: '80px', height: '80px' }}
-                  />
-                </Box>
-              )}
-            </Box>
-          </HeaderContainer>
 
           {/* Main Content Section */}
           <MainContentContainer currentStep={4}>
-            <Box sx={{ width: '100%', mb: 4 }}>
-              <SkillCard>
-                <CardContent sx={{ p: 2 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <Field label='Name' value={credentialSubject?.name} />
-                    <Field
-                      label='Skill Name'
-                      value={achievement?.name}
-                    />
-                    <Field
-                      label='Skill Description'
-                      value={achievement?.description}
-                      isHtml={true}
-                    />
+            {/* Badge and Title */}
 
-                    {/* Media Carousel Section */}
-                    {displayFiles.length > 0 && (
-                      <MediaContainer
-                        onMouseEnter={() => setIsHoveringMedia(true)}
-                        onMouseLeave={() => setIsHoveringMedia(false)}
-                      >
-                        <Media hasImage={!!currentDisplayFile}>
-                          {currentDisplayFile ? (
-                            <>
-                              {isPDF(currentDisplayFile.name || currentDisplayFile.url) ? (
-                                <img
-                                  src={
-                                    pdfThumbnails[currentDisplayFile.id] ??
-                                    '/fallback-pdf-thumbnail.svg'
-                                  }
-                                  alt='PDF Preview'
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '16px',
-                                    objectFit: 'cover'
-                                  }}
-                                />
-                              ) : isMP4(currentDisplayFile.name || currentDisplayFile.url) ? (
-                                <img
-                                  src={
-                                    videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'
-                                  }
-                                  alt='Video Thumbnail'
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '16px',
-                                    objectFit: 'cover'
-                                  }}
-                                />
-                              ) : (
-                                <img
-                                  src={
-                                    imageThumbnails[currentDisplayFile.id] ?? currentDisplayFile.url
-                                  }
-                                  alt='Featured Media'
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '16px',
-                                    objectFit: 'cover'
-                                  }}
-                                />
-                              )}
-                              <Box
-                                sx={{
-                                  position: 'absolute',
-                                  bottom: '10px',
-                                  right: '10px',
-                                  bgcolor: 'rgba(0,0,0,0.6)',
-                                  color: 'white',
-                                  px: 1,
-                                  borderRadius: 1,
-                                  fontSize: '12px'
-                                }}
-                              >
-                                {currentImageIndex + 1} / {displayFiles.length}
-                              </Box>
+            <Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <BadgePill>
+                    Self-issued
+                  </BadgePill>
 
-                              {/* Navigation Buttons */}
-                              {displayFiles.length > 1 && isHoveringMedia && (
-                                <>
-                                  <Box
-                                    onClick={handlePrevImage}
-                                    sx={{
-                                      position: 'absolute',
-                                      left: '10px',
-                                      top: '50%',
-                                      transform: 'translateY(-50%)',
-                                      bgcolor: 'rgba(170, 170, 170, 0.8)',
-                                      borderRadius: '50%',
-                                      p: 1,
-                                      cursor: 'pointer',
-                                      '&:hover': { bgcolor: 'white' }
-                                    }}
-                                  >
-                                    <Typography variant='h6' sx={{ lineHeight: 0.4 }}>‹</Typography>
-                                  </Box>
-                                  <Box
-                                    onClick={handleNextImage}
-                                    sx={{
-                                      position: 'absolute',
-                                      right: '10px',
-                                      top: '50%',
-                                      transform: 'translateY(-50%)',
-                                      bgcolor: 'rgba(170, 170, 170, 0.8)',
-                                      borderRadius: '50%',
-                                      p: 1,
-                                      cursor: 'pointer',
-                                      '&:hover': { bgcolor: 'white' }
-                                    }}
-                                  >
-                                    <Typography variant='h6' sx={{ lineHeight: 0.4, }}>›</Typography>
-                                  </Box>
-                                </>
-                              )}
-                            </>
-                          ) : null}
-                        </Media>
-
-                      </MediaContainer>
-                    )}
-
-                    {/* Skills Section */}
-                    {(achievement?.alignment && achievement.alignment.length > 0) || (credentialSubject?.skillsEndorsed && credentialSubject.skillsEndorsed.length > 0) ? (
-                      <Box sx={{}}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, }}>
-                          <FieldLabel sx={{ mb: 0 }}>
-                            Skills
-                          </FieldLabel>
-                        </Box>
-
-                        <Box sx={{
-                          borderRadius: '12px',
-                          p: 2,
-                        }}>
-                          {/* Claimed Skills from Alignment (New) */}
-                          {achievement?.alignment && achievement.alignment.length > 0 && (
-                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: credentialSubject?.skillsEndorsed?.length ? 2 : 0 }}>
-                              {achievement.alignment.map((align, idx) => (
-                                <Box
-                                  key={`aligned-${idx}`}
-                                  sx={{
-                                    background: '#155dfc',
-                                    color: '#ffffff',
-                                    px: 2,
-                                    py: 0.75,
-                                    borderRadius: '20px',
-                                    fontSize: '14px',
-                                    fontWeight: 500,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1
-                                  }}
-                                  title={align.targetDescription || align.targetName}
-                                >
-                                  {align.targetName}
-                                </Box>
-                              ))}
-                            </Box>
-                          )}
-
-                          {/* Legacy Claimed Skills (Fallback) */}
-                          {(!achievement?.alignment || achievement.alignment.length === 0) && credentialSubject?.skillsEndorsed && credentialSubject.skillsEndorsed.length > 0 && (
-                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                              {credentialSubject.skillsEndorsed.map((skill, idx) => (
-                                <Box
-                                  key={`claimed-${idx}`}
-                                  sx={{
-                                    background: '#155dfc',
-                                    color: '#ffffff',
-                                    px: 2,
-                                    py: 0.75,
-                                    borderRadius: '20px',
-                                    fontSize: '14px',
-                                    fontWeight: 500,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1
-                                  }}
-                                >
-                                  {skill}
-                                </Box>
-                              ))}
-                            </Box>
-                          )}
-
-                        </Box>
-                      </Box>
-                    ) : null}
-
-                    <Field
-                      label='What does that entail?'
-                      value={achievement?.criteria?.narrative}
-                      isHtml={true}
-                    />
-
-                    {credentialSubject?.duration && (
-                      <Box>
-                        <FieldLabel>Duration</FieldLabel>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '2px',
-                            padding: '2px 5px',
-                            borderRadius: '5px',
-                            width: 'fit-content',
-                            bgcolor: '#d5e1fb',
-                            mt: 0.5
-                          }}
-                        >
-                          <Box sx={{ mt: '2px' }}>
-                            <SVGDate />
-                          </Box>
-                          <Typography sx={{ color: 't3BodyText', fontSize: '13px' }}>
-                            {credentialSubject.duration}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    )}
-
-                    {/* Supporting Evidence List (Links) */}
-                    {hasValidEvidence && (
-                      <Box>
-                        <FieldLabel>Supporting Evidence / Portfolio:</FieldLabel>
-                        <ul
-                          style={{
-                            marginLeft: '25px',
-                            textDecorationLine: 'underline',
-                            color: 'blue'
-                          }}
-                        >
-                          {validPortfolio.map((portfolioItem, idx) => (
-                            <li
-                              key={`main-portfolio-${idx}`}
-                              style={{
-                                cursor: 'pointer',
-                                width: 'fit-content',
-                                marginBottom: '10px'
-                              }}
-                            >
-                              <Link
-                                href={ensureProtocol(portfolioItem.url)}
-                                target='_blank'
-                                rel='noopener noreferrer'
-                              >
-                                {portfolioItem.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </Box>
-                    )}
-
-                  </Box>
-                </CardContent>
-              </SkillCard>
-            </Box>
-
-
-            {
-              (pathname?.includes('/view') || !!propFileID) &&
-              claimDetail &&
-              !isExternalCredential() && (
-                <Box sx={{ mt: 4 }}>
-                  {recommendations}
-                  {/* Credential Verification Section */}
-                  <Box
-                    sx={{
-                      m: 4,
-                      p: 3,
-                      bgcolor: '#F6FEF9',
-                      border: '1px solid #D1FADF',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    <Typography sx={{ fontSize: '16px', fontWeight: 700, color: '#000E40', mb: 2 }}>
-                      Credential Verification
-                    </Typography>
-
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-                        <GreenCheckMark />
-                        <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has a valid digital signature</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-                        <GreenCheckMark />
-                        <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has not expired</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-                        <GreenCheckMark />
-                        <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has not been revoked by issuer</Typography>
-                      </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2 }}>
+                    <Box>
+                      <CredentialTitle>
+                        {credentialTitle || 'Credential'}
+                      </CredentialTitle>
+                      <RecipientName sx={{ mt: 1 }}>
+                        {personName}
+                      </RecipientName>
+                      <ExperienceText sx={{ mt: 0.5 }}>
+                        {credentialSubject?.durationPerformed ? `${credentialSubject.durationPerformed} of experience` : ""}
+                      </ExperienceText>
                     </Box>
 
-                    <Divider sx={{ my: 2, borderColor: '#D1FADF' }} />
-
-                    {claimDetail?.issuanceDate && (
-                      <Typography sx={{ fontSize: '14px', color: '#667085' }}>
-                        Issued: {new Date(claimDetail.issuanceDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </Typography>
-                    )}
+                    {/* QR Code */}
+                    <Box
+                      sx={qrCodeBoxStyles}
+                    >
+                      <div style={{ height: "100px", width: "100px" }}>
+                        <QRCode
+                          size={256}
+                          style={{ height: "100%", width: "100%" }}
+                          value={fileID ? `https://linkedcreds.allskillscount.org/view/${fileID}` : "https://linkedcreds.com"}
+                          viewBox={`0 0 256 256`}
+                        />
+                      </div>
+                    </Box>
                   </Box>
+                  <Divider />
                 </Box>
-              )
-            }
+                {/* Public Link Section */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <Box
+                    sx={publicLinkBoxStyles}
+                  >
+                    <Typography sx={{ fontSize: '14px', fontWeight: 'semibold', color: '#364153', fontFamily: 'Inter', lineHeight: '20px', letterSpacing: '-0.15px' }}>
+                      Public Link
+                    </Typography>
 
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <OutlinedInput
+                        fullWidth
+                        readOnly
+                        value={fileID ? `https://linkedcreds.allskillscount.org/view/${fileID}` : ''}
+                        sx={publicLinkInputStyles}
+                      />
+                      <Button
+                        variant="contained"
+                        onClick={() => handleShareOption('CopyURL')}
+                        startIcon={<ContentCopyIcon />}
+                        sx={copyButtonStyles}
+                      >
+                        Copy
+                      </Button>
+                    </Stack>
+
+                    <Stack direction="column" spacing={0.5} >
+                      <Typography sx={{ fontSize: '13px', color: '#64748b', fontFamily: 'Inter' }}>
+                        Created: {claimDetail?.issuanceDate ? new Date(claimDetail.issuanceDate).toLocaleString() : new Date().toLocaleString()}
+                      </Typography>
+                    </Stack>
+
+
+                  </Box>
+                  <Typography sx={{ fontSize: '13px', color: '#475569', fontFamily: 'Inter', lineHeight: 1.5 }}>
+                    Anyone with this link can view this credential.
+                  </Typography>
+                </Box>
+
+                {/* Skill Description */}
+                <Box>
+                  <SectionHeader sx={{ mb: 1 }}>
+                    Skill Description
+                  </SectionHeader>
+                  <DescriptionText as="div">
+                    {credentialNarrative || credentialSubject?.recommendationText || ""}
+                  </DescriptionText>
+                </Box>
+
+                {/* Additional Details for Single Recommendation View */}
+                {credentialSubject?.howKnow && (
+                  <Box>
+                    <SectionHeader sx={{ mb: 1 }}>
+                      {`How ${credentialSubject.name || 'they'} know you`}
+                    </SectionHeader>
+                    <DescriptionText as="div">
+                      <span dangerouslySetInnerHTML={{ __html: cleanHTML(credentialSubject.howKnow) }} />
+                    </DescriptionText>
+                  </Box>
+                )}
+
+                {credentialSubject?.qualifications && (
+                  <Box>
+                    <SectionHeader sx={{ mb: 1 }}>
+                      Qualifications
+                    </SectionHeader>
+                    <DescriptionText as="div">
+                      <span dangerouslySetInnerHTML={{ __html: cleanHTML(credentialSubject.qualifications) }} />
+                    </DescriptionText>
+                  </Box>
+                )}
+
+                {/* Featured Image */}
+                {displayFiles.length > 0 && (
+                  <MediaContainer
+                    onMouseEnter={() => setIsHoveringMedia(true)}
+                    onMouseLeave={() => setIsHoveringMedia(false)}
+                  >
+                    <Media hasImage={!!currentDisplayFile}>
+                      {currentDisplayFile ? (
+                        <>
+                          {isPDF(currentDisplayFile.name || currentDisplayFile.url) ? (
+                            <img
+                              src={
+                                pdfThumbnails[currentDisplayFile.id] ??
+                                '/fallback-pdf-thumbnail.svg'
+                              }
+                              alt='PDF Preview'
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                borderRadius: '16px',
+                                objectFit: 'cover'
+                              }}
+                            />
+                          ) : isMP4(currentDisplayFile.name || currentDisplayFile.url) ? (
+                            <img
+                              src={
+                                videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'
+                              }
+                              alt='Video Thumbnail'
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                borderRadius: '16px',
+                                objectFit: 'cover'
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={
+                                imageThumbnails[currentDisplayFile.id] ?? currentDisplayFile.url
+                              }
+                              alt='Featured Media'
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                borderRadius: '16px',
+                                objectFit: 'cover'
+                              }}
+                            />
+                          )}
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              bottom: '10px',
+                              right: '10px',
+                              bgcolor: 'rgba(0,0,0,0.6)',
+                              color: 'white',
+                              px: 1,
+                              borderRadius: 1,
+                              fontSize: '12px'
+                            }}
+                          >
+                            {currentImageIndex + 1} / {displayFiles.length}
+                          </Box>
+
+                          {/* Navigation Buttons */}
+                          {displayFiles.length > 1 && isHoveringMedia && (
+                            <>
+                              <Box
+                                onClick={handlePrevImage}
+                                sx={{
+                                  position: 'absolute',
+                                  left: '10px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  bgcolor: 'rgba(170, 170, 170, 0.8)',
+                                  borderRadius: '50%',
+                                  p: 1,
+                                  cursor: 'pointer',
+                                  '&:hover': { bgcolor: 'white' }
+                                }}
+                              >
+                                <Typography variant='h6' sx={{ lineHeight: 0.4 }}>‹</Typography>
+                              </Box>
+                              <Box
+                                onClick={handleNextImage}
+                                sx={{
+                                  position: 'absolute',
+                                  right: '10px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  bgcolor: 'rgba(170, 170, 170, 0.8)',
+                                  borderRadius: '50%',
+                                  p: 1,
+                                  cursor: 'pointer',
+                                  '&:hover': { bgcolor: 'white' }
+                                }}
+                              >
+                                <Typography variant='h6' sx={{ lineHeight: 0.4, }}>›</Typography>
+                              </Box>
+                            </>
+                          )}
+                        </>
+                      ) : null}
+                    </Media>
+                  </MediaContainer>
+                )}
+
+                {/* Skills */}
+                <Box>
+                  <SectionHeader sx={{ mb: 1 }}>
+                    {`Skills (${(credentialSubject?.skill ?? []).length})`}
+                  </SectionHeader>
+                  {credentialSubject?.skill && credentialSubject.skill.length > 0 ? (
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      {credentialSubject.skill.map((skill: any, index: number) => (
+                        <Box
+                          key={(skill.id ?? skill.uuid) || index}
+                          sx={{
+                            color: '#EFF6FF',
+                            backgroundColor: '#2563EB',
+                            px: '8px',
+                            py: '2px',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: 'medium'
+                          }}
+                        >
+                          {skill.name ?? skill.targetName}
+                        </Box>
+                      ))}
+                    </Box>
+                  ) : (
+                    <Typography sx={{ fontSize: '14px', color: '#6B7280', fontStyle: 'italic' }}>
+                      No specific skills listed.
+                    </Typography>
+                  )}
+                </Box>
+
+                {/* Supporting Evidence */}
+                {displayEvidence.length > 0 && (
+                  <Box>
+                    <SectionHeader sx={{ mb: 1 }}>
+                      Supporting Evidence
+                    </SectionHeader>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {displayEvidence.map((item, index) => (
+                        <Box
+                          key={index}
+                          component="a"
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{
+                            textDecoration: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            color: '#2563EB',
+                            '&:hover': {
+                              textDecoration: 'underline'
+                            }
+                          }}
+                        >
+                          {!item.googleId ? (
+                            <InsertLinkIcon style={{ transform: 'rotate(-45deg)' }} fontSize="small" />
+                          ) : (
+                            <DescriptionOutlinedIcon fontSize="small" />
+                          )}
+                          <Typography
+                            sx={{
+                              fontFamily: 'Inter',
+                              fontSize: '14px',
+                              fontWeight: 500
+                            }}
+                          >
+                            {item.name || item.url}
+                          </Typography>
+                          <OpenInNewIcon sx={{ fontSize: '14px' }} />
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+
+
+              {
+                (pathname?.includes('/view') || !!propFileID) &&
+                claimDetail &&
+                !isExternalCredential() && (
+                  <Box sx={{ mt: 4 }}>
+                    {recommendations}
+                    {/* Credential Verification Section */}
+                    <Box
+                      sx={{
+                        my: 2,
+                        p: 3,
+                        bgcolor: '#F6FEF9',
+                        border: '1px solid #D1FADF',
+                        borderRadius: '8px'
+                      }}
+                    >
+                      <Typography sx={{ fontSize: '16px', color: '#000E40', mb: 2 }}>
+                        Credential Verification
+                      </Typography>
+
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                          <GreenCheckMark />
+                          <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has a valid digital signature</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                          <GreenCheckMark />
+                          <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has not expired</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                          <GreenCheckMark />
+                          <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has not been revoked by issuer</Typography>
+                        </Box>
+                      </Box>
+
+                      <Divider sx={{ my: 2, borderColor: '#D1FADF' }} />
+
+                      {(claimDetail?.proof?.created) && (
+                        <Typography sx={{ fontSize: '14px', color: '#667085' }}>
+                          Issued: {(() => {
+                            const dateStr = claimDetail?.proof?.created || claimDetail?.issuanceDate || claimDetail?.validFrom || new Date().toISOString();
+                            const date = new Date(dateStr);
+                            return isNaN(date.getTime()) ? 'Invalid date' : date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+                          })()}
+                        </Typography>
+                      )}
+                    </Box>
+
+                    <Box sx={{ display: 'flex-start', flexDirection: 'column', gap: 1 }}>
+                      <Button
+                        onClick={() => window.open(`/api/credential-raw/${fileID}`, '_blank')}
+                        disabled={!fileID}
+                        variant="contained"
+                        startIcon={<DescriptionOutlinedIcon />}
+                        endIcon={<OpenInNewIcon />}
+                        sx={{
+                          borderRadius: '8px',
+                          textTransform: 'none',
+                          fontFamily: 'Inter',
+                          fontWeight: 600,
+                          fontSize: '16px',
+                          py: 1.5,
+                          px: 3,
+                          backgroundColor: '#2563EB',
+                          color: '#FFFFFF',
+                          '&:hover': {
+                            backgroundColor: '#1D4ED8'
+                          }
+                        }}
+                      >
+                        View Source (JSON)
+                      </Button>
+                      <Typography
+                        sx={{
+                          fontSize: '14px',
+                          mt: 1,
+                          color: '#6B7280',
+                          fontFamily: 'Inter',
+                          textAlign: 'left'
+                        }}
+                      >
+                        Download the raw JSON data for this credential
+                      </Typography>
+                    </Box>
+                  </Box>
+                )
+              }
+            </Box>
           </MainContentContainer >
         </Box >
       )}

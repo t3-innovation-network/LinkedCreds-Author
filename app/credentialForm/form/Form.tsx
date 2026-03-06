@@ -16,7 +16,7 @@ import { saveSession } from '../../utils/saveSession'
 import SnackMessage from '../../components/SnackMessage'
 import { useStepContext } from './StepContext'
 import SuccessPage from './Steps/SuccessPage'
-import FileUploadAndList from './Steps/Step3_uploadEvidence'
+// import FileUploadAndList from './Steps/Step3_uploadEvidence' // Removed
 import { Step1 } from './Steps/Step1_userName'
 import { Step2 } from './Steps/Step2_descreptionFields'
 import { storeFileTokens } from '../../firebase/storage'
@@ -25,6 +25,7 @@ import { StepTrackShape } from './fromTexts & stepTrack/StepTrackShape'
 import { SkillMatch } from '../../utils/skillsApi'
 import useGoogleDrive from '../../hooks/useGoogleDrive'
 import { signSkillClaim } from '../../utils/signSkillClaim'
+import CredentialPreview from '../../components/credetialTracker/CredentialPreview'
 
 const Form = ({ onStepChange }: any) => {
   const { activeStep, handleNext, handleBack, setActiveStep, loading, handleSkip } =
@@ -42,6 +43,7 @@ const Form = ({ onStepChange }: any) => {
   const [res, setRes] = useState<any>(null)
   const [activeSkills, setActiveSkills] = useState<SkillMatch[]>([])
   const [removedSkills, setRemovedSkills] = useState<SkillMatch[]>([])
+  const [manuallyAddedSkills, setManuallyAddedSkills] = useState<SkillMatch[]>([])
 
   const { data: session } = useSession()
   const accessToken = session?.accessToken
@@ -67,7 +69,7 @@ const Form = ({ onStepChange }: any) => {
       credentialName: '',
       credentialDuration: '',
       credentialDescription: '',
-      portfolio: [],
+      evidence: [],
       evidenceLink: '',
       description: ''
     },
@@ -85,7 +87,6 @@ const Form = ({ onStepChange }: any) => {
       if (!accessToken || !storage) return
       const sessionFiles = await storage.getAllFilesByType('SESSIONs')
       if (!sessionFiles || sessionFiles.length === 0) return
-      console.log('userSessions', sessionFiles)
       if (sessionFiles.length > 0) {
         setUserSessions(sessionFiles)
         setOpenDialog(true)
@@ -103,7 +104,7 @@ const Form = ({ onStepChange }: any) => {
     setValue('credentialName', session.credentialName)
     setValue('credentialDuration', session.credentialDuration)
     setValue('credentialDescription', session.credentialDescription)
-    setValue('portfolio', session.portfolio)
+    setValue('evidence', session.portfolio || session.evidence)
     setValue('evidenceLink', session?.evidenceLink)
     setValue('description', session.description)
 
@@ -121,44 +122,85 @@ const Form = ({ onStepChange }: any) => {
 
   // Check for imported form data from credential import
   useEffect(() => {
-    const importedData = localStorage.getItem('importedFormData')
-    if (importedData) {
-      try {
-        const formData = JSON.parse(importedData)
-        console.log('Loading imported form data:', formData)
+    const loadData = () => {
+      // 1. Try to load imported data first (highest priority for new import)
+      const importedDataString = localStorage.getItem('importedFormData')
+      if (importedDataString) {
+        try {
+          const formData = JSON.parse(importedDataString)
+          console.log('Loading imported form data:', formData)
 
-        // Populate form fields with imported data
-        if (formData.fullName) setValue('fullName', formData.fullName)
-        if (formData.persons) setValue('persons', formData.persons)
-        if (formData.credentialName) setValue('credentialName', formData.credentialName)
-        if (formData.credentialDuration)
-          setValue('credentialDuration', formData.credentialDuration)
-        if (formData.credentialDescription)
-          setValue('credentialDescription', formData.credentialDescription)
-        if (formData.portfolio) setValue('portfolio', formData.portfolio)
-        if (formData.evidenceLink) setValue('evidenceLink', formData.evidenceLink)
-        if (formData.description) setValue('description', formData.description)
-        if (formData.storageOption) setValue('storageOption', formData.storageOption)
+          // Populate form fields with imported data
+          Object.keys(formData).forEach(key => {
+            setValue(key as any, formData[key])
+          })
 
-        // Clear the imported data from localStorage after loading
-        localStorage.removeItem('importedFormData')
-      } catch (error) {
-        console.error('Failed to parse imported form data:', error)
-        localStorage.removeItem('importedFormData')
+          // Clear the imported data from localStorage after loading
+          localStorage.removeItem('importedFormData')
+          return // Stop here if we loaded imported data
+        } catch (error) {
+          console.error('Failed to parse imported form data:', error)
+          localStorage.removeItem('importedFormData')
+        }
+      }
+
+      // 2. If no imported data, try to load auto-saved session data
+      const savedSessionString = localStorage.getItem('linkedCreds_autoSave_v1')
+      if (savedSessionString) {
+        try {
+          const savedSession = JSON.parse(savedSessionString)
+          console.log('Loading auto-saved session:', savedSession)
+
+          // Restore Form Data
+          if (savedSession.formData) {
+            Object.keys(savedSession.formData).forEach(key => {
+              setValue(key as any, savedSession.formData[key])
+            })
+          }
+
+          // Restore Skills
+          if (savedSession.activeSkills) setActiveSkills(savedSession.activeSkills)
+          if (savedSession.removedSkills) setRemovedSkills(savedSession.removedSkills)
+          if (savedSession.manuallyAddedSkills) setManuallyAddedSkills(savedSession.manuallyAddedSkills)
+
+        } catch (error) {
+          console.error('Failed to parse auto-saved session:', error)
+        }
       }
     }
+
+    loadData()
   }, [])
-  //TODO Remove later
+
+  // Auto-save form data to localStorage
   useEffect(() => {
-    if (activeStep === 4) {
-      console.log('Step 4 Form Data:', {
-        ...watch(),
-        skills: activeSkills,
-        removedSkills: removedSkills,
-        selectedFiles: selectedFiles
-      });
+    const currentFormData = watch()
+    const autoSaveData = {
+      formData: currentFormData,
+      activeSkills,
+      removedSkills,
+      manuallyAddedSkills,
+      timestamp: new Date().toISOString()
     }
-  }, [activeStep, activeSkills, removedSkills, selectedFiles, watch]);
+
+    const saveToLocalStorage = () => {
+      // Don't save if we're on the success step (step 4)
+      if (activeStep === 4) {
+        localStorage.removeItem('linkedCreds_autoSave_v1')
+        localStorage.removeItem('activeStep')
+        return
+      }
+
+      try {
+        localStorage.setItem('linkedCreds_autoSave_v1', JSON.stringify(autoSaveData))
+      } catch (error) {
+        console.warn('Failed to auto-save to localStorage:', error)
+      }
+    }
+
+    const timer = setTimeout(saveToLocalStorage, 500) // Debounce save by 1s
+    return () => clearTimeout(timer)
+  }, [watch(), activeSkills, removedSkills, manuallyAddedSkills, activeStep])
 
   const costumedHandleNextStep = async () => {
     if (
@@ -244,6 +286,8 @@ const Form = ({ onStepChange }: any) => {
           }
         })
 
+        // Clear auto-save data
+        localStorage.removeItem('linkedCreds_autoSave_v1')
         localStorage.removeItem('vcs')
       } catch (error) {
         console.warn('Error storing file tokens:', error)
@@ -291,177 +335,186 @@ const Form = ({ onStepChange }: any) => {
         alignItems: { xs: 'stretch', md: 'flex-start' },
         justifyContent: 'center',
         width: '100%',
-        maxWidth: { xs: '100%', md: activeStep === 4 ? '720px' : '1280px' },
+        maxWidth: { xs: '100%', md: '1280px' },
         px: { xs: 2, sm: 3, md: 4 }
       }}
     >
-      <form
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '30px',
-          borderRadius: '14px',
-          alignItems: 'stretch', // Changed from center to prevent clipping
-          // justifyItems: 'center', // Removed
-          padding: '20px 8px 20px',
-          overflow: 'visible', // Changed from auto to visible to avoid double scrollbars if parent handles it, or keep auto if needed. 'visible' is safer for layout.
-          width: '100%',
+      <Box
+        sx={{
           flex: 1,
-          backgroundColor: '#FFF',
-          boxSizing: 'border-box'
+          maxWidth: activeStep === 4 ? '100%' : '800px',
+          width: '100%'
         }}
-        onSubmit={handleFormSubmit}
       >
-        <Box
-          sx={{
+        <form
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+            borderRadius: activeStep === 4 ? '10px 10px 20px 20px' : '14px',
+            alignItems: 'stretch', // Changed from center to prevent clipping\
+            overflow: 'visible', // Changed from auto to visible to avoid double scrollbars if parent handles it, or keep auto if needed. 'visible' is safer for layout.
             width: '100%',
-            minWidth: { md: '400px' }
+            padding: activeStep === 4 ? '0' : '32px 32px 32px 30px',
+            backgroundColor: '#FFF',
+            boxShadow: '0 6px 6px rgba(0, 0, 0, 0.25)',
           }}
+          onSubmit={handleFormSubmit}
         >
-          <FormControl sx={{ width: '100%' }}>
-            {activeStep === 0 && (
-              <Slide in={true} direction={direction} timeout={500}>
-                <Box>
-                  <Step0 />
-                </Box>
-              </Slide>
-            )}
-            {activeStep === 1 && (
-              <Slide in={true} direction={direction} timeout={500}>
-                <Box>
-                  <Step1
-                    watch={watch}
-                    setValue={setValue}
-                    register={register}
-                    errors={errors}
-                    handleNext={handleNext}
-                  />
-                </Box>
-              </Slide>
-            )}
+          <Box
+            sx={{
+              width: '100%',
+              minWidth: { md: '400px' }
+            }}
+          >
+            <FormControl sx={{ width: '100%' }}>
+              {activeStep === 0 && (
+                <Slide in={true} direction={direction} timeout={500}>
+                  <Box>
+                    <Step0 />
+                  </Box>
+                </Slide>
+              )}
+              {activeStep === 1 && (
+                <Slide in={true} direction={direction} timeout={500}>
+                  <Box>
+                    <Step1
+                      watch={watch}
+                      setValue={setValue}
+                      register={register}
+                      errors={errors}
+                      handleNext={handleNext}
+                    />
+                  </Box>
+                </Slide>
+              )}
 
-            {activeStep === 2 && (
-              <Slide in={true} direction={direction}>
-                <Box>
-                  <Step2
-                    register={register}
-                    watch={watch}
-                    handleTextEditorChange={value =>
-                      setValue('credentialDescription', value ?? '')
-                    }
-                    errors={errors}
-                    control={control}
-                    activeSkills={activeSkills.map(s => s.name)}
-                  />
-                </Box>
-              </Slide>
-            )}
-            {activeStep === 3 && (
-              <Box
-                sx={{
-                  width: '100%',
-                  maxWidth: { md: '720px' },
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
+              {activeStep === 2 && (
+                <Slide in={true} direction={direction}>
+                  <Box>
+                    <Step2
+                      register={register}
+                      watch={watch}
+                      handleTextEditorChange={value =>
+                        setValue('credentialDescription', value ?? '')
+                      }
+                      errors={errors}
+                      control={control}
+                      activeSkills={activeSkills.map(s => s.name)}
+                      setValue={setValue}
+                      selectedFiles={selectedFiles}
+                      setSelectedFiles={setSelectedFiles}
+                      handleBack={costumedHandleBackStep}
+                    />
+                  </Box>
+                </Slide>
+              )}
+              {activeStep === 3 && (
+                <Slide in={true} direction={direction}>
+                  <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+
+                    <CredentialTracker
+                      formData={{
+                        ...watch(),
+                        skills: activeSkills,
+                        removedSkills: removedSkills
+                      }}
+                      selectedFiles={selectedFiles}
+                      currentStep={activeStep}
+                      onSkillsChange={setActiveSkills}
+                      onRemovedSkillsChange={setRemovedSkills}
+                      onBack={costumedHandleBackStep}
+                    />
+                  </Box>
+                </Slide>
+              )}
+              {activeStep === 4 && (
+                <Slide in={true} direction={direction}>
+                  <Box>
+                    <SuccessPage
+                      formData={watch()}
+                      setActiveStep={setActiveStep}
+                      reset={reset}
+                      link={link}
+                      setLink={setLink}
+                      setFileId={setFileId}
+                      fileId={fileId}
+                      storageOption={watch('storageOption')}
+                      selectedImage={image}
+                      res={res}
+                    />
+                  </Box>
+                </Slide>
+              )}
+            </FormControl>
+          </Box>
+          {
+            activeStep !== 4 && (
+              <Buttons
+                activeStep={activeStep}
+                handleNext={activeStep === 0 ? costumedHandleNextStep : () => handleNext()}
+                handleSkip={handleSkip}
+                handleSign={() => handleSign(activeStep, setActiveStep, handleFormSubmit)}
+                handleBack={costumedHandleBackStep}
+                isValid={isValid}
+                handleSaveSession={handleSaveSession}
+                loading={loading}
+              />
+            )
+          }
+          {
+            errorMessage && (
+              <div
+                style={{
+                  color: errorMessage.includes('MetaMask') ? 'red' : 'black',
+                  textAlign: 'center',
+                  marginTop: '20px'
                 }}
               >
-                <FileUploadAndList
-                  watch={watch}
-                  selectedFiles={selectedFiles}
-                  setSelectedFiles={setSelectedFiles}
-                  setValue={setValue}
-                />
-              </Box>
-            )}
-            {activeStep === 4 && (
-              <Slide in={true} direction={direction}>
-                <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                  <StepTrackShape />
-                  <CredentialTracker
-                    formData={{
-                      ...watch(),
-                      skills: activeSkills,
-                      removedSkills: removedSkills
-                    }}
-                    selectedFiles={selectedFiles}
-                    currentStep={activeStep}
-                    onSkillsChange={setActiveSkills}
-                    onRemovedSkillsChange={setRemovedSkills}
-                  />
-                </Box>
-              </Slide>
-            )}
-            {activeStep === 5 && (
-              <Slide in={true} direction={direction}>
-                <Box>
-                  <SuccessPage
-                    formData={watch()}
-                    setActiveStep={setActiveStep}
-                    reset={reset}
-                    link={link}
-                    setLink={setLink}
-                    setFileId={setFileId}
-                    fileId={fileId}
-                    storageOption={watch('storageOption')}
-                    selectedImage={image}
-                    res={res}
-                  />
-                </Box>
-              </Slide>
-            )}
-          </FormControl>
-        </Box>
-        {
-          activeStep !== 5 && (
-            <Buttons
-              activeStep={activeStep}
-              handleNext={activeStep === 0 ? costumedHandleNextStep : () => handleNext()}
-              handleSkip={handleSkip}
-              handleSign={() => handleSign(activeStep, setActiveStep, handleFormSubmit)}
-              handleBack={costumedHandleBackStep}
-              isValid={isValid}
-              handleSaveSession={handleSaveSession}
-              loading={loading}
-            />
-          )
-        }
-        {
-          errorMessage && (
-            <div
-              style={{
-                color: errorMessage.includes('MetaMask') ? 'red' : 'black',
-                textAlign: 'center',
-                marginTop: '20px'
-              }}
-            >
-              {errorMessage}
-            </div>
-          )
-        }
-        {snackMessage ? <SnackMessage message={snackMessage} /> : ''}
-      </form >
+                {errorMessage}
+              </div>
+            )
+          }
+          {snackMessage ? <SnackMessage message={snackMessage} /> : ''}
+        </form >
+      </Box>
 
-      {activeStep >= 1 && activeStep <= 3 && (
+      {activeStep >= 1 && activeStep < 3 && (
         <Box
           sx={{
-            width: { xs: '100%', md: 'auto' },
-            flex: 1,
+            width: { xs: '100%', md: '350px' },
             mt: { xs: 4, md: 0 },
             alignSelf: { xs: 'stretch', md: 'auto' }
           }}
         >
-          <CredentialTracker
-            formData={{
-              ...watch(),
-              skills: activeSkills,
-              removedSkills: removedSkills
-            }}
-            selectedFiles={selectedFiles}
-            currentStep={activeStep}
-            onSkillsChange={setActiveSkills}
-            onRemovedSkillsChange={setRemovedSkills}
-          />  </Box>
+          {activeStep === 1 || activeStep === 2 ? (
+            <CredentialPreview
+              formData={watch()}
+              selectedFiles={selectedFiles}
+              activeSkills={activeSkills}
+              removedSkills={removedSkills}
+              manuallyAddedSkills={manuallyAddedSkills}
+              onSkillsChange={setActiveSkills}
+              onRemovedSkillsChange={setRemovedSkills}
+              onManualSkillsChange={setManuallyAddedSkills}
+              currentStep={activeStep}
+            />
+          ) : (
+            <CredentialTracker
+              formData={{
+                ...watch(),
+                skills: activeSkills,
+                removedSkills: removedSkills
+              }}
+              selectedFiles={selectedFiles}
+              currentStep={activeStep}
+              onSkillsChange={setActiveSkills}
+              onRemovedSkillsChange={setRemovedSkills}
+              onManualSkillsChange={setManuallyAddedSkills}
+              manuallyAddedSkills={manuallyAddedSkills}
+            />
+          )}
+        </Box>
       )}
     </Box >
   )

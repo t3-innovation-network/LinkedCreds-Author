@@ -3,7 +3,7 @@ import { FileItem } from '../credentialForm/form/types/Types'
 import { GoogleDriveStorage } from '@cooperation/vc-storage'
 import { createStorage } from '@cooperation/vc-storage'
 
-export interface PortfolioItem {
+export interface EvidenceItem {
   name: string
   url: string
   wasId?: string
@@ -67,13 +67,13 @@ export async function uploadEvidence({
       const featuredFile = uploadedFiles.find(f => f.isFeatured)
       if (featuredFile?.wasId) setValue('evidenceLink', featuredFile.wasId)
 
-      const currentPortfolio = watch<PortfolioItem[]>('portfolio') || []
-      const newPortfolioEntries: PortfolioItem[] = uploadedFiles.map(f => ({
+      const currentEvidence = watch<EvidenceItem[]>('evidence') || []
+      const newEvidenceEntries: EvidenceItem[] = uploadedFiles.map(f => ({
         name: f.name,
         url: f.wasId || '',
         wasId: f.wasId
       }))
-      setValue('portfolio', [...currentPortfolio, ...newPortfolioEntries])
+      setValue('evidence', [...currentEvidence, ...newEvidenceEntries])
 
       setSelectedFiles(prev =>
         prev.map(file => {
@@ -118,13 +118,13 @@ export async function uploadEvidence({
       )
     }
 
-    const currentPortfolio = watch<PortfolioItem[]>('portfolio') || []
-    const newPortfolioEntries: PortfolioItem[] = uploadedFiles.map(f => ({
+    const currentEvidence = watch<EvidenceItem[]>('evidence') || []
+    const newEvidenceEntries: EvidenceItem[] = uploadedFiles.map(f => ({
       name: f.name,
       url: `https://drive.google.com/uc?export=view&id=${f.googleId}`,
       googleId: f.googleId
     }))
-    setValue('portfolio', [...currentPortfolio, ...newPortfolioEntries])
+    setValue('evidence', [...currentEvidence, ...newEvidenceEntries])
 
     setSelectedFiles(prev =>
       prev.map(file => {
@@ -177,17 +177,17 @@ export async function uploadEvidenceWithStorage({
     setValue('evidenceLink', url)
   }
 
-  const currentPortfolio = watch<PortfolioItem[]>('portfolio') || []
-  const newEntries: PortfolioItem[] = uploadedFiles.map(f =>
+  const currentEvidence = watch<EvidenceItem[]>('evidence') || []
+  const newEntries: EvidenceItem[] = uploadedFiles.map(f =>
     backend === 'was'
       ? { name: f.name, url: f.wasId || '', wasId: f.wasId }
       : {
-          name: f.name,
-          url: `https://drive.google.com/uc?export=view&id=${f.googleId}`,
-          googleId: f.googleId
-        }
+        name: f.name,
+        url: `https://drive.google.com/uc?export=view&id=${f.googleId}`,
+        googleId: f.googleId
+      }
   )
-  setValue('portfolio', [...currentPortfolio, ...newEntries])
+  setValue('evidence', [...currentEvidence, ...newEntries])
 
   setSelectedFiles(prev =>
     prev.map(file => {

@@ -1,35 +1,33 @@
 import { CredentialEngine, GoogleDriveStorage } from '@cooperation/vc-storage'
+import type { ISkill, IFrameworkMatch } from 'hr-context'
 import { FormData } from '../credentialForm/form/types/Types'
 
 interface FormDataI {
-  expirationDate: string
   fullName: string
   duration: string
   criteriaNarrative: string
   achievementDescription: string
   achievementName: string
-  portfolio: { googleId?: string; name: string; url: string }[]
+  evidence: { googleId?: string; name: string; url: string; type?: string[] }[]
+  portfolio: { googleId?: string; name: string; url: string; type?: string[] }[]
   evidenceLink: string
   evidenceDescription: string
   credentialType: string
-  alignment?: { targetName: string; targetDescription?: string; targetCode?: string; uuid?: string; score?: number }[]
+  alignment?: { targetName: string; targetDescription?: string; soc?: string[]; uuid?: string; score?: number }[]
+  expirationDate: string
 }
 
 interface RecommendationI {
   recommendationText: string
   qualifications: string
-  expirationDate: string
   fullName: string  // Recommender's name
   recipientName?: string  // Recipient's name (who the recommendation is for)
   howKnow: string
   explainAnswer: string
-  portfolio: { googleId?: string; name: string; url: string }[]
-  skillsEndorsed?: Array<{
-    targetName: string
-    soc?: string
-    uuid?: string
-    score?: number
-  }>
+  evidence: { googleId?: string; name: string; url: string; type?: string[] }[]
+  portfolio: { googleId?: string; name: string; url: string; type?: string[] }[]
+  skillsEndorsed?: Pick<ISkill, 'name' | 'id' | 'frameworkMatch'>[]
+  expirationDate: string
 }
 
 function getCredentialEngine(accessToken: string): CredentialEngine {
@@ -41,21 +39,6 @@ function getCredentialEngine(accessToken: string): CredentialEngine {
 }
 
 /**
- * Create a DID using MetaMask address
- * @param metaMaskAddress - The user's MetaMask address
- * @param accessToken - The access token for authentication
- * @returns DID Document, Key Pair, and Issuer ID
- */
-export async function createDIDWithMetaMask(
-  metaMaskAddress: string,
-  accessToken: string
-) {
-  const credentialEngine = getCredentialEngine(accessToken)
-  const { didDocument, keyPair } = await credentialEngine.createWalletDID(metaMaskAddress)
-  return { didDocument, keyPair, issuerId: didDocument.id }
-}
-
-/**
  * Create a DID
  * @param accessToken - The access token for authentication
  * @returns DID Document, Key Pair, and Issuer ID
@@ -63,7 +46,6 @@ export async function createDIDWithMetaMask(
 export const createDID = async (accessToken: string) => {
   const credentialEngine = getCredentialEngine(accessToken)
   const { didDocument, keyPair } = await credentialEngine.createDID()
-  console.log('DID:', didDocument)
   return { didDocument, keyPair, issuerId: didDocument.id }
 }
 
@@ -101,15 +83,18 @@ const signCred = async (
         vcFileId
       })
 
+      delete signedVC.expirationDate
+      delete signedVC.issuanceDate
+      signedVC.issuer = issuerDid
+      signedVC['@context'] = [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
+        "https://w3id.org/hr/v1",
+        "https://w3id.org/security/suites/ed25519-2020/v1"
+      ]
 
+      const { name, howKnow, recommendationText, qualifications, explainAnswer, evidence, ...rest } = signedVC.credentialSubject
 
-
-      // Manually add skillsEndorsed and recipientName since the library doesn't include them
-      // Also ensure correct property order: skillsEndorsed should come after howKnow
-      // Extract current credentialSubject fields
-      const { name, howKnow, recommendationText, qualifications, explainAnswer, portfolio, ...rest } = signedVC.credentialSubject
-
-      // Reconstruct with proper order and additional fields
       signedVC.credentialSubject = {
         name,
         recipientName: (formData as RecommendationI).recipientName,
@@ -118,27 +103,9 @@ const signCred = async (
         recommendationText,
         qualifications,
         explainAnswer,
-        portfolio,
+        evidence: evidence,
         ...rest
       }
-
-      // Add recipientName and skillsEndorsed to @context if not already present
-      if (Array.isArray(signedVC['@context'])) {
-        const contextObj = signedVC['@context'].find((item: any) => typeof item === 'object')
-        if (contextObj) {
-          if (!contextObj.recipientName) {
-            contextObj.recipientName = 'https://schema.org/recipient'
-          }
-          if (!contextObj.skillsEndorsed) {
-            contextObj.skillsEndorsed = 'https://schema.org/skillsEndorsed'
-            contextObj.targetName = 'https://schema.org/name'
-            contextObj.soc = 'https://schema.org/identifier'
-            contextObj.uuid = 'https://schema.org/identifier'
-            contextObj.score = 'https://schema.org/value'
-          }
-        }
-      }
-
     } else {
       formData = generateCredentialData(data)
       signedVC = await credentialEngine.signVC({
@@ -147,33 +114,72 @@ const signCred = async (
         keyPair,
         issuerId: issuerDid
       })
+      delete signedVC.issuanceDate
+      delete signedVC.expirationDate
+      signedVC.issuer = issuerDid
 
-      // Post-process to add skills/alignment support
-      if ((formData as FormDataI).alignment && (formData as FormDataI).alignment!.length > 0) {
-        // Add alignment to credentialSubject.achievement[0]
-        if (signedVC.credentialSubject?.achievement && Array.isArray(signedVC.credentialSubject.achievement)) {
-          signedVC.credentialSubject.achievement[0].alignment = (formData as FormDataI).alignment!.map(align => ({
-            type: ['Alignment'],
-            targetName: align.targetName,
-            targetCode: align.targetCode,
-            uuid: align.uuid,
-            score: align.score
-          }))
-        }
+      // Restructure to ISkillClaimCredential (hr-context format)
+      const f = formData as FormDataI
+      // Capture the credential name from signVC's achievement before replacing credentialSubject
+      const credentialName = signedVC.credentialSubject?.achievement?.[0]?.name ?? f.achievementName
+      const skills: ISkill[] = (f.alignment ?? []).map(align => ({
+        id: align.uuid ?? `urn:uuid:${align.targetName}`,
+        name: align.targetName,
+        ...(align.targetDescription ? { description: align.targetDescription } : {}),
+        source: 'ollama',
+        frameworkMatch: align.soc?.length
+          ? [{
+            name: align.targetDescription ?? align.targetName,
+            socCode: align.soc,
+            framework: 'O*Net',
+            similarityScore: align.score ?? 0
+          } satisfies IFrameworkMatch]
+          : []
+      }))
 
-        // Add skill-related terms to @context
-        if (Array.isArray(signedVC['@context'])) {
-          const contextObj = signedVC['@context'].find((item: any) => typeof item === 'object')
-          if (contextObj) {
-            if (!contextObj.uuid) {
-              contextObj.uuid = 'https://schema.org/identifier'
-            }
-            if (!contextObj.score) {
-              contextObj.score = 'https://schema.org/value'
-            }
-          }
-        }
+      // Standardize @context
+      signedVC['@context'] = [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
+        "https://w3id.org/hr/v1",
+        "https://w3id.org/security/suites/ed25519-2020/v1"
+      ]
+      if (Array.isArray(signedVC.type)) {
+        signedVC.type = signedVC.type.filter((t: string) => t !== 'OpenBadgeCredential')
+        if (!signedVC.type.includes('SkillClaimCredential')) signedVC.type.push('SkillClaimCredential')
+        if (!signedVC.type.includes('SelfIssuedCredential')) signedVC.type.push('SelfIssuedCredential')
       }
+
+      // Reshape credentialSubject
+      signedVC.credentialSubject = {
+        type: ['SkillClaim'],
+        person: {
+          type: ['Person'],
+          id: issuerDid,
+          name: f.fullName
+
+        },
+        name: credentialName,
+        ...(f.criteriaNarrative ? { narrative: f.criteriaNarrative } : {}),
+        ...(f.duration ? { durationPerformed: f.duration } : {}),
+        skill: skills
+      }
+      const evidenceItems: { id: string; name: string; type?: string[] }[] = []
+
+      if (f.evidence?.length) {
+        f.evidence.forEach((p: any) => {
+          if (p.id || p.url) {
+            evidenceItems.push({
+              id: p.id || p.url,
+              name: p.name || 'Evidence',
+              type: ['Evidence']
+            })
+          }
+        })
+      }
+
+
+      if (evidenceItems.length) signedVC['evidence'] = evidenceItems
     }
 
     return signedVC
@@ -191,16 +197,13 @@ const signCred = async (
 export const generateCredentialData = (data: FormData): FormDataI => {
   const alignment = data.skills?.map(skill => ({
     targetName: skill.name,
-    targetDescription: skill.onetName || skill.originalMatch,
-    targetCode: skill.soc_codes?.[0],
-    uuid: skill.uuid,
-    score: skill.score
+    targetDescription: skill.description || skill.frameworkMatch?.[0]?.name,
+    soc: skill.frameworkMatch?.[0]?.socCode,
+    uuid: skill.id,
+    score: skill.frameworkMatch?.[0]?.similarityScore
   })) || []
 
   return {
-    expirationDate: new Date(
-      new Date().setFullYear(new Date().getFullYear() + 1)
-    ).toISOString(),
     fullName: data.fullName || '',
     duration: data.credentialDuration || '',
     criteriaNarrative: data.credentialDescription || '',
@@ -209,14 +212,19 @@ export const generateCredentialData = (data: FormData): FormDataI => {
         ? data.description
         : String(data.description || ''),
     achievementName: data.credentialName || '',
+    evidence:
+      data.evidence && data.evidence.length > 0
+        ? data.evidence.map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
+        : [{ name: '', url: '', type: ['Evidence'] }],
     portfolio:
-      data.portfolio && data.portfolio.length > 0
-        ? data.portfolio.map(({ googleId, ...rest }) => rest)
-        : [{ name: '', url: '' }],
+      data.evidence && data.evidence.length > 0
+        ? data.evidence.map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
+        : [{ name: '', url: '', type: ['Evidence'] }],
     evidenceLink: data?.evidenceLink || '',
     evidenceDescription: data.evidenceDescription || '',
     credentialType: data.persons || '',
-    alignment: alignment
+    alignment: alignment,
+    expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
   }
 }
 
@@ -229,23 +237,24 @@ const generateRecommendationData = (data: any): RecommendationI => {
   return {
     recommendationText: data.recommendationText,
     qualifications: data.qualifications,
-    expirationDate: new Date(
-      new Date().setFullYear(new Date().getFullYear() + 1)
-    ).toISOString(),
     fullName: data.fullName,
     recipientName: data.recipientName,
     howKnow: data.howKnow,
     skillsEndorsed: data.selectedSkills?.map((skill: any) => ({
-      targetName: skill.targetName,
-      soc: skill.targetCode,
-      uuid: skill.uuid,
-      score: skill.score
+      name: skill.name ?? skill.targetName,
+      id: skill.id ?? skill.uuid,
+      frameworkMatch: skill.frameworkMatch ?? (skill.soc ? [{ socCode: skill.soc, similarityScore: skill.score }] : [])
     })) || [],
     explainAnswer: data.explainAnswer,
+    evidence:
+      data.evidence && (data.evidence as any[]).length > 0
+        ? (data.evidence as any[]).map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
+        : [{ name: '', url: '', type: ['Evidence'] }],
     portfolio:
-      data.portfolio && data.portfolio.length > 0
-        ? data.portfolio.map(({ googleId, ...rest }: any) => rest)
-        : [{ name: '', url: '' }]
+      data.evidence && (data.evidence as any[]).length > 0
+        ? (data.evidence as any[]).map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
+        : [{ name: '', url: '', type: ['Evidence'] }],
+    expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString()
   }
 }
 

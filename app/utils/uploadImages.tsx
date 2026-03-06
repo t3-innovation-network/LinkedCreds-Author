@@ -47,14 +47,14 @@ export const uploadImages = async (
       )
     }
 
-    const currentPortfolio = watch('portfolio') || []
-    const newPortfolioEntries = nonFeaturedFiles.map(file => ({
+    const currentEvidence = watch('evidence') || []
+    const newEvidenceEntries = nonFeaturedFiles.map(file => ({
       name: file.name,
       url: `https://drive.google.com/uc?export=view&id=${file.googleId}`,
       googleId: file.googleId
     }))
 
-    setValue('portfolio', [...currentPortfolio, ...newPortfolioEntries])
+    setValue('evidence', [...currentEvidence, ...newEvidenceEntries])
 
     setSelectedFiles((prevFiles: any[]) =>
       prevFiles.map((file: { name: any }) => {

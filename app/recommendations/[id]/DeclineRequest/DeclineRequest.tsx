@@ -54,7 +54,7 @@ const DeclineRequest: React.FC<DeclineRequestProps> = ({ handleBack }) => {
         sx={{
           fontSize: '24px',
           fontWeight: '700',
-          fontFamily: 'Lato',
+          fontFamily: 'Inter',
           color: '#202E5B'
         }}
       >
@@ -63,7 +63,7 @@ const DeclineRequest: React.FC<DeclineRequestProps> = ({ handleBack }) => {
 
       <Typography
         sx={{
-          fontFamily: 'Lato',
+          fontFamily: 'Inter',
           color: '#666',
           fontSize: '16px',
           my: 2

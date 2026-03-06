@@ -1,3 +1,5 @@
+'use client'
+
 import React, {
   createContext,
   useContext,
@@ -6,6 +8,7 @@ import React, {
   useMemo,
   useCallback
 } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 // Define the context structure
 interface StepContextType {
@@ -34,6 +37,9 @@ export const StepProvider = ({ children }: { children: React.ReactNode }) => {
     () => async () => { }
   )
   const [loading, setLoading] = useState(false)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const excludedPaths = useMemo(
     () => ['/', '/privacy', '/accessibility', '/terms', '/claims'],
     []
@@ -75,7 +81,7 @@ export const StepProvider = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener('popstate', handleLocationChange)
       window.removeEventListener('hashchange', handleLocationChange)
     }
-  }, [excludedPaths])
+  }, [excludedPaths, pathname, searchParams])
 
   // Update localStorage and URL hash when the active step changes
   useEffect(() => {
@@ -83,8 +89,13 @@ export const StepProvider = ({ children }: { children: React.ReactNode }) => {
       return
     }
 
-    localStorage.setItem('activeStep', String(activeStep))
-    window.location.hash = `#step${activeStep}`
+    if (activeStep > 3) {
+      localStorage.removeItem('activeStep')
+      window.location.hash = `#step${activeStep}`
+    } else {
+      localStorage.setItem('activeStep', String(activeStep))
+      window.location.hash = `#step${activeStep}`
+    }
   }, [activeStep, excludedPaths])
 
   const handleNext = useCallback(async () => {
@@ -93,7 +104,7 @@ export const StepProvider = ({ children }: { children: React.ReactNode }) => {
     const isCredentialForm = pathname.includes('/credentialForm')
 
     const shouldTriggerUpload =
-      (isCredentialForm && activeStep === 3) || (isRecommendationForm && activeStep === 2)
+      (isCredentialForm && activeStep === 2) || (isRecommendationForm && activeStep === 2)
 
     if (shouldTriggerUpload && typeof uploadImageFn === 'function') {
       setLoading(true) // Start loading

@@ -4,7 +4,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url).searchParams.get('url')
 
   if (typeof url !== 'string') {
-    return NextResponse.json({ error: 'Invalid URL' }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid URL' }, { status: 200 })
   }
   try {
     const response = await fetch(url, {
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
   } catch (error: any) {
     return NextResponse.json(
       { error: `Failed to fetch the URL: ${error.message}` },
-      { status: 500 }
+      { status: 200 }
     )
   }
 }

@@ -4,21 +4,13 @@ import React, { useState, useEffect } from 'react'
 import {
   Box,
   styled,
-  Card,
-  CardContent,
   IconButton,
-  TextField,
   Tooltip
 } from '@mui/material'
 import Image from 'next/image'
 import { FileItem } from '../credentialForm/form/types/Types'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import DeleteIcon from '@mui/icons-material/Delete'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import StarIcon from '@mui/icons-material/Star'
-import EditIcon from '@mui/icons-material/Edit'
-import CheckIcon from '@mui/icons-material/Check'
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
 interface FileListProps {
@@ -74,17 +66,22 @@ const generateVideoThumbnail = (file: FileItem): Promise<string> =>
     video.addEventListener('error', () => reject(new Error()))
   })
 
+// Helper to format bytes
+const formatBytes = (bytes: number, decimals = 2) => {
+  if (!bytes) return '0 Bytes'
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+}
+
 const FileListDisplay: React.FC<FileListProps> = ({
   files,
-  onDelete,
-  onNameChange,
-  onSetAsFeatured,
-  onReorder
+  onDelete
 }) => {
   const [pdfThumbs, setPdfThumbs] = useState<Record<string, string>>({})
   const [vidThumbs, setVidThumbs] = useState<Record<string, string>>({})
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editingValue, setEditingValue] = useState('')
 
   useEffect(() => {
     const generateThumbs = async () => {
@@ -106,177 +103,116 @@ const FileListDisplay: React.FC<FileListProps> = ({
     generateThumbs()
   }, [files, pdfThumbs, vidThumbs])
 
-  const moveItem = (e: React.MouseEvent, idx: number, dir: 'up' | 'down') => {
-    e.stopPropagation()
-
-    const next = dir === 'up' ? idx - 1 : idx + 1
-    if (next < 0 || next >= files.length) return
-
-    const reordered = [...files]
-    ;[reordered[idx], reordered[next]] = [reordered[next], reordered[idx]]
-
-    reordered.forEach(f => (f.isFeatured = false))
-    reordered[0].isFeatured = true
-    onSetAsFeatured(reordered[0].id)
-
-    onReorder(reordered)
-  }
-
-  const startEdit = (f: FileItem) => {
-    setEditingId(f.id)
-    setEditingValue(f.name.replace(/(\.[^/.]+)$/, ''))
-  }
-
-  const saveEdit = (f: FileItem) => {
-    if (!editingValue.trim()) return setEditingId(null)
-    const ext = f.name.split('.').pop() ?? ''
-    onNameChange(f.id, `${editingValue.trim()}.${ext}`)
-    setEditingId(null)
-  }
-
   return (
     <FileListContainer>
-      {files.map((f, idx) => {
-        const ext = f.name.split('.').pop()
-        const isEditing = editingId === f.id
+      {files.map((f) => {
         return (
-          <Box key={f.id} sx={{ width: '100%' }}>
-            <Card sx={{ width: '100%', bgcolor: 'white', borderRadius: 2 }}>
-              <CardContent sx={{ p: 4, width: '100%' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {isImage(f.name) && (
-                    <Image
-                      src={f.url}
-                      alt={f.name}
-                      width={80}
-                      height={80}
-                      style={{ borderRadius: 8 }}
-                    />
-                  )}
-                  {isPDF(f.name) && (
-                    <Image
-                      src={pdfThumbs[f.id] ?? '/fallback-pdf-thumbnail.svg'}
-                      alt={f.name}
-                      width={80}
-                      height={80}
-                      style={{ borderRadius: 8 }}
-                    />
-                  )}
-                  {isMP4(f.name) && (
-                    <Image
-                      src={vidThumbs[f.id] ?? '/fallback-video.png'}
-                      alt={f.name}
-                      width={80}
-                      height={80}
-                      style={{ borderRadius: 8 }}
-                    />
-                  )}
-                  {!isImage(f.name) && !isPDF(f.name) && !isMP4(f.name) && (
-                    <Box
-                      sx={{
-                        width: 80,
-                        height: 80,
-                        bgcolor: '#f3f3f3',
-                        borderRadius: 2,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.9rem',
-                        color: '#666'
-                      }}
-                    >
-                      FILE
-                    </Box>
-                  )}
-                  <Box sx={{ flexGrow: 1 }}>
-                    {isEditing ? (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <TextField
-                          size='small'
-                          value={editingValue}
-                          onChange={e => setEditingValue(e.target.value)}
-                          sx={{ width: '100%' }}
-                        />
-                        <Box>.{ext}</Box>
-                      </Box>
-                    ) : (
-                      <Box
-                        sx={{
-                          fontSize: '0.95rem',
-                          fontWeight: 500,
-                          wordBreak: 'break-all'
-                        }}
-                      >
-                        {f.name}
-                      </Box>
-                    )}
-                  </Box>
-                </Box>
-              </CardContent>
+          <Box
+            key={f.id}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '8px 16px',
+              backgroundColor: '#F9FAFB', // Lighter background
+              borderRadius: '8px',
+              width: '100%',
+              height: '72px', // Slightly taller for two lines of text
+              border: '1px solid #E5E7EB'
+            }}
+          >
+            {/* Thumbnail Section */}
+            {isImage(f.name) && (
+              <Image
+                src={f.url}
+                alt={f.name}
+                width={48}
+                height={48}
+                style={{ borderRadius: 6, objectFit: 'cover' }}
+              />
+            )}
+            {isPDF(f.name) && (
+              <Image
+                src={pdfThumbs[f.id] ?? '/fallback-pdf-thumbnail.svg'}
+                alt={f.name}
+                width={48}
+                height={48}
+                style={{ borderRadius: 6, objectFit: 'cover' }}
+              />
+            )}
+            {isMP4(f.name) && (
+              <Image
+                src={vidThumbs[f.id] ?? '/fallback-video.png'}
+                alt={f.name}
+                width={48}
+                height={48}
+                style={{ borderRadius: 6, objectFit: 'cover' }}
+              />
+            )}
+            {!isImage(f.name) && !isPDF(f.name) && !isMP4(f.name) && (
               <Box
                 sx={{
+                  width: 48,
+                  height: 48,
+                  bgcolor: '#E5E7EB',
+                  borderRadius: 2,
                   display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: 1,
-                  bgcolor: '#242c41',
-                  p: 2,
-                  borderBottomLeftRadius: 2,
-                  borderBottomRightRadius: 2
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.6rem',
+                  color: '#6B7280',
+                  fontWeight: 600
                 }}
-                onClick={e => e.stopPropagation()}
               >
-                {idx === 0 && (
-                  <Tooltip title='Featured media' arrow>
-                    <IconButton sx={{ color: '#ffce31', cursor: 'default' }}>
-                      <StarIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-                {isEditing ? (
-                  <Tooltip title='Save file name' arrow>
-                    <IconButton sx={{ color: 'white' }} onClick={() => saveEdit(f)}>
-                      <CheckIcon />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  <Tooltip title='Edit file name' arrow>
-                    <IconButton sx={{ color: 'white' }} onClick={() => startEdit(f)}>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-                <Tooltip title='Delete media' arrow>
-                  <IconButton
-                    sx={{ color: 'white' }}
-                    onClick={e => onDelete(e, f.googleId ?? f.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title='Move up' arrow>
-                  <span>
-                    <IconButton
-                      sx={{ color: 'white' }}
-                      onClick={e => moveItem(e, idx, 'up')}
-                      disabled={idx === 0}
-                    >
-                      <KeyboardArrowUpIcon />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-                <Tooltip title='Move down' arrow>
-                  <span>
-                    <IconButton
-                      sx={{ color: 'white' }}
-                      onClick={e => moveItem(e, idx, 'down')}
-                      disabled={idx === files.length - 1}
-                    >
-                      <KeyboardArrowDownIcon />
-                    </IconButton>
-                  </span>
-                </Tooltip>
+                FILE
               </Box>
-            </Card>
+            )}
+
+            {/* File Info (Name + Size) */}
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
+              <Box
+                sx={{
+                  fontFamily: 'Inter',
+                  fontSize: '14px',
+                  color: '#111827',
+                  fontWeight: 500,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {f.name}
+              </Box>
+              {f.file?.size && (
+                <Box
+                  sx={{
+                    fontFamily: 'Inter',
+                    fontSize: '12px',
+                    color: '#6B7280',
+                    marginTop: '2px'
+                  }}
+                >
+                  {formatBytes(f.file.size)}
+                </Box>
+              )}
+            </Box>
+
+            {/* Delete Action */}
+            <Tooltip title='Delete media' arrow>
+              <IconButton
+                onClick={e => onDelete(e, f.googleId ?? f.id)}
+                sx={{
+                  color: '#9CA3AF',
+                  padding: '8px',
+                  '&:hover': {
+                    color: '#EF4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                  }
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
           </Box>
         )
       })}

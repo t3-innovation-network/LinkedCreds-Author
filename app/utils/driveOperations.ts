@@ -52,13 +52,14 @@ export const tearDown = async (storage: any, claim: any) => {
       const kids = await storage.findFolderFiles(folderId)
       const r = kids.find((f: any) => f?.name === 'RELATIONS')
       relationsId = r?.id ?? null
-    } catch {}
+    } catch { }
   }
   await safeDelete(storage, fileId)
   await safeDelete(storage, relationsId)
   const data = safeJSON(claim.id.data?.body ?? '') ?? claim
   const urls: string[] = []
-  data?.credentialSubject?.portfolio?.forEach((p: any) => urls.push(p.url))
+  const ev = data?.credentialSubject?.evidence || data?.credentialSubject?.portfolio || []
+  ev.forEach((p: any) => urls.push(p.url))
   if (data?.credentialSubject?.evidenceLink)
     urls.push(data.credentialSubject.evidenceLink)
   data?.credentialSubject?.achievement?.forEach((a: any) => {
@@ -77,7 +78,7 @@ export const getAllRecommendations = async (storage: any): Promise<any[]> => {
     const recommendations = []
     for (const file of driveFiles) {
       try {
-        const content = JSON.parse(file?.data?.body)
+        const content = safeJSON(file?.data?.body)
         if (
           content &&
           '@context' in content &&
@@ -104,29 +105,8 @@ export const getAllRecommendations = async (storage: any): Promise<any[]> => {
   }
 }
 
-// Fetch all claims from Google Drive with caching
+// Fetch all claims from Google Drive (always fresh, no local cache)
 export const getAllClaims = async (storage: any): Promise<any[]> => {
-  let claimsData: any[] = []
-  const cachedVCs = localStorage.getItem('vcs')
-
-  if (cachedVCs) {
-    try {
-      const parsedVCs = JSON.parse(cachedVCs)
-      console.log('🚀 ~ getAllClaims ~ parsedVCs:', parsedVCs)
-      if (Array.isArray(parsedVCs) && parsedVCs.length > 0) {
-        console.log('Returning cached VCs from localStorage')
-        // Filter to only skill credentials
-        claimsData = parsedVCs.filter(isSkillCredential)
-      }
-    } catch (error) {
-      console.error('Error parsing cached VCs from localStorage:', error)
-    }
-  }
-
-  if (claimsData.length > 0) {
-    return claimsData
-  }
-
   try {
     const driveFiles = await storage?.getAllFilesByType('VCs')
     if (!driveFiles?.length) return []
@@ -134,13 +114,12 @@ export const getAllClaims = async (storage: any): Promise<any[]> => {
     const vcs = []
     for (const file of driveFiles) {
       try {
-        const content = JSON.parse(file?.data?.body)
+        const content = safeJSON(file?.data?.body)
         if (content && '@context' in content) {
           const credential = {
             ...content,
             id: file
           }
-          // Only add skill credentials
           if (isSkillCredential(credential)) {
             vcs.push(credential)
           }
@@ -151,16 +130,9 @@ export const getAllClaims = async (storage: any): Promise<any[]> => {
       }
     }
 
-    localStorage.setItem('vcs', JSON.stringify(vcs))
     return vcs
   } catch (error) {
     console.error('Error fetching claims from drive:', error)
-    const fallback = localStorage.getItem('vcs')
-    if (fallback) {
-      // Filter cached fallback to only skill credentials
-      const parsed = JSON.parse(fallback)
-      return Array.isArray(parsed) ? parsed.filter(isSkillCredential) : []
-    }
     return []
   }
 }

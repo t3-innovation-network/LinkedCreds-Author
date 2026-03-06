@@ -39,7 +39,7 @@ export const CredentialViewText = (fullName: string) =>
 export const StorageText =
   'Your recommendation will be stored in the location you select. This will ensure it can be linked to the individual’s credential once you’re finished:'
 
-export const featuresRecommentations = (fullName: string) => [
+export const featuresRecommendations = (fullName: string) => [
   {
     id: 1,
     name: `How you know ${fullName}`,
@@ -63,6 +63,8 @@ export const featuresRecommentations = (fullName: string) => [
       'Include any other supporting documents or evidence that can strengthen the recommendation.'
   }
 ]
+
+export const featuresRecommentations = featuresRecommendations
 
 interface FormTextStepsProps {
   activeStep: number

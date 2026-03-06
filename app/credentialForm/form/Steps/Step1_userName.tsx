@@ -15,8 +15,9 @@ import {
 } from 'react-hook-form'
 import { FormData } from '../types/Types'
 import { useSession } from 'next-auth/react'
-import { SVGSProfileName } from '../../../Assets/SVGs'
+import { SVGDescribeBadge } from '../../../Assets/SVGs'
 import { StepTrackShape } from '../fromTexts & stepTrack/StepTrackShape'
+
 interface Step1Props {
   register: UseFormRegister<FormData>
   errors: FieldErrors<FormData>
@@ -42,25 +43,27 @@ export function Step1({ register, errors, handleNext }: Readonly<Step1Props>) {
   return (
     <Box
       sx={{
-        mt: '10px',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
         gap: '32px',
-
+        width: '100%',
+        maxWidth: '100%',
+        padding: '32px 32px 0px 32px'
       }}
     >
-      <SVGSProfileName />
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '28px', fontWeight: 500, color: '#000e40' }}>
-        Step 1
-      </Typography>
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '18px', fontWeight: 500, color: '#000e40' }}>
-        Please confirm your name
-      </Typography>
-      <StepTrackShape />
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', alignItems: 'flex-start', }}>
+        <SVGDescribeBadge width="56" height="56" />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <Typography sx={{ fontFamily: 'Inter', fontSize: '28px', fontWeight: 700, color: '#000e40', lineHeight: '1.2' }}>
+            Document Your Skill
+          </Typography>
+          <StepTrackShape />
+        </Box>
+      </Box>
+
       <Box sx={{ width: '100%' }}>
-        <FormLabel sx={formLabelStyles} id='name-label'>
-          Name (required)
+        <FormLabel sx={{ ...formLabelStyles, mb: '8px', display: 'block' }} id='name-label'>
+          What is your name? (required)
         </FormLabel>
         <TextField
           {...register('fullName', {
@@ -70,13 +73,25 @@ export function Step1({ register, errors, handleNext }: Readonly<Step1Props>) {
             session?.user?.name ?? 'e.g., Maria Fernández or Kumar Enterprises'
           }
           variant='outlined'
-          sx={TextFieldStyles}
+          sx={{
+            ...TextFieldStyles,
+            '& .MuiOutlinedInput-root': {
+              ...TextFieldStyles['& .MuiOutlinedInput-root'],
+              '&.Mui-focused fieldset': {
+                borderColor: '#2DD4BF'
+              }
+            }
+          }}
           aria-labelledby='name-label'
           inputProps={textFieldInputProps}
           error={!!errors.fullName}
           helperText={errors.fullName?.message}
           onKeyDown={handleKeyDown}
+          fullWidth
         />
+        <Typography sx={{ fontFamily: 'Inter', fontSize: '14px', color: '#6A7282', mb: '8px' }}>
+          This name will appear on your credential as the recipient.
+        </Typography>
       </Box>
     </Box>
   )

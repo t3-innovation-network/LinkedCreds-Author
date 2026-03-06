@@ -21,8 +21,8 @@ interface FetchedDataProps {
 
 const FetchedData: React.FC<FetchedDataProps> = ({
   setFullName,
-  setEmail = () => {},
-  setFileID = () => {}
+  setEmail = () => { },
+  setFileID = () => { }
 }) => {
   const [driveData, setDriveData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -121,7 +121,7 @@ const FetchedData: React.FC<FetchedDataProps> = ({
               {driveData?.credentialSubject?.achievement[0]?.description && (
                 <Typography
                   sx={{
-                    fontFamily: 'Lato',
+                    fontFamily: 'Inter',
                     fontSize: '17px',
                     letterSpacing: '0.075px',
                     lineHeight: '24px'
@@ -146,23 +146,25 @@ const FetchedData: React.FC<FetchedDataProps> = ({
                   </ul>
                 </Box>
               )}
-              {driveData?.credentialSubject?.portfolio &&
-                driveData?.credentialSubject?.portfolio.length > 0 && (
+              {(() => {
+                const evidence = driveData?.credentialSubject?.evidence || driveData?.credentialSubject?.portfolio || []
+                if (evidence.length === 0) return null
+
+                return (
                   <Box>
                     <Typography>Supporting Evidence:</Typography>
                     <ul style={evidenceListStyles}>
-                      {driveData?.credentialSubject?.portfolio?.map(
-                        (porto: { url: any; name: any }) => (
-                          <li key={porto.url}>
-                            <Link href={porto.url} target='_blank'>
-                              {porto.name}
-                            </Link>
-                          </li>
-                        )
-                      )}
+                      {evidence.map((porto: { url: any; name: any }) => (
+                        <li key={porto.url}>
+                          <Link href={porto.url} target='_blank'>
+                            {porto.name}
+                          </Link>
+                        </li>
+                      ))}
                     </ul>
                   </Box>
-                )}
+                )
+              })()}
             </Box>
           </Box>
         </>

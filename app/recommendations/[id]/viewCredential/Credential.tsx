@@ -5,7 +5,7 @@ import { Box, Button, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { SVGCheckMarks } from '../../../Assets/SVGs'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import { featuresRecommentations } from '../RecommandationForm/fromTexts/FormTextSteps'
+import { featuresRecommendations } from '../RecommandationForm/fromTexts/FormTextSteps'
 import ComprehensiveClaimDetails from '../../../view/[id]/ComprehensiveClaimDetails'
 import DeclineRequest from '../DeclineRequest/DeclineRequest'
 import { useParams } from 'next/navigation'
@@ -14,9 +14,10 @@ interface CredentialProps {
   setactivStep: (step: number) => void
   fullName: string
   email: string
+  credentialSubject: any
 }
 
-const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email }) => {
+const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email, credentialSubject }) => {
   const theme = useTheme()
   const [showDeclineRequest, setShowDeclineRequest] = useState(false)
 
@@ -100,7 +101,7 @@ const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email }
       <Typography
         sx={{
           flexShrink: 1,
-          fontFamily: 'Lato',
+          fontFamily: 'Inter',
           fontSize: '16px',
           fontWeight: 'bold',
           lineHeight: '19.2px',
@@ -112,7 +113,7 @@ const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email }
       <Box
         sx={{ display: 'flex', flexDirection: 'column', minWidth: '210px', gap: '15px' }}
       >
-        {featuresRecommentations(fullName).map(
+        {featuresRecommendations(credentialSubject?.person?.name).map(
           (feature: { id: any; name: any; description: any }) => (
             <Box
               key={feature.id}
@@ -128,7 +129,7 @@ const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email }
                 sx={{
                   color: theme.palette.t3BodyText,
                   flexShrink: 1,
-                  fontFamily: 'Lato',
+                  fontFamily: 'Inter',
                   fontSize: '18px',
                   fontWeight: '600',
                   lineHeight: '21.6px',

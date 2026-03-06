@@ -97,23 +97,27 @@ export const getAccessToken = async (fileId: string) => {
       return null
     }
 
-    const isExpired = data.expiresAt > Date.now()
-    if (true) {
+    const isExpired = data.expiresAt < Date.now()
+    if (isExpired) {
       console.log(`Access token for file ${fileId} is expired, refreshing...`)
-      const refreshedToken = await refreshAccessToken({
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        expiresAt: data.expiresAt,
-        googleFileId: fileId
-      })
-
-      return refreshedToken.accessToken
+      try {
+        const refreshedToken = await refreshAccessToken({
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+          expiresAt: data.expiresAt,
+          googleFileId: fileId
+        })
+        return refreshedToken.accessToken
+      } catch (refreshError) {
+        console.warn(`Token refresh failed for file ${fileId}, returning null:`, refreshError)
+        return null
+      }
     }
 
     return data.accessToken
   } catch (error) {
     console.error(`Error retrieving tokens for file ${fileId}:`, error)
-    throw error
+    return null
   }
 }
 
@@ -136,6 +140,11 @@ const refreshAccessToken = async (tokens: any) => {
 
     const data = await response.json()
     const newAccessToken = data.access_token
+
+    if (!newAccessToken) {
+      console.error('Token refresh failed – Google returned no access_token:', data)
+      throw new Error('Token refresh failed: no access_token in response')
+    }
 
     // Update the access token in Firestore
     await updateFileAccessToken({

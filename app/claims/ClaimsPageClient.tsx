@@ -42,6 +42,7 @@ import {
   getRandomBorderColor,
   getTimeAgo,
   getTimeDifference,
+  getDuration,
   getCredentialName,
   getCredentialType,
   isValidClaim,
@@ -94,9 +95,9 @@ interface Recommendation {
     qualifications: string
     explainAnswer?: string
     portfolio?: Array<{ name: string; url: string }>
+    evidence?: Array<{ name: string; url: string }>
   }
   issuanceDate: string
-  expirationDate?: string
 }
 
 interface SnackbarState {
@@ -381,13 +382,13 @@ const ClaimsPageClient: React.FC = () => {
             }}
           >
             <Avatar
-              sx={{ border: '2px solid #155dfc' }}
+              sx={{ border: '2px solid #2563EB' }}
               alt='Profile Picture'
               src={session?.user?.image}
             />
             <Box>
               <Typography variant='h6'>
-                Hi, <span style={{ color: '#155dfc' }}>{session?.user?.name}</span>
+                Hi, <span style={{ color: '#2563EB' }}>{session?.user?.name}</span>
               </Typography>
               <Typography variant='body2' color='text.secondary'>
                 What would you like to do?
@@ -405,7 +406,7 @@ const ClaimsPageClient: React.FC = () => {
 
           <Typography
             variant='subtitle1'
-            sx={{ fontSize: '24px', fontFamily: 'Lato', mt: 2 }}
+            sx={{ fontSize: '24px', fontFamily: 'Inter', mt: 2 }}
           >
             Work with my existing skills:
           </Typography>
@@ -525,14 +526,12 @@ const ClaimsPageClient: React.FC = () => {
                               fontSize: '1.25rem'
                             }}
                           >
-                            {getTimeAgo(claim.issuanceDate || new Date().toISOString())}
+                            {getTimeAgo(claim)}
                           </Typography>
                         </Box>
                         <Typography sx={{ color: 'text.secondary' }}>
                           {claim.credentialSubject?.name} - {getCredentialType(claim)} -{' '}
-                          {getTimeDifference(
-                            claim.issuanceDate || new Date().toISOString()
-                          )}
+                          {getTimeDifference(claim)}
                         </Typography>
                       </Box>
                     )}
@@ -576,12 +575,12 @@ const ClaimsPageClient: React.FC = () => {
                               backgroundColor: '#f0f6ff',
                               fontSize: '12px',
                               fontWeight: 'medium',
-                              color: '#155dfc'
+                              color: '#2563EB'
                             }}
                           >
                             Ask for a recommendation
                           </Button>
-                          <Divider orientation='vertical' flexItem color='#155dfc' />
+                          <Divider orientation='vertical' flexItem color='#2563EB' />
                           <Button
                             startIcon={<ContentCopyIcon />}
                             onClick={e => handleCopyUrl(claimId, e)}
@@ -592,7 +591,7 @@ const ClaimsPageClient: React.FC = () => {
                               backgroundColor: '#f0f6ff',
                               fontSize: '12px',
                               fontWeight: 'medium',
-                              color: '#155dfc'
+                              color: '#2563EB'
                             }}
                           >
                             Copy URL
@@ -827,16 +826,12 @@ const ClaimsPageClient: React.FC = () => {
                                   fontSize: '1.25rem'
                                 }}
                               >
-                                {getTimeAgo(
-                                  recommendation.issuanceDate || new Date().toISOString()
-                                )}
+                                {getTimeAgo(recommendation)}
                               </Typography>
                             </Box>
                             <Typography sx={{ color: 'text.secondary' }}>
                               Recommendation - {getRecommendationText(recommendation)} -{' '}
-                              {getTimeDifference(
-                                recommendation.issuanceDate || new Date().toISOString()
-                              )}
+                              {getTimeDifference(recommendation)}
                             </Typography>
                           </Box>
                         )}
@@ -1112,7 +1107,7 @@ const ClaimsPageClient: React.FC = () => {
             alignItems: 'center'
           }}
         >
-          <Typography variant='h6' sx={{ fontWeight: 'bold', fontFamily: 'Lato' }}>
+          <Typography variant='h6' sx={{ fontWeight: 'bold', fontFamily: 'Inter' }}>
             Claim Details
           </Typography>
           <Button
@@ -1122,7 +1117,7 @@ const ClaimsPageClient: React.FC = () => {
               color: 'primary.main',
               '&:hover': { bgcolor: 'primary.50' },
               fontWeight: 'bold',
-              fontFamily: 'Lato'
+              fontFamily: 'Inter'
             }}
           >
             Close

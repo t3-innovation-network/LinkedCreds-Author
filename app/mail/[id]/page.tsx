@@ -196,7 +196,7 @@ export default function MailRecommendation() {
       <Typography
         variant='h1'
         sx={{
-          fontFamily: 'Lato',
+          fontFamily: 'Inter',
           fontSize: '24px',
           fontWeight: 400,
           color: '#202E5B',
@@ -217,7 +217,7 @@ export default function MailRecommendation() {
       >
         <Typography
           sx={{
-            fontFamily: 'Lato',
+            fontFamily: 'Inter',
             fontSize: '16px',
             mb: 3,
             fontWeight: 600,
@@ -232,7 +232,7 @@ export default function MailRecommendation() {
             marginBottom: '20px',
             paddingLeft: '20px',
             color: '#202E5B',
-            fontFamily: 'Lato'
+            fontFamily: 'Inter'
           }}
         >
           <li style={{ marginBottom: '8px' }}>
@@ -362,7 +362,7 @@ export default function MailRecommendation() {
               wordWrap: 'break-word',
               overflowWrap: 'break-word',
               width: '100%',
-              fontFamily: 'Lato',
+              fontFamily: 'Inter',
               color: '#333',
               fontSize: '14px',
               flexGrow: 1
@@ -370,7 +370,7 @@ export default function MailRecommendation() {
           >
             <Typography
               sx={{
-                fontFamily: 'Lato',
+                fontFamily: 'Inter',
                 color: '#333',
                 fontSize: '14px',
                 wordWrap: 'break-word',

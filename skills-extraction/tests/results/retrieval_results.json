@@ -1,6 +1,8 @@
 {
   "index_integrity": {
     "index_size": 8876,
+    "skills_count": 8876,
+    "dimension": 384,
     "is_trained": true,
     "index_type": "IndexFlatIP (Inner Product / Cosine Similarity)",
     "integrity_check": true

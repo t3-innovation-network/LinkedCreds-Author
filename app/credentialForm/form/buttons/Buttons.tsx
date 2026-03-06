@@ -18,6 +18,7 @@ export function Buttons({
   activeStep,
   handleNext,
   handleSign,
+  handleBack,
   isValid,
   handleSaveSession,
   loading,
@@ -30,55 +31,84 @@ export function Buttons({
         height: '40px',
         display: 'flex',
         gap: '15px',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        alignItems: 'center'
       }}
     >
-      {activeStep !== 0 && (
-        <Button
-          sx={{ minWidth: '130px' }}
-          onClick={handleSaveSession}
-          color='secondary'
-          variant='finishButton'
-        >
-          Save & Exit
-        </Button>
-      )}
-      {activeStep === 3 && (
-        <Button variant='finishButton' onClick={handleSkip} color='secondary'>
-          Skip
-        </Button>
-      )}
-      {(activeStep === 1 || (activeStep !== 4 && activeStep !== 0)) && (
-        <Button
-          onClick={handleNext}
-          color='primary'
-          disabled={activeStep !== 0 && activeStep !== 3 && !isValid}
-          variant='nextButton'
-        >
-          Next
-        </Button>
-      )}
-      {activeStep === 4 && (
-        <Button variant='nextButton' onClick={handleSign} color='primary'>
-          Finish & Sign
-        </Button>
-      )}
-      {activeStep === 5 && (
-        <Button
-          onClick={handleNext}
-          disabled={loading} // Disable button during loading
-          color='primary'
-          variant='nextButton'
-        >
-          {loading ? (
-            <>
-              <CircularProgress size={20} sx={{ mr: 1 }} /> Uploading...
-            </>
-          ) : (
-            'Preview'
-          )}
-        </Button>
-      )}
+      <Box>
+        {(activeStep === 2 || activeStep === 3) && (
+          <Button
+            onClick={handleBack}
+            color='primary'
+            variant='outlined'
+            sx={{
+              borderRadius: '9999px',
+              textTransform: 'none',
+              fontWeight: 600,
+              minWidth: '100px'
+            }}
+          >
+            Back
+          </Button>
+        )}
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: '15px' }}>
+        {activeStep !== 0 && (
+          <Button
+            sx={{ minWidth: '130px' }}
+            onClick={handleSaveSession}
+            color='secondary'
+            variant='finishButton'
+          >
+            Save & Exit
+          </Button>
+        )}
+
+        {(activeStep === 1) && (
+          <Button
+            onClick={handleNext}
+            color='primary'
+            disabled={!isValid}
+            variant='nextButton'
+          >
+            Next
+          </Button>
+        )}
+        {(activeStep === 2) && (
+          <Button
+            onClick={handleNext}
+            color='primary'
+            disabled={!isValid}
+            variant='nextButton'
+            sx={{ borderRadius: '9999px', textTransform: 'none', minWidth: '330px' }}
+          >
+            Preview Credential
+          </Button>
+        )}
+
+        {activeStep === 3 && (
+          <Button variant='nextButton' onClick={handleSign} color='primary'>
+            Finish & Sign
+          </Button>
+        )}
+        {activeStep === 4 && (
+          <Button
+            onClick={handleNext}
+            disabled={loading} // Disable button during loading
+            color='primary'
+            variant='nextButton'
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={20} sx={{ mr: 1 }} /> Uploading...
+              </>
+            ) : (
+              'Preview'
+            )}
+          </Button>
+        )}
+      </Box>
     </Box>
   )
 }

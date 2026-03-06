@@ -72,7 +72,7 @@ function TextEditor({ value, onChange }: Readonly<TextEditorProps>) {
       <FormLabel
         sx={{
           color: theme.palette.t3BodyText,
-          fontFamily: 'Lato',
+          fontFamily: 'Inter',
           fontSize: '16px',
           fontWeight: 600
         }}

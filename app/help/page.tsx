@@ -117,7 +117,7 @@ const HelpPage = () => {
               </ListItemIcon>
               <ListItemText
                 primary='Upload Evidence'
-                secondary='Add photos, documents, certificates, or portfolio pieces that prove your skills'
+                secondary='Add photos, documents, certificates, or pieces of evidence that prove your skills'
               />
             </ListItem>
             <ListItem>

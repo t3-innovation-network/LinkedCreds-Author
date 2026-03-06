@@ -9,7 +9,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 
 const features = [
   { id: 1, name: 'Capture any skill or experience' },
-  { id: 2, name: 'Add portfolio pieces and evidence' },
+  { id: 2, name: 'Add supporting evidence' },
   { id: 3, name: 'Request references from others' },
   { id: 4, name: 'Share with employers & on LinkedIn' }
 ]
@@ -292,7 +292,7 @@ const HamburgerMenu = () => {
                 {features.map(feature => (
                   <Box key={feature.id} sx={{ display: 'flex', alignItems: 'center' }}>
                     <SVGCheckMarks />
-                    <Typography sx={{ ml: 1, fontSize: '13px', fontFamily: 'lato' }}>
+                    <Typography sx={{ ml: 1, fontSize: '13px', fontFamily: 'Inter' }}>
                       {feature.name}
                     </Typography>
                   </Box>

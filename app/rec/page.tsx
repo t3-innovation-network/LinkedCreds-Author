@@ -108,12 +108,12 @@ interface RecommendationData {
   howKnow: any
   name: string
   qualifications: string
-  portfolio: Array<{ name: string; url: string }>
+  evidence: Array<{ name: string; url: string; type?: string[] }>
   skillsEndorsed?: Array<{
-    targetName: string
-    targetCode?: string
-    uuid?: string
-    score?: number
+    name?: string
+    id?: string
+    frameworkMatch?: Array<{ framework?: string; socCode?: string[]; name?: string; similarityScore?: number }>
+    targetName?: string
   }>
 }
 
@@ -565,7 +565,7 @@ const Page = () => {
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {recommendation.skillsEndorsed.map((skill, index) => (
                     <Box
-                      key={skill.uuid || `skill-${index}`}
+                      key={skill.id ?? `skill-${index}`}
                       sx={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -577,7 +577,7 @@ const Page = () => {
                       }}
                     >
                       <Typography variant="body2" color="primary.main" fontWeight={500}>
-                        {skill.targetName}
+                        {skill.name ?? skill.targetName}
                       </Typography>
                     </Box>
                   ))}
@@ -605,20 +605,26 @@ const Page = () => {
               </Typography>
             </ContentSection>
 
-            {recommendation?.portfolio && recommendation?.portfolio.length > 0 && (
-              <ContentSection sx={{ mb: 0 }}>
-                <SectionTitle>Supporting Evidence</SectionTitle>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {recommendation.portfolio.map((evidence, index) => (
-                    <EvidencePreview
-                      key={`evidence-${index}-${evidence.url}`}
-                      url={evidence.url}
-                      name={evidence.name}
-                    />
-                  ))}
-                </Box>
-              </ContentSection>
-            )}
+            {(() => {
+              const evidenceItems = recommendation?.evidence || (recommendation as any)?.portfolio || []
+              if (evidenceItems.length > 0) {
+                return (
+                  <ContentSection sx={{ mb: 0 }}>
+                    <SectionTitle>Supporting Evidence</SectionTitle>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {evidenceItems.map((evidence: any, index: number) => (
+                        <EvidencePreview
+                          key={`evidence-${index}-${evidence.url}`}
+                          url={evidence.url}
+                          name={evidence.name}
+                        />
+                      ))}
+                    </Box>
+                  </ContentSection>
+                )
+              }
+              return null
+            })()}
           </CardContent>
           <Box
             sx={{

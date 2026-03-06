@@ -31,7 +31,7 @@ export interface LinkItem {
   url: string
 }
 
-export interface PortfolioItem {
+export interface EvidenceItem {
   name: string
   url: string
   googleId?: string
@@ -119,7 +119,7 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
           url: ensureProtocol(l.url)
         }))
 
-      const newPortfolio = [...newFileItems, ...manualLinkItems]
+      const newEvidence = [...newFileItems, ...manualLinkItems]
 
       // If there's a featured file (first in the list), update the evidenceLink
       if (reorderedFiles[0]?.googleId || reorderedFiles[0]?.wasId) {
@@ -130,8 +130,8 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
         setValue('evidenceLink', evidenceUrl)
       }
 
-      // Update the portfolio with the new merged list
-      setValue('portfolio', newPortfolio)
+      // Update the evidence with the new merged list
+      setValue('evidence', newEvidence)
     },
     [setValue, watch, setSelectedFiles, links]
   )
@@ -184,10 +184,10 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
   const handleRemoveLink = useCallback(
     (index: number) => {
       setLinks(prev => prev.filter((_, i) => i !== index))
-      const currentPortfolio = watch<PortfolioItem[]>('portfolio') || []
+      const currentEvidence = watch<EvidenceItem[]>('evidence') || []
       setValue(
-        'portfolio',
-        currentPortfolio.filter((_, i) => i !== index)
+        'evidence',
+        currentEvidence.filter((_, i) => i !== index)
       )
     },
     [setValue, watch]
@@ -215,8 +215,8 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
             url: ensureProtocol(l.url)
           }))
 
-        const newPortfolio = [...fileItems, ...linkItems]
-        setValue('portfolio', newPortfolio)
+        const newEvidence = [...fileItems, ...linkItems]
+        setValue('evidence', newEvidence)
 
         return newLinks
       })
@@ -269,8 +269,8 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
         return updated
       })
       setSelectedFiles(prev => withoutId(prev, id))
-      const currentPortfolio = watch<PortfolioItem[]>('portfolio') || []
-      let updatedPortfolio = currentPortfolio.filter(
+      const currentEvidence = watch<EvidenceItem[]>('evidence') || []
+      let updatedEvidence = currentEvidence.filter(
         p => p.googleId !== id && p.wasId !== id
       )
       const newFeaturedFile = files[1]
@@ -279,12 +279,12 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
           newFeaturedFile.wasId ||
           `https://drive.google.com/uc?export=view&id=${newFeaturedFile.googleId}`
         setValue('evidenceLink', evidenceUrl)
-        updatedPortfolio = updatedPortfolio.filter(
+        updatedEvidence = updatedEvidence.filter(
           p =>
             p.googleId !== newFeaturedFile.googleId && p.wasId !== newFeaturedFile.wasId
         )
       }
-      setValue('portfolio', updatedPortfolio)
+      setValue('evidence', updatedEvidence)
     },
     [setValue, watch, files, setSelectedFiles, withoutId, wasFirstFile]
   )
@@ -413,19 +413,27 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
         flexDirection: 'column',
         alignItems: 'center',
         width: '100%',
-        maxWidth: '800px',
+        maxWidth: '100%',
         margin: '0 auto',
-        gap: '24px'
+        gap: '32px',
+        padding: '32px 32px 0px 32px'
       }}
     >
-      <TasksVector />
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
+        <Box sx={{ width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <TasksVector />
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <Typography sx={{ fontFamily: 'Inter', fontSize: '28px', fontWeight: 700, color: '#000e40', lineHeight: '1.2' }}>
+            Document Your Skill
+          </Typography>
+          <StepTrackShape />
+        </Box>
+      </Box>
 
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '24px', fontWeight: 400 }}>
-        Step 3
-      </Typography>
       <Typography
         sx={{
-          fontFamily: 'Lato',
+          fontFamily: 'Inter',
           fontSize: '16px',
           fontWeight: 400,
           maxWidth: '360px',
@@ -435,7 +443,6 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
         Do you have any supporting documentation or links that you would like to add?{' '}
       </Typography>
 
-      <StepTrackShape />
 
       <Box
         display='flex'
@@ -519,7 +526,7 @@ const FileUploadAndList: React.FC<FileUploadAndListProps> = ({
               <LightbulbSVG />
               <Typography
                 sx={{
-                  fontFamily: 'Lato',
+                  fontFamily: 'Inter',
                   fontSize: '13px',
                   fontStyle: 'medium',
                   fontWeight: 500,

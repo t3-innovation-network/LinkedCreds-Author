@@ -32,7 +32,7 @@ import {
 import { incrementExternalImports } from '../firebase/firestore'
 
 const formLabelStyles = {
-  fontFamily: 'Lato',
+  fontFamily: 'Inter',
   fontSize: '16px',
   fontWeight: 400,
   color: '#000000',
@@ -68,7 +68,7 @@ const extractFormDataFromCredential = (credentialData: any) => {
   const formData: any = {
     storageOption: 'Google Drive',
     fullName: credentialSubject.name || '',
-    portfolio: credentialSubject.portfolio || [],
+    evidence: credentialSubject.evidence || credentialSubject.portfolio || [],
     evidenceLink: credentialSubject.evidenceLink || '',
     evidenceDescription: credentialSubject.evidenceDescription || '',
     description: credentialSubject.evidenceDescription || ''
@@ -312,7 +312,7 @@ function SimpleCredentialForm() {
       // Auto-navigate to recommender workflow
       setTimeout(() => {
         router.push(`/recommendations/${normalizedFile.id}`)
-      }, 2000)
+      }, 500)
     } catch (error) {
       console.error('Enhanced import error:', error)
       setFetchResult({
@@ -504,7 +504,7 @@ function SimpleCredentialForm() {
             // Navigate to view page after save
             setTimeout(() => {
               router.push(`/view/${savedFile.id}`)
-            }, 2000)
+            }, 500)
           } catch (saveError) {
             console.error('Error saving to Google Drive:', saveError)
             setFetchResult({
@@ -592,7 +592,7 @@ function SimpleCredentialForm() {
         gap: '32px'
       }}
     >
-      <Typography sx={{ fontFamily: 'Lato', fontSize: '24px', fontWeight: 400 }}>
+      <Typography sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: 400 }}>
         Credential Import
       </Typography>
 
@@ -628,7 +628,7 @@ function SimpleCredentialForm() {
               mt: 2,
               borderRadius: '8px',
               textTransform: 'none',
-              fontFamily: 'Lato',
+              fontFamily: 'Inter',
               backgroundColor: '#003FE0',
               '&:hover': { backgroundColor: '#0056b3' }
             }}
@@ -697,7 +697,7 @@ function SimpleCredentialForm() {
               mt: 1,
               borderRadius: '8px',
               textTransform: 'none',
-              fontFamily: 'Lato',
+              fontFamily: 'Inter',
               borderColor: '#22c55e',
               color: '#22c55e',
               '&:hover': {
@@ -747,7 +747,7 @@ function SimpleCredentialForm() {
             sx={{
               borderRadius: '8px',
               textTransform: 'none',
-              fontFamily: 'Lato'
+              fontFamily: 'Inter'
             }}
           >
             View Raw Credential Data

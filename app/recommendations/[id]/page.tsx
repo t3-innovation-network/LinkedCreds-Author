@@ -18,6 +18,7 @@ const CredentialData = () => {
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('sm'))
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
+  const [credentialSubject, setCredentialSubject] = useState<any>(null)
   const [skills, setSkills] = useState<SelectedSkill[]>([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -53,9 +54,11 @@ const CredentialData = () => {
         vcData = JSON.parse(vcData.body)
 
         const credentialSubject = vcData?.credentialSubject
+        setCredentialSubject(credentialSubject)
 
-        if (credentialSubject?.name) {
-          setFullName(credentialSubject.name)
+        const personName = credentialSubject?.person?.name || credentialSubject?.name
+        if (personName) {
+          setFullName(personName)
         } else {
           setFullName('the credential holder')
         }
@@ -71,15 +74,29 @@ const CredentialData = () => {
           setEmail('user@example.com')
         }
 
+        // Support both new ISkillClaimCredential (credentialSubject.skill[]) and old OBv3 (achievement.alignment[])
         const achievement = credentialSubject?.achievement?.[0]
-        const alignedSkills = achievement?.alignment?.map((align: any, index: number) => ({
-          targetName: align.targetName,
-          targetCode: align.targetCode || align.soc || align.targetDescription || '',
-          uuid: align.uuid || `temp-${index}-${Date.now()}`,
-          score: align.score || 1.0
-        })) || []
+        let alignedSkills: SelectedSkill[] = []
 
-        console.log('Extracted Skills with UUIDs:', alignedSkills)
+        if (Array.isArray(credentialSubject?.skill) && credentialSubject.skill.length > 0) {
+          // New format
+          alignedSkills = credentialSubject.skill.map((skill: any, index: number) => ({
+            id: skill.id || `temp-${index}-${Date.now()}`,
+            name: skill.name,
+            description: skill.description,
+            source: skill.source,
+            frameworkMatch: skill.frameworkMatch || []
+          }))
+        } else if (achievement?.alignment?.length) {
+          // Old OBv3 format
+          alignedSkills = achievement.alignment.map((align: any, index: number) => ({
+            targetName: align.targetName,
+            soc: Array.isArray(align.soc) ? align.soc : (align.soc ? [align.soc] : []),
+            uuid: align.uuid || `temp-${index}-${Date.now()}`,
+            score: align.score || 1.0
+          }))
+        }
+
         setSkills([...alignedSkills])
 
 
@@ -167,7 +184,12 @@ const CredentialData = () => {
         }}
       >
         {activeStep === 0 && (
-          <Credential setactivStep={setActiveStep} fullName={fullName} email={email} />
+          <Credential
+            setactivStep={setActiveStep}
+            fullName={fullName}
+            email={email}
+            credentialSubject={credentialSubject}
+          />
         )}
         {activeStep !== 0 && <Form fullName={fullName} email={email} skills={skills} />}
       </Box>

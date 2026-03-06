@@ -41,21 +41,20 @@ export default function ClientLayout({
                   backgroundRepeat: 'no-repeat',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  pb: '60px',
                   backgroundBlendMode: pathname === '/' ? 'overlay' : 'normal',
                   backgroundColor:
                     pathname === '/'
                       ? {
-                          xs: 'rgba(255, 255, 255, 0.8)',
-                          md: 'rgba(255, 255, 255, 0.85)'
-                        }
+                        xs: 'rgba(255, 255, 255, 0.8)',
+                        md: 'rgba(255, 255, 255, 0.85)'
+                      }
                       : '#F0F4F8'
                 }}
               >
                 <AppDidInitializer />
                 {children}
               </Box>
-              <Footer />
+              {pathname !== '/' && <Footer />}
             </StepProvider>
           </AppDidProvider>
         </Providers>

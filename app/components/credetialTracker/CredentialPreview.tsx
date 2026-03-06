@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Box, Typography, Paper, Divider, styled, Button } from '@mui/material'
 import { SVGDescribeBadge, SVGSparklesBlue, SVGSparkles } from '../../Assets/SVGs'
 import RestoreIcon from '@mui/icons-material/Restore'
@@ -12,7 +12,7 @@ import {
     previewSubtitleStyles
 } from '../Styles/appStyles'
 import { FormData } from '../../credentialForm/form/types/Types'
-import { SkillMatch, extractSkillsFromTextApi } from '../../utils/skillsApi'
+import { SkillMatch, extractRawSkillsApi, searchSkillsApi } from '../../utils/skillsApi'
 import Image from 'next/image'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import { ensureProtocol } from '../../utils/urlValidation'
@@ -134,6 +134,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
     currentStep = 2 // Default to 2 if not provided to avoid breaking changes, but should be passed
 }) => {
     const [selectedSkills, setSelectedSkills] = useState<SkillMatch[]>(activeSkills || [])
+    const [detectedSkillNames, setDetectedSkillNames] = useState<string[]>([])  // raw names from /extract
     const [detectedSkills, setDetectedSkills] = useState<SkillMatch[]>([])
     const [hasFetched, setHasFetched] = useState(false)
     const [manuallyAddedSkills, setManuallyAddedSkills] = useState<SkillMatch[]>(initialManuallyAddedSkills || [])
@@ -159,126 +160,128 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
         }
     }, [initialManuallyAddedSkills])
 
+    // Step 1: Description changes → /extract → detectedSkillNames (raw names, shown immediately)
     useEffect(() => {
-        if (currentStep && currentStep >= 4) {
-            return
-        }
+        if (currentStep && currentStep >= 4) return
 
         const text = formData?.credentialDescription || ''
 
-        setDetectedSkills(prev => prev.filter(s =>
-            text.toLowerCase().includes(s.name.toLowerCase())
+        // Clear names no longer present in text
+        setDetectedSkillNames(prev => prev.filter(name =>
+            text.toLowerCase().includes(name.toLowerCase())
         ))
 
-        const timer = setTimeout(() => {
-            const fetchSkills = async () => {
-                if (text.length > 3) {
-                    try {
-                        const apiSkills: SkillMatch[] = await extractSkillsFromTextApi(text)
-
-                        setDetectedSkills(prev => {
-                            const existingNames = new Set(prev.map(s => s.name.toLowerCase()))
-                            const newUnique = apiSkills.filter(s => !existingNames.has(s.name.toLowerCase()))
-                            return [...prev, ...newUnique]
-                        })
-                    } catch (error) {
-                        console.error('Failed to extract skills:', error)
-                    } finally {
-                        setHasFetched(true)
-                    }
-                } else {
+        const timer = setTimeout(async () => {
+            if (text.length > 3) {
+                try {
+                    const rawNames = await extractRawSkillsApi(text)
+                    setDetectedSkillNames(prev => {
+                        const existing = new Set(prev.map(n => n.toLowerCase()))
+                        const newNames = rawNames.filter(n => !existing.has(n.toLowerCase()))
+                        return [...prev, ...newNames]
+                    })
+                } catch (error) {
+                    console.error('Failed to extract skills:', error)
+                } finally {
                     setHasFetched(true)
                 }
+            } else {
+                setHasFetched(true)
             }
-            fetchSkills()
         }, 500)
 
         return () => clearTimeout(timer)
     }, [formData?.credentialDescription, currentStep])
 
-    // --- Sync Logic ---
+    // Step 2: detectedSkillNames changes → /search → detectedSkills (full O*NET SkillMatch[])
     useEffect(() => {
-        // Skip sync if locked (Preview step) or waiting for initial fetch to prevent clearing valid skills
-        if ((currentStep && currentStep >= 4) || (!hasFetched && selectedSkills.length > 0)) {
+        if (!detectedSkillNames.length) {
+            setDetectedSkills([])
             return
         }
+        searchSkillsApi(detectedSkillNames).then(mapped => {
+            setDetectedSkills(mapped)
+        })
+    }, [detectedSkillNames])
 
-        if (selectedSkills.length === 0 && removedSkills.length === 0 && detectedSkills.length > 0) {
-            setSelectedSkills(detectedSkills)
-            return
-        }
+    const onSkillsChangeRef = useRef(onSkillsChange)
+    useLayoutEffect(() => { onSkillsChangeRef.current = onSkillsChange })
+
+    // Sync selectedSkills from detectedSkills
+    useEffect(() => {
+        if ((currentStep && currentStep >= 4) || (!hasFetched && selectedSkills.length > 0)) return
 
         const detectedNames = detectedSkills.map(s => s.name)
 
         setSelectedSkills(prev => {
-            // Keep manual skills and skills that are still detected
+            if (prev.length === 0 && detectedSkills.length > 0) return detectedSkills
+            // Keep manual skills + still-detected skills, add newly detected
             const stillValid = prev.filter(skill =>
                 manuallyAddedSkills.some(m => m.name === skill.name) || detectedNames.includes(skill.name)
             )
-
-            // Add new detected skills that aren't already selected and haven't been removed
             const newDetected = detectedSkills.filter(skill =>
                 !prev.some(p => p.name === skill.name) && !removedSkills.some(r => r.name === skill.name)
             )
-
-            return [...stillValid, ...newDetected]
+            const next = [...stillValid, ...newDetected]
+            return next
         })
     }, [detectedSkills, hasFetched, currentStep, manuallyAddedSkills])
 
-    // Notify parent component whenever selected skills change (for backend storage)
+    // Notify parent whenever selected skills change
     useEffect(() => {
-        if (onSkillsChange) {
-            onSkillsChange(selectedSkills)
-        }
-    }, [selectedSkills, onSkillsChange])
+        onSkillsChangeRef.current?.(selectedSkills)
+    }, [selectedSkills]) // intentionally excludes onSkillsChange — only value changes matter
+
+    const onRemovedSkillsChangeRef = useRef(onRemovedSkillsChange)
+    useLayoutEffect(() => { onRemovedSkillsChangeRef.current = onRemovedSkillsChange })
+
+    useEffect(() => {
+        onRemovedSkillsChangeRef.current?.(removedSkills)
+    }, [removedSkills])
+
+    const onManualSkillsChangeRef = useRef(onManualSkillsChange)
+    useLayoutEffect(() => { onManualSkillsChangeRef.current = onManualSkillsChange })
+
+    useEffect(() => {
+        onManualSkillsChangeRef.current?.(manuallyAddedSkills)
+    }, [manuallyAddedSkills])
 
     const handleRemoveSkill = (skillToRemove: SkillMatch) => {
         setSelectedSkills(prev => prev.filter(s => s.name !== skillToRemove.name))
 
         if (!removedSkills.some(s => s.name === skillToRemove.name)) {
-            setRemovedSkills(prev => {
-                const updated = [...prev, skillToRemove]
-                onRemovedSkillsChange?.(updated)
-                return updated
-            })
+            setRemovedSkills(prev => [...prev, skillToRemove])
         }
     }
 
     const handleRestoreSkill = (skill: SkillMatch) => {
         if (!selectedSkills.some(s => s.name === skill.name)) {
             setSelectedSkills(prev => [...prev, skill])
-            setRemovedSkills(prev => {
-                const updated = prev.filter(s => s.name !== skill.name)
-                onRemovedSkillsChange?.(updated)
-                return updated
-            })
+            setRemovedSkills(prev => prev.filter(s => s.name !== skill.name))
         }
     }
 
     const handleAddManualSkill = () => {
         const trimmed = newSkillInput.trim()
         if (trimmed && !selectedSkills.some(s => s.name.toLowerCase() === trimmed.toLowerCase())) {
-            const newSkill: SkillMatch = {
-                name: trimmed,
-                score: 1.0,
-                soc_codes: [],
-                uuid: crypto.randomUUID(),
-                originalMatch: trimmed
-            }
-            setSelectedSkills(prev => [...prev, newSkill])
-            setManuallyAddedSkills(prev => {
-                const updated = [...prev, newSkill]
-                onManualSkillsChange?.(updated)
-                return updated
+            // Add to detectedSkillNames → triggers Step 2 (search) automatically
+            setDetectedSkillNames(prev => {
+                if (prev.some(n => n.toLowerCase() === trimmed.toLowerCase())) return prev
+                return [...prev, trimmed]
             })
+
+            // Also track as manually added (for sync logic)
+            const placeholderSkill: SkillMatch = {
+                id: trimmed,
+                name: trimmed.toLowerCase(),
+                source: 'user',
+                frameworkMatch: []
+            }
+            setManuallyAddedSkills(prev => [...prev, placeholderSkill])
             setNewSkillInput('')
 
-            // Un-remove if it was removed
-            setRemovedSkills(prev => {
-                const updated = prev.filter(s => s.name.toLowerCase() !== trimmed.toLowerCase())
-                onRemovedSkillsChange?.(updated)
-                return updated
-            })
+            // Un-remove if it was previously removed
+            setRemovedSkills(prev => prev.filter(s => s.name.toLowerCase() !== trimmed.toLowerCase()))
         }
     }
 
@@ -571,6 +574,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                                 alt='Media placeholder'
                                 width={64}
                                 height={64}
+                                style={{ width: 'auto', height: 'auto' }}
                             />
                         )}
                     </Box>

@@ -317,7 +317,7 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
                 {subject.skillsEndorsed.map((skill: any, index: number) => (
                   <Chip
                     key={skill.uuid || `skill-${index}`}
-                    label={skill.targetName}
+                    label={skill.name ?? skill.targetName}
                     size="small"
                     sx={{
                       backgroundColor: 'rgba(0, 63, 224, 0.08)',
@@ -360,44 +360,43 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
       )}
 
       {/* Supporting Evidence / Portfolio */}
-      {subject.portfolio && subject.portfolio.length > 0 && (
-        <Box sx={{ mb: 3 }}>
-          <Typography variant='h6' sx={{ mb: 1, fontWeight: 600 }}>
-            Supporting Evidence
-          </Typography>
+      {(() => {
+        const evidence = subject.evidence || subject.portfolio || []
+        if (evidence.length === 0) return null
 
-          {/* Bulleted List */}
-          <Box component='ul' sx={{ pl: 2, m: 0 }}>
-            {subject.portfolio.map((item: any, index: number) => (
-              <Box component='li' key={index} sx={{ color: '#003FE0', mb: 1, '::marker': { fontSize: '1.2em' } }}>
-                <Link
-                  href={item.url || item.id}
-                  target='_blank'
-                  underline='hover'
-                  sx={{
-                    fontSize: '14px',
-                    color: '#003FE0',
-                    textDecoration: 'underline'
-                  }}
-                >
-                  {item.name || item.url || 'Link'}
-                </Link>
-              </Box>
-            ))}
+        return (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant='h6' sx={{ mb: 1, fontWeight: 600 }}>
+              Supporting Evidence
+            </Typography>
+
+            {/* Bulleted List */}
+            <Box component='ul' sx={{ pl: 2, m: 0 }}>
+              {evidence.map((item: any, index: number) => (
+                <Box component='li' key={index} sx={{ color: '#003FE0', mb: 1, '::marker': { fontSize: '1.2em' } }}>
+                  <Link
+                    href={item.url || item.id}
+                    target='_blank'
+                    underline='hover'
+                    sx={{
+                      fontSize: '14px',
+                      color: '#003FE0',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    {item.name || item.url || 'Link'}
+                  </Link>
+                </Box>
+              ))}
+            </Box>
           </Box>
-        </Box>
-      )}
+        )
+      })()}
 
-      {/* Dates */}
       <Box sx={{ mb: 3 }}>
-        {credential.issuanceDate && (
+        {credential.proof?.created && (
           <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-            Issued: {new Date(credential.issuanceDate).toLocaleDateString()}
-          </Typography>
-        )}
-        {credential.expirationDate && (
-          <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-            Expires: {new Date(credential.expirationDate).toLocaleDateString()}
+            Issued: {new Date(credential.proof?.created).toLocaleDateString()}
           </Typography>
         )}
       </Box>

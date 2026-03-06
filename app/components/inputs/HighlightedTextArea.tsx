@@ -14,6 +14,7 @@ interface HighlightedTextAreaProps {
     rows?: number
     keywords?: string[]
     sx?: SxProps<Theme>
+    focusColor?: string // Add new prop
 }
 
 // Case-insensitive highlighted text generator
@@ -55,7 +56,8 @@ export const HighlightedTextArea: React.FC<HighlightedTextAreaProps> = ({
     helperText,
     rows = 10,
     keywords = [],
-    sx
+    sx,
+    focusColor = '#1976d2' // Default blue
 }) => {
     const backdropRef = useRef<HTMLDivElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -98,9 +100,9 @@ export const HighlightedTextArea: React.FC<HighlightedTextAreaProps> = ({
                         borderColor: error ? '#d32f2f' : 'rgba(0, 0, 0, 0.87)'
                     },
                     '&:focus-within': {
-                        borderColor: error ? '#d32f2f' : '#1976d2',
+                        borderColor: error ? '#d32f2f' : focusColor,
                         borderWidth: '1px',
-                        boxShadow: (theme) => `0 0 0 1px ${error ? '#d32f2f' : '#1976d2'}`,
+                        boxShadow: (theme) => `0 0 0 1px ${error ? '#d32f2f' : focusColor}`,
                     },
                     backgroundColor: '#fff',
                     overflow: 'hidden',

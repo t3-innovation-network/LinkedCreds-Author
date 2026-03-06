@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Box, Tooltip, Snackbar, Alert, Button } from '@mui/material'
+import { Box, Tooltip, Snackbar, Alert, Button, Typography } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useStepContext } from '../StepContext'
 import { SVGBack, SVGCompleteStep } from '../../../Assets/SVGs'
 import { useSession } from 'next-auth/react'
@@ -12,8 +13,18 @@ export function StepTrackShape() {
   const { data: session } = useSession()
   const accessToken = session?.accessToken
 
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
-  const TOTAL_STEPS = pathname.includes('/recommendations') ? 7 : 4
+  const mappedStep = (() => {
+    switch (activeStep) {
+      case 1: return 1
+      case 2: return 2
+      case 3: return 3
+      case 4: return 4
+      default: return 0
+    }
+  })()
+
+  // Always 4 steps for this flow
+  const DISPLAY_TOTAL_STEPS = 4
 
   const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -22,66 +33,43 @@ export function StepTrackShape() {
     setOpenSnackbar(false)
   }
 
-  const renderStepBox = (step: number) => {
-    let content
+  const renderStepBox = (index: number) => {
+    // index 0 -> Step 1
+    // index 1 -> Step 2
+    // index 2 -> Step 3
+    // index 3 -> Step 4
+
+    const stepNumber = index + 1
     let bgColor
-    let textColor = 'black'
-    let borderColor
 
-    if (step + 1 < activeStep) {
-      // **Completed Steps**
-      content = <SVGCompleteStep />
-    } else if (step + 1 === activeStep) {
-      content = step + 1
-      bgColor = '#155dfc'
-      textColor = 'white'
-      borderColor = '#155dfc'
+    // Logic: 
+    // If mappedStep > stepNumber -> Completed (Blue)
+    // If mappedStep === stepNumber -> Active (Blue)
+    // else -> Gray
+
+    if (stepNumber <= mappedStep) {
+      bgColor = '#2563EB'
     } else {
-      content = step + 1
-      bgColor = 'white'
-      borderColor = '#155dfc'
-    }
-    const handleStepClick = () => {
-      if (!accessToken) {
-        setOpenSnackbar(true)
-        return
-      }
-
-      if (step <= activeStep) {
-        setActiveStep(step)
-      } else {
-        setOpenSnackbar(true)
-      }
+      bgColor = '#E0E0E0'
     }
 
-    const isClickable = accessToken && step <= activeStep
+    // Determine clickability (only if actual navigation is supported, but here it's complicated by the mapping)
+    // For now, let's disable click to avoid jumping into "half-steps" like Evidence vs Description
+    const isClickable = false
 
     return (
-      <Tooltip title={`Step ${step + 1}`} key={step}>
+      <Tooltip title={`Step ${stepNumber}`} key={index}>
         <Box
-          onClick={isClickable ? handleStepClick : undefined}
           sx={{
-            width: '30px',
-            height: '30px',
+            width: '8px',
+            height: '8px',
             bgcolor: bgColor,
-            color: textColor,
             borderRadius: '50%',
-            border: `1px solid ${borderColor}`,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontSize: '13px',
-            fontFamily: 'SF Pro Display',
+            cursor: isClickable ? 'pointer' : 'default',
             flexShrink: 0,
-            cursor: isClickable ? 'pointer' : 'not-allowed',
-            transition: 'background-color 0.3s, color 0.3s',
-            '&:hover': {
-              backgroundColor: isClickable ? '#155dfc' : bgColor
-            }
+            transition: 'background-color 0.3s',
           }}
-        >
-          {content}
-        </Box>
+        />
       </Tooltip>
     )
   }
@@ -90,36 +78,40 @@ export function StepTrackShape() {
     <Box
       sx={{
         display: 'flex',
-        gap: '10px',
         alignItems: 'center',
-        justifyContent: 'center'
+        gap: '12px',
+        justifyContent: 'flex-start'
       }}
     >
-      {activeStep >= 2 && activeStep <= 4 && (
-        <Button
-          onClick={handleBack}
-          sx={{ textTransform: 'capitalize', p: '0', mr: '5px' }}
-        >
-          Back
-        </Button>
-      )}
       <Box
         sx={{
           display: 'flex',
-          gap: '15px',
-          justifyContent: 'center',
+          gap: '8px',
           alignItems: 'center'
         }}
       >
-        {Array.from({ length: TOTAL_STEPS }, (_, index) => renderStepBox(index))}
+        {Array.from({ length: DISPLAY_TOTAL_STEPS }, (_, index) => renderStepBox(index))}
       </Box>
 
-      {activeStep === 3 && (
+      <Typography sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: 500, color: '#4D4D4D' }}>
+        Step {mappedStep} of {DISPLAY_TOTAL_STEPS}
+      </Typography>
+
+      {mappedStep > 1 && (
         <Button
-          onClick={handleSkip}
-          sx={{ textTransform: 'capitalize', p: '0', mr: '5px' }}
-        >
-          Skip
+          onClick={handleBack}
+          sx={{
+            textTransform: 'none',
+            fontSize: '12px',
+            lineHeight: '16px',
+            color: '#2563EB',
+            fontFamily: 'Inter',
+            '&:hover': {
+              backgroundColor: 'transparent',
+            }
+          }}
+          startIcon={<ArrowBackIcon sx={{ fontSize: '16px !important' }} />}
+        >Previous
         </Button>
       )}
 

@@ -5,7 +5,8 @@ export type SkillClaimFormData = {
   personName: string
   personId?: string
   skills: ISkill[]
-  evidence?: Array<{ id: string; name: string; type?: string; description?: string }>
+  evidence?: Array<{ id: string; name: string; type?: string[]; description?: string }>
+  expirationDate: string
 }
 
 export function normalizeSkillClaimFormData(formData: FormData): SkillClaimFormData {
@@ -28,10 +29,11 @@ export function normalizeSkillClaimFormData(formData: FormData): SkillClaimFormD
     }
   ] as ISkill[]
 
-  const evidence = formData.portfolio.length ? formData.portfolio.map((p: any) => ({ id: p.url, name: p.name, description: p.description })) : []
+  const evidence = (formData.evidence && Array.isArray(formData.evidence)) ? formData.evidence.map((p: any) => ({ id: p.url, name: p.name, description: p.description, type: ['Evidence'] })) : []
   return {
     personName: formData.fullName ?? '',
     skills,
-    evidence: evidence.length ? evidence : []
+    evidence: evidence.length ? evidence : [],
+    expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
   }
 }

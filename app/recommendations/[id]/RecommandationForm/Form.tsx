@@ -36,7 +36,7 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
     fullName: '',
     howKnow: '',
     recommendationText: '',
-    portfolio: [{ name: '', url: '' }],
+    evidence: [{ name: '', url: '', type: ['Evidence'] }],
     qualifications: '',
     explainAnswer: '',
     selectedSkills: []
@@ -148,7 +148,7 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
         fullName: '',
         howKnow: '',
         recommendationText: '',
-        portfolio: [{ name: '', url: '' }],
+        evidence: [{ name: '', url: '', type: ['Evidence'] }],
         qualifications: '',
         explainAnswer: '',
         selectedSkills: []

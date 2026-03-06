@@ -3,7 +3,23 @@ import React from 'react'
 import { Box, Button, Typography, useTheme, useMediaQuery, Theme } from '@mui/material'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import Link from 'next/link'
-import Card from './components/cards'
+import Card, { HeroCard } from './components/cards'
+import {
+  sectionDescriptionStyles,
+  featureTitleStyles,
+  featureTextStyles,
+  callToActionButtonStyles
+} from './components/Styles/appStyles'
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
+import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined'
+import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined'
+import CheckIcon from '@mui/icons-material/Check'
+import { LandingFooter } from './components/footer/Footer'
+import { CheckMarkHome } from './Assets/SVGs'
 interface SectionProps {
   theme: Theme //NOSONAR
 }
@@ -43,7 +59,7 @@ const EXAMPLE_CARDS = [
     duration: '2 Days',
     evidence: [
       'Video of the Perfect Pour',
-      'Coffee Portfolio',
+      'Supporting Evidence',
       'Training Campus Certification',
       'Scent training'
     ],
@@ -68,8 +84,8 @@ const EXAMPLE_CARDS = [
     ],
     duration: '2 Weeks',
     evidence: [
-      'Portfolio of Garden Care',
-      'Landscaper Portfolio',
+      'Evidence of Design',
+      'Design Evidence',
       'Hardscape Training',
       'IMG_0624'
     ],
@@ -124,289 +140,231 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
   return (
     <Box
       sx={{
+        width: '100%',
+        background: '#ffffff',
         display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' },
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        ml: 'auto',
-        mr: 'auto',
-        width: { xs: '100%', md: '100%' },
-        maxWidth: '1400px',
-        px: { xs: 2, md: 'auto' },
-        pb: 4,
-        pt: { xs: '43px', md: '75px' }
+        justifyContent: 'center',
+        pt: { xs: '30px', md: '60px' },
+        pb: { xs: 4, md: 8 }
       }}
     >
-      {/* Left Content */}
-      <Box sx={{ flex: 1, textAlign: 'left', mb: { xs: 6, md: 0 } }}>
-        <Typography
-          variant='body1'
-          sx={{
-            color: theme.palette.t3ButtonBlue, // Using your blue for brand consistency
-            backgroundColor: '#EEF5FF',
-            borderRadius: '100px',
-            width: 'fit-content',
-            fontSize: '13px',
-            fontWeight: 'medium',
-            px: '15px',
-            letterSpacing: '1.5px',
-            mb: 3, // Space between this and the main heading
-            fontFamily: 'Poppins'
-          }}
-        >
-          LinkedCreds is an open-source project
-        </Typography>
-        <Typography
-          variant='h2'
-          sx={{
-            color: theme.palette.t3Black,
-            mb: 2,
-            fontFamily: 'Poppins',
-            fontSize: { xs: '32px', md: '56px' },
-            maxWidth: '600px',
-            fontWeight: 800,
-            lineHeight: 1.2
-          }}
-        >
-          Showcase the skills that define you.
-        </Typography>
-
-        <Typography
-          variant='body1'
-          sx={{
-            color: theme.palette.t3BodyText,
-            mb: 4,
-            fontSize: '18px',
-            maxWidth: '550px',
-            lineHeight: 1.6
-          }}
-        >
-          Whether it’s caring for your family, volunteering, or a side hustle, LinkedCreds
-          helps you document, verify, and share your unique experiences.
-        </Typography>
-
-        <Link href='/credentialForm' passHref>
-          <Button
-            variant='contained'
-            endIcon={<KeyboardArrowRightIcon />}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: '1400px',
+          px: { xs: 2, md: 8 },
+          position: 'relative'
+        }}
+      >
+        {/* Left Content */}
+        <Box sx={{ flex: 1, textAlign: 'left', mb: { xs: 6, md: 0 }, maxWidth: { md: '600px' } }}>
+          <Typography
+            variant='body1'
             sx={{
-              backgroundColor: theme.palette.t3ButtonBlue,
-              color: '#FFFFFF',
-              borderRadius: '100px',
-              px: 4,
-              py: 1.5,
-              textTransform: 'none',
-              fontSize: '16px',
-              fontWeight: 600,
-              '&:hover': { backgroundColor: '#002fb0' }
-            }}
-          >
-            Build your first skill
-          </Button>
-        </Link>
-        <Link href='/help' passHref>
-          <Button
-            variant='contained'
-            sx={{
-              backgroundColor: '#FFFFFF',
-              color: '#101828',
-              border: `2px solid #e5e7eb`,
-              borderRadius: '100px',
-              px: 4,
-              py: 1.5,
-              ml: 2,
-              textTransform: 'none',
-              fontFamily: "'Inter', sans-serif",
+              color: '#2563EB',
+              backgroundColor: '#EFF6FF',
+              borderRadius: '16px',
+              width: 'fit-content',
+              fontSize: '14px',
               fontWeight: 500,
-              fontSize: '16px',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                borderColor: '#155dfc',
-                backgroundColor: '#f9fafb',
-                borderWidth: '2px'
-              }
+              px: '16px',
+              py: '4px',
+              mb: 3,
+              fontFamily: 'Inter'
             }}
           >
-            Learn More
-          </Button>
-        </Link>
-        <Typography
-          variant='body2'
-          sx={{
-            fontSize: { xs: '12px', sm: '14px' },
-            mt: 2,
-            color: '#4a5565',
-            fontFamily: 'Inter, sans-serif',
-            lineHeight: 1.5
-          }}
-        >
-          <span>Created for you by the </span>
-          <Box
-            component='a'
-            href='https://www.uschamberfoundation.org/solutions/workforce-development-and-training/t3-innovation-network'
-            target='_blank'
-            rel='noopener noreferrer'
+            LinkedCreds is an open-source project
+          </Typography>
+          <Typography
+            variant='h1'
             sx={{
-              color: 'inherit',
-              textDecoration: 'underline',
-              '&:hover': {
-                color: '#1447e6'
-              }
+              color: '#101828',
+              mb: 3,
+              fontFamily: 'Poppins',
+              fontSize: { xs: '32px', md: '48px' }, // Reduced from 40/60
+              fontWeight: 700,
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em'
             }}
           >
-            US Chamber of Commerce Foundation T3 Innovation Network
-          </Box>
-          <span>.</span>
-        </Typography>
-      </Box>
+            Showcase the skills that{' '}
+            <Box component="span" sx={{ color: '#2563EB' }}>
+              define you
+            </Box>
+          </Typography>
 
-      {/* Right Content: Fanned Cards */}
-      {showCards && (
-        <Box
-          sx={{
-            display: 'flex',
-            position: 'relative',
-            height: '450px',
-            alignItems: 'center',
-            justifyContent: 'center',
-            // This creates the overlapping effect
-            pl: 3
-          }}
-        >
-          {EXAMPLE_CARDS.map((card, index) => (
-            <Box
-              key={card.id}
+          <Typography
+            variant='body1'
+            sx={{
+              color: '#475467',
+              fontSize: '18px',
+              lineHeight: '28px',
+              maxWidth: '560px',
+              fontFamily: 'Inter',
+              mb: 3 // Reduced from 5
+            }}
+          >
+            Build verifiable credentials for your skills and experiences. Share proof
+            of your expertise with employers, clients, and your professional
+            network.
+          </Typography>
+
+          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+            <Link href='/credentialForm' passHref style={{ textDecoration: 'none' }}>
+              <Button
+                variant='contained'
+                endIcon={<KeyboardArrowRightIcon />}
+                sx={{
+                  backgroundColor: '#2563EB',
+                  color: '#FFFFFF',
+                  borderRadius: '8px',
+                  px: 3,
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  fontFamily: 'Inter',
+                  '&:hover': { backgroundColor: '#004EEB' },
+                  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)'
+                }}
+              >
+                Build your first skill
+              </Button>
+            </Link>
+            <Link href='/help' passHref style={{ textDecoration: 'none' }}>
+              <Button
+                variant='outlined'
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  color: '#344054',
+                  border: `1px solid #D0D5DD`,
+                  borderRadius: '8px',
+                  px: 3,
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontFamily: 'Inter',
+                  fontSize: '16px',
+                  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
+                  '&:hover': {
+                    backgroundColor: '#F9FAFB',
+                    borderColor: '#D0D5DD'
+                  }
+                }}
+              >
+                Request a demo
+              </Button>
+            </Link>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+            <CheckMarkHome />
+            <Typography
               sx={{
-                transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                zIndex: index,
-                cursor: 'pointer',
-                '&:hover': {
-                  transform: 'translateY(-20px) scale(1.01)',
-                  zIndex: 10,
-                  mx: 1 // Push neighbors aside slightly on hover
-                }
+                fontSize: '14px',
+                color: '#475467',
+                fontFamily: 'Inter',
+                lineHeight: '20px'
               }}
             >
-              <Card {...card} />
-            </Box>
-          ))}
+              Created for you by the{' '}
+              <Box
+                component='a'
+                href='https://www.uschamberfoundation.org/solutions/workforce-development-and-training/t3-innovation-network'
+                target='_blank'
+                rel='noopener noreferrer'
+                sx={{
+                  color: '#475467',
+                  textDecoration: 'underline',
+                  '&:hover': {
+                    color: '#2563EB'
+                  }
+                }}
+              >
+                US Chamber of Commerce Foundation T3 Innovation Network.
+              </Box>
+            </Typography>
+          </Box>
         </Box>
-      )}
+
+        {/* Right Content: Single Credential Card */}
+        {showCards && (
+          <Box
+            sx={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'relative',
+              // Removed backgroundColor: '#FFFFFF' to avoid white box inside gradient/white background
+            }}
+          >
+            {/* Background Blur/Glow Effect */}
+            <Box
+              sx={{
+                position: 'absolute',
+                width: '80%',
+                height: '80%',
+                background: 'radial-gradient(50% 50% at 50% 50%, rgba(21, 93, 252, 0.1) 0%, rgba(255, 255, 255, 0) 100%)',
+                filter: 'blur(40px)',
+                zIndex: 0
+              }}
+            />
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <HeroCard />
+            </Box>
+          </Box>
+        )}
+      </Box>
     </Box>
   )
 }
 
-const MobileLinkedCredsSection: React.FC<SectionProps> = ({ theme }) => (
-  <Box
-    sx={{
-      background: 'linear-gradient(180deg, #F1F5FC, #FFFFFF)',
-      py: '15px',
-      px: { xs: '10px', md: 8 },
-      mt: '15px'
-    }}
-  >
-    <Typography
-      variant='h4'
-      sx={{
-        color: theme.palette.t3Black,
-        textAlign: { xs: 'left', md: 'center' },
-        mb: '22.5px',
-        fontFamily: 'poppins',
-        fontSize: '22px',
-        fontWeight: '700'
-      }}
-    >
-      What are LinkedCreds?
-    </Typography>
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        gap: '15px',
-        pt: '15px',
-        pb: '30px'
-      }}
-    >
-      <Box sx={{ flex: 1 }}>
-        <Typography
-          variant='body1'
-          sx={{
-            color: theme.palette.t3BodyText,
-            mb: '15px',
-            fontSize: '18px',
-            fontWeight: 700
-          }}
-        >
-          LinkedCreds are verifiable skills that you create to showcase your experiences.
-          <br />
-          <br />
-          LinkedCreds are:
-        </Typography>
-        <Box
-          component='ul'
-          sx={{
-            color: theme.palette.t3BodyText,
-            pl: 2,
-            mb: 0,
-            fontSize: '14px',
-            fontWeight: 400
-          }}
-        >
-          {LinkedCreds_FEATURES.map(feature => (
-            <Typography key={feature.id} component='li' variant='body2'>
-              {feature.text}
-            </Typography>
-          ))}
-        </Box>
-      </Box>
-      <Box sx={{ height: '100%', width: 'auto' }}>
-        <Card
-          {...EXAMPLE_CARDS[1]}
-          width='195px'
-          height='410px'
-          rotation='rotate(0deg)'
-          showPlayButton={true}
-          showTimer={true}
-          showDuration={true}
-        />
-      </Box>
-    </Box>
-  </Box>
-)
+
 
 const StepsSection: React.FC<SectionProps> = ({ theme }) => (
-  <Box sx={{ maxWidth: '1400px', mr: 'auto', ml: 'auto' }}>
+  <Box sx={{ maxWidth: '1400px', mr: 'auto', ml: 'auto', textAlign: 'center' }}>
     <Box
       sx={{
-        display: 'flex',
-        width: { xs: '92.308vw', md: '360px' },
-        height: '39px',
-        mr: 'auto',
-        ml: 'auto',
+        backgroundColor: '#EEF5FF',
+        color: '#2563EB',
+        borderRadius: '100px',
+        padding: '8px 16px',
+        fontSize: '14px',
+        fontWeight: 600,
+        fontFamily: 'Inter',
+        marginBottom: '16px',
+        display: 'inline-block',
         mt: { xs: '15px', md: '60px' },
-        mb: '15px',
-        justifyContent: 'center',
-        alignItems: 'center'
       }}
     >
-      <Typography
-        sx={{
-          textAlign: 'center',
-          color: theme.palette.t3Black,
-          fontSize: '22px',
-          pb: '10px',
-          px: '15px',
-          fontFamily: 'Poppins',
-          fontStyle: 'normal',
-          fontWeight: '600',
-          lineHeight: '27.5px'
-        }}
-      >
-        How it works - 3 simple steps
-      </Typography>
+      Simple process
     </Box>
+    <Typography
+      variant='h2'
+      sx={{
+        fontSize: { xs: '32px', md: '48px' },
+        fontWeight: 800,
+        fontFamily: 'Poppins',
+        color: '#101828',
+        mb: '16px'
+      }}
+    >
+      How it works
+    </Typography>
+    <Typography
+      sx={{
+        fontSize: '18px',
+        color: '#475467',
+        fontFamily: 'Inter',
+        mb: '60px'
+      }}
+    >
+      Create your first verifiable credential in just 3 simple steps
+    </Typography>
     <Box
       sx={{
         display: 'flex',
@@ -421,10 +379,8 @@ const StepsSection: React.FC<SectionProps> = ({ theme }) => (
           key={step.id}
           sx={{
             background: '#EEF5FF',
-            borderRadius: '8px',
-            pt: '15px',
-            pb: { xs: '15px', md: '30px' },
-            px: '10px',
+            borderRadius: '16px',
+            padding: '40px 24px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -450,12 +406,7 @@ const StepsSection: React.FC<SectionProps> = ({ theme }) => (
             {step.title}
           </Typography>
           <Typography
-            sx={{
-              fontFamily: 'Lato',
-              fontWeight: 400,
-              fontSize: '18px',
-              color: theme.palette.t3BodyText
-            }}
+            sx={sectionDescriptionStyles}
           >
             {step.description}
           </Typography>
@@ -489,9 +440,416 @@ const StepsSection: React.FC<SectionProps> = ({ theme }) => (
   </Box>
 )
 
+
+
+const JOB_SEEKER_FEATURES = [
+  {
+    display: 'Self-authored credentials',
+    text: 'You own your professional story'
+  },
+  {
+    display: 'Backed by proof',
+    text: 'Upload evidence and get endorsements'
+  },
+  {
+    display: 'Universally shareable',
+    text: 'One credential, infinite opportunities'
+  }
+]
+
+const JobSeekersSection: React.FC = () => {
+  return (
+    <Box
+      sx={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        padding: { xs: '30px 15px', md: '60px 30px' }, // Reduced from 40/20 and 80/40
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        backgroundColor: 'grey gradient',
+        gap: '40px'
+      }}
+    >
+      <Box sx={{ textAlign: 'center' }}>
+        <Box
+          sx={{
+            backgroundColor: '#EEF5FF',
+            color: '#1447E6',
+            borderRadius: '100px',
+            padding: '8px 16px',
+            fontSize: '14px',
+            fontWeight: 600,
+            fontFamily: 'Inter',
+            marginBottom: '16px',
+            display: 'inline-block'
+          }}
+        >
+          Why LinkedCreds?
+        </Box>
+        <Typography
+          sx={{
+            fontSize: '48px',
+            fontWeight: 800,
+            fontFamily: 'Poppins',
+            color: '#101828',
+            textAlign: 'center',
+            lineHeight: '48px',
+            marginBottom: '40px' // Reduced from 60
+          }}
+          variant='h2'
+        >
+          Perfect for Job Seekers
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: { xs: '40px', md: '80px' },
+          width: '100%'
+        }}
+      >
+        {/* Left Content */}
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+            maxWidth: { md: '550px' }
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: { xs: '20px', md: '30px' }, // Reduced from 24/36
+              fontWeight: 700,
+              fontFamily: 'Poppins',
+              color: '#101828',
+              lineHeight: 1.3
+            }}
+            variant='h3'
+          >
+            Built for the modern talent marketplace
+          </Typography>
+          <Typography
+            sx={sectionDescriptionStyles}
+          >
+            In a world where trust matters, LinkedCreds provides a way for you to document
+            skills and collect the verification needed to showcase your true potential.
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px', mt: 1 }}>
+            {JOB_SEEKER_FEATURES.map((feature, index) => (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                <CheckIcon
+                  sx={{
+                    color: '#10B981',
+                    width: '24px',
+                    height: '24px',
+                    flexShrink: 0,
+                    backgroundColor: '#ECFDF5',
+                    borderRadius: '50%',
+                    padding: '4px'
+                  }}
+                />
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography
+                    sx={featureTitleStyles}
+                  >
+                    {feature.display}
+                  </Typography>
+                  <Typography
+                    sx={featureTextStyles}
+                  >
+                    {feature.text}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
+        {/* Right Content - Image */}
+        <Box
+          component='img'
+          src='/images/desk.png'
+          alt='Job seeker working at a desk'
+          sx={{
+            flex: 1,
+            width: '100%',
+            maxWidth: '600px',
+            borderRadius: '16px',
+            boxShadow: '0px 20px 40px -10px rgba(0, 0, 0, 0.15)',
+            objectFit: 'cover'
+          }}
+        />
+      </Box>
+    </Box>
+  )
+}
+
+const FEATURES_LIST = [
+  {
+    icon: VerifiedUserOutlinedIcon,
+    title: 'Verifiable & Trustworthy',
+    description:
+      'All credentials are cryptographically signed and tamper-proof, ensuring authenticity.',
+    iconBg: '#DBEAFE', // Light Blue
+    iconColor: '#2563EB' // Blue
+  },
+  {
+    icon: GroupsOutlinedIcon,
+    title: 'Peer Recommendations',
+    description:
+      'Request endorsements from colleagues, mentors, and managers to validate your skills.',
+    iconBg: '#DBEAFE', // Indigo tint
+    iconColor: '#2563EB' // Indigo
+  },
+  {
+    icon: LinkOutlinedIcon,
+    title: 'Easy Integration',
+    description:
+      'Seamlessly share credentials on LinkedIn, resumes, and professional portfolios.',
+    iconBg: '#DBEAFE',
+    iconColor: '#2563EB'
+  },
+  {
+    icon: BookmarkBorderOutlinedIcon,
+    title: 'Comprehensive Portfolio',
+    description:
+      'Document all your achievements, from formal education to informal learning experiences.',
+    iconBg: '#DBEAFE',
+    iconColor: '#2563EB'
+  },
+  {
+    icon: LockOutlinedIcon,
+    title: 'Privacy Control',
+    description:
+      'You decide what to share and with whom. Keep full control of your credentials.',
+    iconBg: '#DBEAFE',
+    iconColor: '#2563EB'
+  },
+  {
+    icon: BoltOutlinedIcon,
+    title: 'Instant Verification',
+    description:
+      'Employers can verify your credentials instantly without lengthy background checks.',
+    iconBg: '#E0F2FE',
+    iconColor: '#2563EB'
+  }
+]
+
+const FeaturesGridSection: React.FC = () => {
+  return (
+    <Box
+      sx={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        padding: { xs: '30px 15px', md: '60px 30px' }, // Reduced from 40/20 and 80/40
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          md: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)'
+        },
+        gap: '24px'
+      }}
+    >
+      {FEATURES_LIST.map((feature, index) => {
+        const IconComponent = feature.icon
+        return (
+          <Box
+            key={index}
+            sx={{
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #EAECF0',
+              borderRadius: '16px',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: '20px',
+              boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0px 12px 16px -4px rgba(16, 24, 40, 0.08)'
+              }
+            }}
+          >
+            <Box
+              sx={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '8px',
+                backgroundColor: feature.iconBg,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: feature.iconColor
+              }}
+            >
+              <IconComponent sx={{ fontSize: '24px' }} />
+            </Box>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '20px',
+                  fontWeight: 600,
+                  color: '#101828',
+                  fontFamily: 'Inter',
+                  marginBottom: '8px'
+                }}
+              >
+                {feature.title}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '16px',
+                  color: '#475467',
+                  fontFamily: 'Inter',
+                  lineHeight: '24px'
+                }}
+              >
+                {feature.description}
+              </Typography>
+            </Box>
+          </Box>
+        )
+      })}
+    </Box>
+  )
+}
+
+const CallToActionSection: React.FC = () => {
+  return (
+    <Box
+      sx={{
+        background: 'linear-gradient(135deg, #2563EB 60%, #7C3AED 100%)',
+        padding: { xs: '40px 15px', md: '60px 30px' }, // Reduced from 60/20 and 80/40
+        marginTop: '60px', // Reduced from 80
+        color: '#FFFFFF'
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: { xs: '40px', md: '80px' }
+        }}
+      >
+        {/* Left Content */}
+        <Box sx={{ flex: 1, maxWidth: { md: '560px' } }}>
+          <Box
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              padding: '8px 16px',
+              borderRadius: '100px',
+              marginBottom: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}
+          >
+            <AutoAwesomeIcon sx={{ color: '#FFFFFF', fontSize: '16px' }} />
+            <Typography
+              sx={{
+                fontSize: '14px',
+                fontWeight: 600,
+                fontFamily: 'Inter',
+                color: '#FFFFFF 20%',
+                lineHeight: '20px',
+                letterSpacing: '-0.15px'
+              }}
+            >
+              Start building today
+            </Typography>
+          </Box>
+          <Typography
+            variant='h2'
+            sx={{
+              fontSize: { xs: '36px', md: '48px' },
+              fontWeight: 700,
+              fontFamily: 'Poppins',
+              lineHeight: '1.2',
+              marginBottom: '24px',
+              color: '#FFFFFF'
+            }}
+          >
+            Ready to showcase your skills?
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: '20px',
+              fontFamily: 'Inter',
+              lineHeight: '32.5px',
+              letterSpacing: '-0.45px',
+              color: '#DBEAFE',
+              marginBottom: '40px'
+            }}
+          >
+            Join other professionals who are already building their verifiable credential
+            evidence. Create your first skill credential in minutes.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+            <Link href='/credentialForm' passHref>
+              <Button
+                sx={callToActionButtonStyles}
+                endIcon={<KeyboardArrowRightIcon />}
+              >
+                Build your first skill
+              </Button>
+            </Link>
+            <Link href='/help' passHref>
+              <Button
+                sx={callToActionButtonStyles}
+              >
+                Learn more
+              </Button>
+            </Link>
+          </Box>
+        </Box>
+
+        {/* Right Content - Image */}
+        <Box sx={{ flex: 1, width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <Box
+            sx={{
+              padding: '4px',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              borderRadius: '16px',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
+            }}
+          >
+            <Box
+              component='img'
+              src='/images/group.png'
+              alt='Trusted professionals'
+              sx={{
+                width: '100%',
+                maxWidth: '550px',
+                borderRadius: '16px',
+                objectFit: 'cover',
+                display: 'block'
+              }}
+            />
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
 const Page = () => {
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   return (
     <Box
@@ -500,15 +858,15 @@ const Page = () => {
         flexDirection: 'column',
         position: 'relative',
         background:
-          'url(/Background.png) lightgray 50% / contain no-repeat, rgba(255, 255, 255, 0.5)',
-        backgroundSize: 'contain',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+          '#fafafa',
       }}
     >
-      <HeroSection showCards={!isMobile} theme={theme} />
-      {isMobile && <MobileLinkedCredsSection theme={theme} />}
+      <HeroSection showCards={true} theme={theme} />
+      <JobSeekersSection />
+      <FeaturesGridSection />
       <StepsSection theme={theme} />
+      <CallToActionSection />
+      <LandingFooter />
     </Box>
   )
 }

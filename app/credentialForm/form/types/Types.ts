@@ -35,15 +35,15 @@ export interface Credential {
   type: string[]
   issuer: Issuer
   issuanceDate: string
-  expirationDate?: string
   awardedDate?: string
   name: string
   credentialSubject: CredentialSubject
 }
 
-interface Portfolio {
+interface EvidenceItem {
   name: string
   url: string
+  type?: string[]
   googleId?: string
   wasId?: string
 }
@@ -51,7 +51,7 @@ interface Portfolio {
 // Interfaces for the form fields
 export interface SelectedSkill {
   targetName: string
-  targetCode: string
+  soc: string[]
   uuid: string
   score: number
 }
@@ -63,16 +63,16 @@ export interface FormData {
   credentialName: string
   credentialDuration: string
   credentialDescription: string
-  portfolio: Portfolio[]
+  evidence: EvidenceItem[]
   evidenceLink: string
   evidenceDescription: string
   explainAnswer: string
   howKnow: string
-  qualification: string
+  qualifications: string
   skills?: SkillMatch[]
   removedSkills?: SkillMatch[]
   selectedSkills?: SelectedSkill[]
-  [key: string]: string | number | Portfolio[] | string[] | SkillMatch[] | SelectedSkill[] | undefined
+  [key: string]: string | number | EvidenceItem[] | string[] | SkillMatch[] | SelectedSkill[] | undefined
 }
 
 // Component Props for the form

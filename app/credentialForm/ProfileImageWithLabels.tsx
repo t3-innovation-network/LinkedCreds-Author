@@ -81,7 +81,7 @@ const ProfileImageWithLabels = () => {
           <Typography
             variant='caption'
             sx={{
-              fontFamily: 'Lato',
+              fontFamily: 'Inter',
               fontWeight: '400',
               fontSize: isSmallScreen ? '14px' : '18px'
             }}
@@ -99,7 +99,7 @@ const ProfileImageWithLabels = () => {
           <Typography
             variant='caption'
             sx={{
-              fontFamily: 'Lato',
+              fontFamily: 'Inter',
               fontWeight: '400',
               fontSize: isSmallScreen ? '14px' : '18px'
             }}
@@ -117,7 +117,7 @@ const ProfileImageWithLabels = () => {
           <Typography
             variant='caption'
             sx={{
-              fontFamily: 'Lato',
+              fontFamily: 'Inter',
               fontWeight: '400',
               fontSize: isSmallScreen ? '14px' : '18px'
             }}

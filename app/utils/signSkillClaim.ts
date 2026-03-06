@@ -45,11 +45,26 @@ export async function signSkillClaim(
   if (!issuerId) throw new Error('Issuer DID is required.')
 
   try {
-    const signedVC = await engine.signSkillClaimVC(
-      normalizedData as unknown as ISkillClaimCredential,
+    const signedVC = await engine.signVC({
+      data: normalizedData as unknown as any,
+      type: 'VC',
       keyPair,
       issuerId
-    )
+    }) as unknown as ISkillClaimCredential
+
+    delete (signedVC as any).expirationDate
+    delete (signedVC as any).issuanceDate
+      ; (signedVC as any).issuer = issuerId
+      ; (signedVC as any)['@context'] = [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
+        "https://w3id.org/hr/v1",
+        "https://w3id.org/security/suites/ed25519-2020/v1"
+      ]
+
+    if (Array.isArray(signedVC.type)) {
+      ; (signedVC as any).type = (signedVC.type as any).filter((t: string) => t !== 'OpenBadgeCredential')
+    }
     if (options?.saveToDrive) {
       const file = await saveToGoogleDrive({
         storage,

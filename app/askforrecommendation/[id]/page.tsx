@@ -94,7 +94,7 @@ export default function AskForRecommendation() {
     try {
       await navigator.clipboard.writeText(messageToCopy)
       showNotification('Text copied to clipboard!')
-      setTimeout(() => { }, 1000)
+      setTimeout(() => { }, 500)
     } catch (err) {
       showNotification('Failed to copy text')
     }
@@ -134,7 +134,7 @@ export default function AskForRecommendation() {
       <Typography
         variant='h1'
         sx={{
-          fontFamily: 'Lato',
+          fontFamily: 'Inter',
           fontSize: '24px',
           fontWeight: 400,
           color: '#202E5B',
@@ -155,7 +155,7 @@ export default function AskForRecommendation() {
       >
         <Typography
           sx={{
-            fontFamily: 'Lato',
+            fontFamily: 'Inter',
             fontSize: '16px',
             mb: 3,
             fontWeight: 600,
@@ -170,7 +170,7 @@ export default function AskForRecommendation() {
             marginBottom: '20px',
             paddingLeft: '20px',
             color: '#202E5B',
-            fontFamily: 'Lato'
+            fontFamily: 'Inter'
           }}
         >
           <li style={{ marginBottom: '8px' }}>Copy the message below using the Button</li>
@@ -189,9 +189,9 @@ export default function AskForRecommendation() {
               color: '#FFFFFF',
               fontSize: '14px',
               width: 'fit-content',
-              backgroundColor: '#155dfc',
+              backgroundColor: '#2563EB',
               '&:hover': {
-                backgroundColor: '#155dfc'
+                backgroundColor: '#2563EB'
               }
             }}
             startIcon={<ContentCopyIcon />}
@@ -221,7 +221,7 @@ export default function AskForRecommendation() {
               wordWrap: 'break-word',
               overflowWrap: 'break-word',
               width: '100%',
-              fontFamily: 'Lato',
+              fontFamily: 'Inter',
               color: '#333',
               fontSize: '14px',
               flexGrow: 1
@@ -229,7 +229,7 @@ export default function AskForRecommendation() {
           >
             <Typography
               sx={{
-                fontFamily: 'Lato',
+                fontFamily: 'Inter',
                 color: '#333',
                 fontSize: '14px',
                 wordWrap: 'break-word',

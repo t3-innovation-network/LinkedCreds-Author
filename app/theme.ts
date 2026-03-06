@@ -33,6 +33,8 @@ declare module '@mui/material/styles' {
     t3Gold: string
     t3Lavender: string
     t3Red: string
+    t3TextDark: string
+    t3TextSlate: string
   }
   interface PaletteOptions {
     t3White?: string
@@ -66,6 +68,8 @@ declare module '@mui/material/styles' {
     t3Gold?: string
     t3Lavender?: string
     t3Red?: string
+    t3TextDark?: string
+    t3TextSlate?: string
   }
 
   interface TypographyVariants {
@@ -109,7 +113,7 @@ const Theme = createTheme({
     t3White: '#ffffff',
     t3Black: '#000000',
     t3BodyText: '#202e5b',
-    t3ButtonBlue: '#155dfc',
+    t3ButtonBlue: '#2563eb',
     t3YellowAccent: '#ffcb25',
     t3LightGray: '#e5e7eb',
     t3DarkGray: '#4d4d4d',
@@ -128,7 +132,7 @@ const Theme = createTheme({
     t3CheckboxSoftActive: '#1e40af1a',
     t3CheckboxBorderActive: '#2563eb',
     t3PlaceholderText: '#4e4e4e',
-    t3InputPlaceholder: '#6b7280',
+    t3InputPlaceholder: '#90A1B9',
     t3TitleText: '#1f2937',
     t3SuccessMessage: '#14b8a6',
     t3Error: '#ef4444',
@@ -136,14 +140,16 @@ const Theme = createTheme({
     t3LightWhitesmoke: '#f7f7f7',
     t3Gold: '#ffcb25e6',
     t3Lavender: '#d1e3ff',
-    t3Red: '#f81414'
+    t3Red: '#f81414',
+    t3TextDark: '#101828',
+    t3TextSlate: '#475467'
   },
   typography: palette => ({
-    fontFamily: 'Lato, Roboto, Inter, Poppins',
+    fontFamily: 'Inter, Roboto, Inter, Poppins',
     formTextStep: {
       color: palette.t3BodyText,
       textAlign: 'center',
-      fontFamily: 'Lato',
+      fontFamily: 'Inter',
       fontSize: '24px',
       fontStyle: 'normal',
       fontWeight: 400,
@@ -152,7 +158,7 @@ const Theme = createTheme({
     successText: {
       color: palette.t3BodyText,
       textAlign: 'center',
-      fontFamily: 'Lato',
+      fontFamily: 'Inter',
       fontSize: '16px',
       fontStyle: 'italic',
       fontWeight: 500,
@@ -160,7 +166,7 @@ const Theme = createTheme({
     },
     noteText: {
       color: palette.t3BodyText,
-      fontFamily: 'Lato',
+      fontFamily: 'Inter',
       fontSize: '16px',
       fontStyle: 'italic',
       fontWeight: 400,
@@ -180,10 +186,10 @@ const Theme = createTheme({
             fontWeight: '600',
             lineHeight: '20px',
             fontSize: '16px',
-            backgroundColor: '#155dfc',
+            backgroundColor: '#2563eb',
             color: '#FFFFFF',
             '&:hover': {
-              backgroundColor: '#155dfc'
+              backgroundColor: '#2563eb'
             },
             '&.Mui-disabled': {
               backgroundColor: '#d1d5db',
@@ -200,14 +206,14 @@ const Theme = createTheme({
             fontFamily: 'Roboto',
             fontWeight: '600',
             lineHeight: '20px',
-            backgroundColor: '#155dfc',
+            backgroundColor: '#2563eb',
             color: '#FFFFFF',
             flexGrow: 8,
             fontSize: '14px',
             width: 'fit-content',
             maxWidth: '230px',
             '&:hover': {
-              backgroundColor: '#155dfc'
+              backgroundColor: '#2563eb'
             },
             '&.Mui-disabled': {
               backgroundColor: '#d1d5db', // using t3Disabled color
@@ -224,8 +230,8 @@ const Theme = createTheme({
             fontFamily: 'Roboto',
             fontWeight: '600',
             lineHeight: '20px',
-            border: '1px solid  #155dfc',
-            color: '#155dfc',
+            border: '1px solid  #2563eb',
+            color: '#2563eb',
             backgroundColor: '#ffffff',
             flexGrow: 1,
             fontSize: '14px',

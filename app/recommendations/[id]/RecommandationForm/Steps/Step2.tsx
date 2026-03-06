@@ -159,19 +159,20 @@ const Step2: React.FC<Step2Props> = ({
             {skills?.length > 0 ? (
               skills.map((skill: SelectedSkill, idx: number) => {
                 const currentSelected: SelectedSkill[] = watch('selectedSkills') || []
-                const isSelected = currentSelected.some(s => s.uuid === skill.uuid)
+                const skillId = (skill as any).id ?? skill.uuid
+                const skillName = (skill as any).name ?? skill.targetName
+                const isSelected = currentSelected.some(s => ((s as any).id ?? s.uuid) === skillId)
 
                 return (
                   <Chip
-                    key={`${skill.uuid}-${idx}`}
-                    label={skill.targetName}
+                    key={`${skillId}-${idx}`}
+                    label={skillName}
                     clickable
                     color={isSelected ? 'primary' : 'default'}
                     onClick={() => {
                       const newSelected = isSelected
-                        ? currentSelected.filter(s => s.uuid !== skill.uuid)
+                        ? currentSelected.filter(s => ((s as any).id ?? s.uuid) !== skillId)
                         : [...currentSelected, skill]
-                      console.log('Selected Skills (Step 2):', newSelected)
                       setValue('selectedSkills', newSelected)
                     }}
                     variant={isSelected ? 'filled' : 'outlined'}

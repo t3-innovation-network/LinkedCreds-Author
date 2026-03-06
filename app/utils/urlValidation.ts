@@ -15,11 +15,13 @@ export const handleUrlValidation = async (
   if (url) {
     try {
       const response = await fetch(`/api/fetchContent?url=${encodeURIComponent(url)}`)
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`)
+      const data = await response.json()
+
+      if (data.error) {
+        throw new Error(data.error)
       }
 
-      const { contentType } = await response.json()
+      const { contentType } = data
 
       const videoRegex = /\.(mp4|webm|ogg|avi|mov|wmv|flv|mkv)$|youtube\.com|vimeo\.com/i
       const gitHubRegex = /github\.com/i

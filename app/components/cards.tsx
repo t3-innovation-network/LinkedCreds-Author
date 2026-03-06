@@ -1,7 +1,10 @@
 import React from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, Chip } from '@mui/material'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import Image from 'next/image'
+import { QrCodeHome } from '../Assets/SVGs'
+import VerifiedIcon from '@mui/icons-material/Verified'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 interface CardProps {
   title?: string
   description?: string
@@ -55,7 +58,7 @@ const Card = ({
         flexDirection: 'column',
         background: '#FFFFFF',
         borderRadius: '10px',
-        border: '1px solid #155dfc',
+        border: '1px solid #2563EB',
         padding: '7.5px',
         position: 'relative',
         filter: 'drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.3))'
@@ -160,7 +163,7 @@ const Card = ({
                 position: 'absolute',
                 bottom: '4px',
                 left: '4px',
-                background: '#155dfc',
+                background: '#2563EB',
                 borderRadius: '4px',
                 padding: '2px 8px',
                 display: 'flex',
@@ -263,7 +266,7 @@ const Card = ({
                 •{' '}
                 <span
                   style={{
-                    color: '#155dfc',
+                    color: '#2563EB',
                     textDecoration: 'underline',
                     cursor: 'pointer'
                   }}
@@ -274,6 +277,127 @@ const Card = ({
             ))}
           </Box>
         )}
+      </Box>
+    </Box>
+  )
+}
+
+
+export const HeroCard = () => {
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        mx: 'auto',
+        maxWidth: {
+          xs: '100%',
+          md: '450px', // Default fallback for MD
+        },
+        '@media (min-width: 1097px)': { maxWidth: '450px' },
+        '@media (min-width: 1440px)': { maxWidth: '630px' },
+        '@media (min-width: 1920px)': { maxWidth: '680px' },
+        backgroundColor: '#FFFFFF',
+        borderRadius: '16px 16px 0 0',
+        boxShadow: '0px 25px 50px 0px rgba(0, 0, 0, 0.25)',
+        padding: '24px 24px 0 24px',
+        border: '1px 1px 0 1px solid #F2F4F7'
+      }}
+    >
+      {/* Header Section */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+        <Box>
+          <Chip
+            label="Self-issued"
+            size="small"
+            sx={{
+              backgroundColor: '#ECFDF5',
+              color: '#027A48',
+              fontWeight: 500,
+              fontSize: '12px',
+              height: '24px',
+              mb: 1,
+              borderRadius: '16px 16px 0 0',
+              '& .MuiChip-label': { padding: '0 8px' }
+            }}
+          />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <VerifiedIcon sx={{ color: '#2563EB', fontSize: '20px' }} />
+            <Typography sx={{ fontWeight: 700, fontSize: '20px', fontFamily: 'Inter', color: '#101828' }}>
+              Barista
+            </Typography>
+          </Box>
+          <Typography sx={{ color: '#344054', fontSize: '14px', fontFamily: 'Inter', mt: 0.5 }}>
+            Alice Parker
+          </Typography>
+          <Typography sx={{ color: '#475467', fontSize: '12px', fontFamily: 'Inter' }}>
+            5 years of experience
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            border: '1px solid #EAECF0',
+            borderRadius: '8px',
+            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            '& svg': { width: '48px', height: '48px' }
+          }}
+        >
+          <QrCodeHome />
+        </Box>
+      </Box>
+
+      {/* Description */}
+      <Box sx={{ mb: 3 }}>
+        <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#344054', mb: 0.5, fontFamily: 'Inter' }}>
+          Skill Description
+        </Typography>
+        <Typography sx={{ fontSize: '12px', color: '#475467', lineHeight: '18px', fontFamily: 'Inter' }}>
+          Demonstrated advanced skills in coffee preparation, customer service, and
+          knowledge of coffee origins and brewing techniques.
+        </Typography>
+      </Box>
+
+      {/* Image with Play Button */}
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: '220px',
+          borderRadius: '12px 12px 0 0',
+          overflow: 'hidden'
+        }}
+      >
+        <Box
+          component="img"
+          src="/coffee.jpeg"
+          alt="Barista skills evidence"
+          sx={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '80%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(4px)'
+          }}
+        >
+          <PlayArrowIcon sx={{ color: '#FFFFFF', fontSize: '24px' }} />
+        </Box>
+
       </Box>
     </Box>
   )
