@@ -6,6 +6,7 @@ export type SkillClaimFormData = {
   personId?: string
   skills: ISkill[]
   evidence?: Array<{ id: string; name: string; type?: string[]; description?: string }>
+  portfolio?: Array<any>
   expirationDate: string
 }
 
@@ -34,6 +35,7 @@ export function normalizeSkillClaimFormData(formData: FormData): SkillClaimFormD
     personName: formData.fullName ?? '',
     skills,
     evidence: evidence.length ? evidence : [],
+    portfolio: formData.evidence && Array.isArray(formData.evidence) ? formData.evidence : [],
     expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
   }
 }

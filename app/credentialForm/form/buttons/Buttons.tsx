@@ -28,11 +28,11 @@ export function Buttons({
     <Box
       sx={{
         width: '100%',
-        height: '40px',
         display: 'flex',
         gap: '15px',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexWrap: 'wrap'
       }}
     >
       <Box>
@@ -53,10 +53,10 @@ export function Buttons({
         )}
       </Box>
 
-      <Box sx={{ display: 'flex', gap: '15px' }}>
+      <Box sx={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
         {activeStep !== 0 && (
           <Button
-            sx={{ minWidth: '130px' }}
+            sx={{ minWidth: { xs: 'auto', sm: '130px' } }}
             onClick={handleSaveSession}
             color='secondary'
             variant='finishButton'
@@ -81,7 +81,7 @@ export function Buttons({
             color='primary'
             disabled={!isValid}
             variant='nextButton'
-            sx={{ borderRadius: '9999px', textTransform: 'none', minWidth: '330px' }}
+            sx={{ borderRadius: '9999px', textTransform: 'none', minWidth: { xs: 'auto', sm: '330px' }, width: { xs: '100%', sm: 'auto' } }}
           >
             Preview Credential
           </Button>

@@ -37,7 +37,8 @@ interface SearchSkillResult {
 export const extractRawSkillsApi = async (text: string): Promise<string[]> => {
     if (!text || text.trim().length < 3) return []
     try {
-        const res = await fetch('http://18.190.248.100:8001/extract', {
+        const baseUrl = process.env.NEXT_PUBLIC_SKILLS_API_URL
+        const res = await fetch(`${baseUrl}/extract`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text, top_k: 2 })
@@ -59,7 +60,8 @@ export const searchSkillsApi = async (skillNames: string[]): Promise<SkillMatch[
     if (!skillNames.length) return []
     try {
         const payload: ExtractedSkill[] = skillNames.map(name => ({ name, source: 'user' }))
-        const res = await fetch('http://18.190.248.100:8001/search', {
+        const baseUrl = process.env.NEXT_PUBLIC_SKILLS_API_URL
+        const res = await fetch(`${baseUrl}/search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ extracted_skills: payload, top_k: 2 })

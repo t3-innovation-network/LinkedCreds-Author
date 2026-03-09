@@ -597,10 +597,10 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2 }}>
                 <Box>
                   <CredentialTitle>
-                    {credentialTitle || 'Full Stack Web Development'}
+                    {credentialTitle || 'No title found'}
                   </CredentialTitle>
                   <RecipientName sx={{ mt: 1 }}>
-                    Issued to: {personName || 'Alice Parker'}
+                    Issued to: {personName || 'No name found'}
                   </RecipientName>
                   <ExperienceText sx={{ mt: 0.5 }}>
                     {credentialSubject?.durationPerformed ? `${credentialSubject.durationPerformed} of experience` : "5 years of experience"}

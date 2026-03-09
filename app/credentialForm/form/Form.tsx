@@ -8,7 +8,8 @@ import { FormData } from './types/Types'
 import { Step0 } from './Steps/Step0_connectToGoogle'
 import { Buttons } from './buttons/Buttons'
 // import DataComponent from './Steps/dataPreview' // No longer needed
-import { createDID } from '../../utils/credential'
+import { createDID, signCred } from '../../utils/credential'
+import { ISkillClaimCredential } from 'hr-context'
 import { GoogleDriveStorage, saveToGoogleDrive, CredentialEngine } from '@cooperation/vc-storage'
 import { useSession, signIn } from 'next-auth/react'
 import { handleSign } from '../../utils/formUtils'
@@ -263,16 +264,19 @@ const Form = ({ onStepChange }: any) => {
       })
       console.log('🚀 ~ sign ~ saveResponse:', saveResponse)
 
-      const result = await signSkillClaim(
-        storage,
-        engine,
+      const result = await signCred(
+        accessToken,
         {
           ...data,
           skills: activeSkills?.length ? activeSkills : undefined,
           removedSkills: removedSkills?.length ? removedSkills : undefined
         },
-        { keyPair, issuerId, saveToDrive: true }
-      )
+        issuerId,
+        keyPair,
+        'VC',
+        undefined,
+        true
+      ) as { signedVC: ISkillClaimCredential; file: any }
       console.log('🚀 ~ sign ~ result:', result)
 
       const res = result.signedVC
@@ -346,16 +350,17 @@ const Form = ({ onStepChange }: any) => {
           width: '100%'
         }}
       >
-        <form
-          style={{
+        <Box
+          component="form"
+          sx={{
             display: 'flex',
             flexDirection: 'column',
             gap: '24px',
             borderRadius: activeStep === 4 ? '10px 10px 20px 20px' : '14px',
-            alignItems: 'stretch', // Changed from center to prevent clipping\
-            overflow: 'visible', // Changed from auto to visible to avoid double scrollbars if parent handles it, or keep auto if needed. 'visible' is safer for layout.
+            alignItems: 'stretch',
+            overflow: 'visible',
             width: '100%',
-            padding: activeStep === 4 ? '0' : '32px 32px 32px 30px',
+            padding: activeStep === 4 ? '0' : { xs: '20px 16px', sm: '32px 32px 32px 30px' },
             backgroundColor: '#FFF',
             boxShadow: '0 6px 6px rgba(0, 0, 0, 0.25)',
           }}
@@ -476,7 +481,7 @@ const Form = ({ onStepChange }: any) => {
             )
           }
           {snackMessage ? <SnackMessage message={snackMessage} /> : ''}
-        </form >
+        </Box>
       </Box>
 
       {activeStep >= 1 && activeStep < 3 && (

@@ -1,4 +1,4 @@
-import { CredentialEngine, GoogleDriveStorage } from '@cooperation/vc-storage'
+import { CredentialEngine, GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
 import type { ISkill, IFrameworkMatch } from 'hr-context'
 import { FormData } from '../credentialForm/form/types/Types'
 
@@ -64,7 +64,8 @@ const signCred = async (
   issuerDid: string,
   keyPair: string,
   type: 'RECOMMENDATION' | 'VC',
-  vcFileId?: any
+  vcFileId?: any,
+  saveToDrive: boolean = false
 ) => {
   if (!accessToken) {
     throw new Error('Access token is not provided')
@@ -180,6 +181,16 @@ const signCred = async (
 
 
       if (evidenceItems.length) signedVC['evidence'] = evidenceItems
+    }
+
+    if (saveToDrive) {
+      const storage = new GoogleDriveStorage(accessToken)
+      const file = await saveToGoogleDrive({
+        storage,
+        data: signedVC,
+        type: type === 'RECOMMENDATION' ? 'RECOMMENDATION' : 'VC'
+      })
+      return { signedVC, file }
     }
 
     return signedVC
