@@ -1,0 +1,95 @@
+
+> nextjs@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+./app/components/credetialTracker/CredentialPreview.tsx
+228:8  Warning: React Hook useEffect has missing dependencies: 'removedSkills' and 'selectedSkills.length'. Either include them or remove the dependency array. You can also replace multiple useState variables with useReducer if 'setSelectedSkills' needs the current value of 'removedSkills'.  react-hooks/exhaustive-deps
+305:8  Warning: React Hook useEffect has missing dependencies: 'pdfThumbnails' and 'videoThumbnails'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/credentialForm/form/Steps/Step2_descreptionFields.tsx
+115:6  Warning: React Hook useEffect has missing dependencies: 'links' and 'watch'. Either include them or remove the dependency array. If 'watch' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./app/credentialForm/form/Steps/Step3_uploadEvidence.tsx
+136:5  Warning: React Hook useCallback has an unnecessary dependency: 'watch'. Either exclude it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/credentialForm/form/Steps/SuccessPage.tsx
+349:6  Warning: React Hook useEffect has missing dependencies: 'imageThumbnails', 'pdfThumbnails', and 'videoThumbnails'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/rec/page.tsx
+46:7  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+63:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+523:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/recommendations/[id]/RecommandationForm/Steps/Step3.tsx
+160:5  Warning: React Hook useCallback has an unnecessary dependency: 'watch'. Either exclude it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/recommendations/[id]/RecommandationForm/Steps/dataPreview.tsx
+299:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./app/view/[id]/ComprehensiveClaimDetails.tsx
+421:6  Warning: React Hook useEffect has a missing dependency: 'claimDetail.evidence'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+475:6  Warning: React Hook useEffect has missing dependencies: 'imageThumbnails', 'pdfThumbnails', and 'videoThumbnails'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/view/[id]/GenericCredentialViewer.tsx
+174:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/26) ...
+   Generating static pages (6/26) 
+   Generating static pages (12/26) 
+   Generating static pages (19/26) 
+ ✓ Generating static pages (26/26)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    8.73 kB         209 kB
+├ ○ /_not-found                          883 B          89.5 kB
+├ ○ /accessibility                       8.03 kB         122 kB
+├ ○ /analytics                           8.06 kB         122 kB
+├ ƒ /api/auth/[...nextauth]              0 B                0 B
+├ ƒ /api/credential-raw/[fileId]         0 B                0 B
+├ ƒ /api/credential/download/[fileId]    0 B                0 B
+├ ƒ /api/drive-metadata                  0 B                0 B
+├ ƒ /api/drive/[fileId]                  0 B                0 B
+├ ƒ /api/exchanges/[txid]                0 B                0 B
+├ ƒ /api/fetchContent                    0 B                0 B
+├ ƒ /api/pdf-proxy                       0 B                0 B
+├ ƒ /api/proxy-credential                0 B                0 B
+├ ƒ /api/refresh-token                   0 B                0 B
+├ ƒ /api/verification/confirm            0 B                0 B
+├ ƒ /api/verification/debug              0 B                0 B
+├ ƒ /api/verification/send               0 B                0 B
+├ ƒ /api/video-proxy                     0 B                0 B
+├ ƒ /askforrecommendation/[id]           2.78 kB         645 kB
+├ ○ /claims                              18.6 kB         651 kB
+├ ƒ /credential-raw/[fileId]             2.52 kB         206 kB
+├ ○ /credentialForm                      1.52 kB         111 kB
+├ ○ /credentialImportForm                10 kB           472 kB
+├ ○ /help                                11.8 kB         140 kB
+├ ƒ /mail/[id]                           2.74 kB         645 kB
+├ ○ /privacy                             270 B           110 kB
+├ ○ /rec                                 18.8 kB         485 kB
+├ ○ /recommendations                     366 B            89 kB
+├ ƒ /recommendations/[id]                63.1 kB         723 kB
+├ ○ /terms                               3.58 kB         117 kB
+├ ○ /verifyEmail                         5.36 kB         363 kB
+├ ƒ /view/[id]                           2 kB            629 kB
+└ ○ /was-login                           9.28 kB         133 kB
++ First Load JS shared by all            88.6 kB
+  ├ chunks/2117-00f9f2f84ef2dce6.js      31.9 kB
+  ├ chunks/fd9d1056-7c1067f641417ab4.js  53.7 kB
+  └ other shared chunks (total)          3.04 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

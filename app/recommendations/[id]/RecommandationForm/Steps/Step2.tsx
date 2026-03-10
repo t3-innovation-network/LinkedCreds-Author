@@ -8,7 +8,8 @@ import {
   UseFormSetValue,
   Controller
 } from 'react-hook-form'
-import TextEditor from '../TextEditor/Texteditor'
+import dynamic from 'next/dynamic'
+const TextEditor = dynamic(() => import('../TextEditor/Texteditor'), { ssr: false })
 import {
   formLabelStyles,
   inputPropsStyles,

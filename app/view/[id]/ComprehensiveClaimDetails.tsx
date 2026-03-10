@@ -37,7 +37,8 @@ import { useSession } from 'next-auth/react'
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
 import { GoogleDriveStorage } from '@cooperation/vc-storage'
 import { BadgePill, CredentialTitle, DescriptionText, ExperienceText, MediaContainer, RecipientName, SectionHeader, publicLinkBoxStyles, publicLinkInputStyles, copyButtonStyles, qrCodeBoxStyles, credentialCardStyles } from '../../components/Styles/appStyles'
-import EvidencePreview from './EvidencePreview'
+import dynamic from 'next/dynamic'
+const EvidencePreview = dynamic(() => import('./EvidencePreview'), { ssr: false })
 import { getAccessToken, getFileViaFirebase } from '../../firebase/storage'
 import QRCode from "react-qr-code";
 import { Media } from '../../components/Styles/appStyles'
