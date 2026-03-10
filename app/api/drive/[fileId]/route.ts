@@ -29,7 +29,9 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Proxy error:', error)
+    if (!(error instanceof Error && error.message.includes('404'))) {
+      console.error('Proxy error:', error)
+    }
     return new Response(JSON.stringify({ error: 'Failed to fetch file' }), {
       status: 500,
       headers: {
