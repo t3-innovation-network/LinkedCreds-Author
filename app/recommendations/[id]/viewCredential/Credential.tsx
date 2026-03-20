@@ -17,7 +17,7 @@ import ComprehensiveClaimDetails from '../../../view/[id]/ComprehensiveClaimDeta
 import DeclineRequest from '../DeclineRequest/DeclineRequest'
 import background from '../../../Assets/Images/Background.svg'
 import { useParams } from 'next/navigation'
-import { JobSeekersSection, FeaturesGridSection } from '../../../page'
+import { JobSeekersSection, FeaturesGridSection } from '../../../components/MarketingSections'
 import { useSession } from 'next-auth/react'
 
 interface CredentialProps {
@@ -28,6 +28,7 @@ interface CredentialProps {
 }
 
 const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email, credentialSubject }) => {
+  const { data: session } = useSession()
   const [showDeclineRequest, setShowDeclineRequest] = useState(false)
 
   const params = useParams()
@@ -48,7 +49,6 @@ const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email, 
       </Box>
     )
   }
-  const { data: session } = useSession()
 
   const handleClick = () => {
     if (session?.accessToken) {
