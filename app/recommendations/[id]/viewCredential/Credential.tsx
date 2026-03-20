@@ -2,13 +2,23 @@
 
 import React, { useState } from 'react'
 import { Box, Button, Typography } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import CreateIcon from '@mui/icons-material/Create'
+import {
+  recSectionContainerStyles,
+  primaryButtonStyles,
+  secondaryButtonStyles,
+  estimatedTimeBannerStyles
+} from '../../../components/Styles/appStyles'
 import { SVGCheckMarks } from '../../../Assets/SVGs'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { featuresRecommendations } from '../RecommandationForm/fromTexts/FormTextSteps'
 import ComprehensiveClaimDetails from '../../../view/[id]/ComprehensiveClaimDetails'
 import DeclineRequest from '../DeclineRequest/DeclineRequest'
+import background from '../../../Assets/Images/Background.svg'
 import { useParams } from 'next/navigation'
+import { JobSeekersSection, FeaturesGridSection } from '../../../page'
+import { useSession } from 'next-auth/react'
 
 interface CredentialProps {
   setactivStep: (step: number) => void
@@ -18,7 +28,6 @@ interface CredentialProps {
 }
 
 const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email, credentialSubject }) => {
-  const theme = useTheme()
   const [showDeclineRequest, setShowDeclineRequest] = useState(false)
 
   const params = useParams()
@@ -39,8 +48,14 @@ const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email, 
       </Box>
     )
   }
+  const { data: session } = useSession()
+
   const handleClick = () => {
-    setactivStep(1)
+    if (session?.accessToken) {
+      setactivStep(2)
+    } else {
+      setactivStep(1)
+    }
   }
 
   const handleDeclineRequest = () => {
@@ -56,103 +71,152 @@ const Credential: React.FC<CredentialProps> = ({ setactivStep, fullName, email, 
   }
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '30px',
-        padding: '0 15px 30px',
-        mt: '30px',
-        alignItems: 'center'
-      }}
-    >
-      <ComprehensiveClaimDetails />
+    <Box sx={{ width: '100%', backgroundColor: '#FFFFFF' }}>
       <Box
         sx={{
-          m: '0 auto',
+          width: '100%',
+          minHeight: 'calc(100vh - 100px)',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'center',
-          flexDirection: 'column'
+          alignItems: 'center',
+          backgroundColor: '#FFFFFF',
+          pt: '48px'
         }}
       >
-        <Button variant='nextButton' onClick={handleClick} sx={{ width: '100%', mb: 1 }}>
-          Get Started
-        </Button>
-        <Button
-          onClick={handleDeclineRequest}
+        <Box
           sx={{
-            padding: '10px 24px',
-            borderRadius: '100px',
-            textTransform: 'capitalize',
-            fontFamily: 'Roboto',
-            textDecoration: 'underline',
-            fontWeight: '600',
-            lineHeight: '16px',
-            flexGrow: 8,
-            fontSize: '16px'
+            width: '100%',
+            maxWidth: '850px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '45px',
+
           }}
-          variant='text'
         >
-          Decline/Ignore Recommendation Request
-        </Button>
-      </Box>
-      <Typography
-        sx={{
-          flexShrink: 1,
-          fontFamily: 'Inter',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          lineHeight: '19.2px',
-          m: '0 3px 0 15px'
-        }}
-      >
-        Here’s what you may need before getting started:
-      </Typography>
-      <Box
-        sx={{ display: 'flex', flexDirection: 'column', minWidth: '210px', gap: '15px' }}
-      >
-        {featuresRecommendations(credentialSubject?.person?.name).map(
-          (feature: { id: any; name: any; description: any }) => (
-            <Box
-              key={feature.id}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+            <Typography
               sx={{
-                display: 'flex',
-                lineHeight: 'normal',
-                alignItems: 'center',
-                width: '100%'
+                fontFamily: 'Poppins',
+                fontSize: { xs: '32px', sm: '48px' },
+                fontWeight: 'bold',
+                lineHeight: '48px',
+                color: '#202E5B',
+                maxWidth: '810px'
               }}
             >
-              <SVGCheckMarks />
+              {fullName} has requested a recommendation from you!
+            </Typography>
+
+            <Typography
+              sx={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '18px',
+                color: '#4A5565',
+                maxWidth: '810px',
+                lineHeight: '28px',
+                letterSpacing: '-0.44px',
+                padding: '10px'
+              }}
+            >
+              Your endorsement will help {fullName} showcase her skills and advance her career
+            </Typography>
+
+            <Box sx={{ ...estimatedTimeBannerStyles }}>
+              <AccessTimeIcon sx={{ fontSize: '20px' }} />
+              <Typography >
+                <Box component='span' sx={{ fontWeight: 'bold' }}>
+                  Estimated time:{' '}
+                </Box>
+                2-3 minutes
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Skill Claim Section */}
+          <Box
+            sx={{
+              width: '100%',
+              backgroundColor: '#F9F9F9',
+              p: { xs: 3, sm: '30px' },
+              borderRadius: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: '30px',
+              textAlign: 'left'
+            }}
+          >
+            <Box>
               <Typography
                 sx={{
-                  color: theme.palette.t3BodyText,
-                  flexShrink: 1,
                   fontFamily: 'Inter',
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  lineHeight: '21.6px',
-                  m: '0 5px 0 15px'
+                  fontSize: '24px',
+                  fontWeight: 700,
+                  lineHeight: 'auto',
+                  color: 't3BodyText'
                 }}
               >
-                {feature.name}
+                Verifiable skill claim
               </Typography>
-              <InfoOutlinedIcon
+              <Typography
                 sx={{
-                  width: '15px',
-                  height: '15px',
-                  mt: '3px',
-                  cursor: 'pointer',
-                  color: theme.palette.primary.main
+                  fontFamily: 'Inter',
+                  fontSize: '16px',
+                  lineHeight: 'auto',
+                  letterSpacing: '-0.15px',
+                  color: '#4A5565'
                 }}
-                aria-label={`More information about ${feature.name}`}
-                titleAccess={`More information about ${feature.name}`}
-              />
+              >
+                Your recommendation will be publicly visible and add credibility to {fullName}’s skill claim.
+              </Typography>
             </Box>
-          )
-        )}
+
+            <Box sx={{ width: '100%' }}>
+              <ComprehensiveClaimDetails minimized={true} />
+            </Box>
+          </Box>
+
+          {/* Action Buttons */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: '24px',
+              width: '100%',
+              justifyContent: 'center',
+            }}
+          >
+            <Button
+              variant='contained'
+              onClick={handleClick}
+              startIcon={<CreateIcon />}
+              sx={{
+                ...primaryButtonStyles,
+                minWidth: { sm: '300px' },
+                height: '54px'
+              }}
+            >
+              Write your recommendation
+            </Button>
+            <Button
+              variant='outlined'
+              onClick={handleDeclineRequest}
+              sx={{
+                ...secondaryButtonStyles,
+                minWidth: { sm: '300px' },
+              }}
+            >
+              Decline
+            </Button>
+          </Box>
+        </Box>
       </Box>
+
+      {/* Sections imported from page.tsx */}
+      <JobSeekersSection showCreatedByLine={true} />
+      <FeaturesGridSection />
     </Box>
   )
 }

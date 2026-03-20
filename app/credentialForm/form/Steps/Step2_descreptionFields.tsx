@@ -22,15 +22,39 @@ import {
   customTextFieldStyles,
   requiredLabelStyles,
   UseAIStyles,
-  sectionValueStyles
+  sectionValueStyles,
+  pageTitleStyles,
+  formLabelRowStyles,
+  tooltipIconStyles,
+  tipTextStyles,
+  focusedTextFieldStyles,
+  infoBannerStyles,
+  infoBannerTextStyles,
+  sectionHeadingStyles,
+  linkInputFieldStyles,
+  addLinkButtonBaseStyles,
+  addLinkButtonActiveStyles,
+  addLinkButtonDisabledStyles,
+  savedLinkRowStyles,
+  savedLinkTextStyles,
+  linkDeleteButtonStyles,
+  uploadClickTextStyles,
+  uploadDragTextStyles,
+  uploadHintTextStyles,
+  evidenceLinkContainerStyles,
+  evidenceTipBoxStyles,
+  evidenceTipBoxTextStyles,
+  CardStyle,
+  StyledTipBox,
+  featuredImageBadgeStyles
 } from '../../../components/Styles/appStyles'
+import StarIcon from '@mui/icons-material/Star'
 import { HighlightedTextArea } from '../../../components/inputs/HighlightedTextArea'
 import { UseFormRegister, FieldErrors, Controller } from 'react-hook-form'
 import { FormData, FileItem } from '../types/Types'
 import { StepTrackShape } from '../fromTexts & stepTrack/StepTrackShape'
-import { SVGDescribeBadge, SVGSparkles, SVGUploadMedia, LightbulbSVG } from '../../../Assets/SVGs'
+import { SVGDescribeBadge, SVGSparkles, SVGUploadMedia, LightbulbSVG, InsertLinkIcon } from '../../../Assets/SVGs'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import InsertLinkIcon from '@mui/icons-material/InsertLink'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useStepContext } from '../StepContext'
 import useGoogleDrive from '../../../hooks/useGoogleDrive'
@@ -124,8 +148,13 @@ export function Step2({
 
   const handleReorder = useCallback(
     (reorderedFiles: FileItem[]) => {
-      setFiles(reorderedFiles)
-      setSelectedFiles(reorderedFiles)
+      // Ensure the first item is always the featured one
+      const updatedFiles = reorderedFiles.map((file, idx) => ({
+        ...file,
+        isFeatured: idx === 0
+      }))
+      setFiles(updatedFiles)
+      setSelectedFiles(updatedFiles)
     },
     [setSelectedFiles]
   )
@@ -180,14 +209,13 @@ export function Step2({
 
   const setAsFeatured = useCallback(
     (id: string) => {
-      const updateFiles = (prevFiles: FileItem[]) =>
-        prevFiles
-          .map(file => ({ ...file, isFeatured: file.id === id }))
-          .sort((a, b) => (a.isFeatured === b.isFeatured ? 0 : a.isFeatured ? -1 : 1))
-      setFiles(updateFiles)
-      setSelectedFiles(updateFiles)
+      const updatedFiles = files
+        .map(file => ({ ...file, isFeatured: file.id === id }))
+        .sort((a, b) => (a.isFeatured === b.isFeatured ? 0 : a.isFeatured ? -1 : 1))
+      setFiles(updatedFiles)
+      setSelectedFiles(updatedFiles)
     },
-    [setSelectedFiles]
+    [files, setSelectedFiles]
   )
 
   const matchesId = useCallback(
@@ -329,17 +357,16 @@ export function Step2({
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '32px',
+        gap: '24px',
         alignItems: 'center',
         width: '100%',
         maxWidth: '100%',
-        padding: '32px 32px 0px 32px'
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
         <SVGDescribeBadge width="56" height="56" />
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <Typography sx={{ fontFamily: 'Inter', fontSize: '28px', fontWeight: 700, color: '#000e40', lineHeight: '1.2' }}>
+          <Typography sx={pageTitleStyles}>
             Document Your Skill
           </Typography>
           <StepTrackShape />
@@ -347,12 +374,12 @@ export function Step2({
       </Box>
 
       <Box sx={{ width: '100%' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', mb: '7px' }}>
+        <Box sx={formLabelRowStyles}>
           <FormLabel sx={{ ...formLabelStyles, mb: 0 }} id='name-label'>
             What skill do you want to claim? <span style={requiredLabelStyles}>(required)</span>
           </FormLabel>
           <Tooltip title='Enter the name of the skill you want to verify'>
-            <InfoOutlinedIcon sx={{ color: '#3B82F6', fontSize: '20px', cursor: 'pointer' }} />
+            <InfoOutlinedIcon sx={tooltipIconStyles} />
           </Tooltip>
         </Box>
 
@@ -377,13 +404,7 @@ export function Step2({
                   placeholder='e.g., Welding, Customer Service...'
                   variant='outlined'
                   sx={{
-                    ...TextFieldStyles,
-                    '& .MuiOutlinedInput-root': {
-                      ...TextFieldStyles['& .MuiOutlinedInput-root'],
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#2DD4BF'
-                      }
-                    },
+                    ...focusedTextFieldStyles,
                     '& .MuiInputBase-input::placeholder': {
                     }
                   }}
@@ -403,12 +424,12 @@ export function Step2({
       </Box>
 
       <Box sx={{ width: '100%' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', mb: '7px' }}>
+        <Box sx={formLabelRowStyles}>
           <FormLabel sx={formLabelStyles} id='duration-label'>
             Years of Experience <span style={requiredLabelStyles}>(required)</span>
           </FormLabel>
           <Tooltip title='Enter the years of experience you had with this skill'>
-            <InfoOutlinedIcon sx={{ color: '#3B82F6', fontSize: '20px', cursor: 'pointer' }} />
+            <InfoOutlinedIcon sx={tooltipIconStyles} />
           </Tooltip>
         </Box>
         <TextField
@@ -417,13 +438,7 @@ export function Step2({
           placeholder='e.g., <1 year, 5 years, etc.'
           variant='outlined'
           sx={{
-            ...TextFieldStyles,
-            '& .MuiOutlinedInput-root': {
-              ...TextFieldStyles['& .MuiOutlinedInput-root'],
-              '&.Mui-focused fieldset': {
-                borderColor: '#2DD4BF'
-              }
-            },
+            ...focusedTextFieldStyles,
             '& .MuiInputBase-input::placeholder': {
             }
           }}
@@ -437,18 +452,23 @@ export function Step2({
         />
       </Box>
 
-      <Box position='relative' width='100%'>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', mb: '7px' }}>
-          <FormLabel sx={{ ...formLabelStyles, mb: '4px' }} id='description-label'>
-            Skill Description <span style={requiredLabelStyles}>(required)</span>
-          </FormLabel>
-          <Tooltip title='Enter the description of the skill you want to verify'>
-            <InfoOutlinedIcon sx={{ color: '#3B82F6', fontSize: '20px', cursor: 'pointer' }} />
-          </Tooltip>
+      <Box position='relative' width='100%' sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box sx={formLabelRowStyles}>
+            <FormLabel sx={{ ...formLabelStyles }} id='description-label'>
+              Skill Description <span style={requiredLabelStyles}>(required)</span>
+            </FormLabel>
+          </Box>
+          <Typography sx={tipTextStyles}>
+            Tip: For best results, mention skills, tools, and technologies.
+          </Typography>
         </Box>
-        <Typography sx={{ fontFamily: 'Inter', fontSize: '14px', color: '#6B7280', mb: '8px' }}>
-          Tip: For best results, mention skills, tools, and technologies.
-        </Typography>
+        <Box sx={evidenceTipBoxStyles}>
+          <LightbulbSVG />
+          <Typography sx={evidenceTipBoxTextStyles}>
+            As you enter your skill description, skill suggestions are generated using AI processing on LinkedCreds-hosted infrastructure. Your narrative is not sent to external AI providers and we do not retain any of your data.
+          </Typography>
+        </Box>
         <Controller
           name='credentialDescription'
           control={control}
@@ -477,71 +497,79 @@ export function Step2({
 
       </Box>
 
-      {/* Merged Evidence Section */}
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{
-          backgroundColor: '#EFF6FF',
-          borderRadius: '8px',
-          padding: '16px',
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'flex-start',
-          mb: '24px'
-        }}>
-          <InfoOutlinedIcon sx={{ color: '#3B82F6' }} />
-          <Typography sx={{ fontFamily: 'Inter', fontSize: '14px', color: '#1F2937' }}>
-            <span style={{ fontWeight: 600 }}>Optional step:</span> Adding evidence helps others verify your skills, you can skip this step, but will not be able to add evidence later.
-          </Typography>
-        </Box>
+      {/* Evidence Section */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography sx={sectionHeadingStyles}>
+              Evidence <span style={{ color: '#6B7280' }}>(optional)</span>
+            </Typography>
+            <Typography sx={{ ...tipTextStyles, }}>
+              Adding evidence helps others verify your skills, you can skip this step, but will not be able to add evidence later.
+            </Typography>
+          </Box>
 
-        <Typography sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: 700, color: '#000e40', mb: '8px' }}>
-          Upload Files
-        </Typography>
+          <Box sx={evidenceTipBoxStyles}>
+            <LightbulbSVG />
+            <Typography sx={evidenceTipBoxTextStyles}>
+              Use the arrows to change the order of an image or place it in the first position as a featured image.
+              Featured images serve as the main image for your skill and may also serve as supporting evidence unless you elect to exclude them.
+            </Typography>
+          </Box>
 
-        <Box
-          display='flex'
-          flexDirection='column'
-          bgcolor='#FFFFFF'
-          gap={3}
-          borderRadius={2}
-          width='100%'
-        >
-          <Box width='100%'>
-            <CardStyle variant='outlined' {...getRootProps()} isDragActive={isDragActive} onClick={open} sx={{ cursor: 'pointer' }}>
-              <input {...getInputProps()} />
-              <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                <SVGUploadMedia />
-                <Box>
-                  <Typography component="span" sx={{ color: '#3B82F6', fontWeight: 600, fontFamily: 'Inter', fontSize: '16px' }}>
-                    Click to upload
-                  </Typography>
-                  <Typography component="span" sx={{ color: '#4B5563', fontFamily: 'Inter', fontSize: '16px' }}>
-                    {' '}or drag and drop
+          <Box
+            display='flex'
+            flexDirection='column'
+            bgcolor='#FFFFFF'
+            gap={3}
+            borderRadius={2}
+            width='100%'
+          >
+            <Box width='100%'>
+              <CardStyle variant='outlined' {...getRootProps()} isDragActive={isDragActive} onClick={open} sx={{ cursor: 'pointer' }}>
+                <input {...getInputProps()} />
+                <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                  <SVGUploadMedia />
+                  <Box>
+                    <Typography component="span" sx={uploadClickTextStyles}>
+                      Click to upload
+                    </Typography>
+                    <Typography component="span" sx={uploadDragTextStyles}>
+                      {' '}or drag and drop
+                    </Typography>
+                  </Box>
+                  <Typography sx={uploadHintTextStyles}>
+                    PDF, Images, or Documents (max 10MB each)
                   </Typography>
                 </Box>
-                <Typography sx={{ color: '#6B7280', fontFamily: 'Inter', fontSize: '12px' }}>
-                  PDF, Images, or Documents (max 10MB each)
-                </Typography>
-              </Box>
-            </CardStyle>
+              </CardStyle>
 
-            {selectedFiles.length > 0 && (
-              <Box sx={{ mt: 3 }}>
-                <FileListDisplay
-                  files={[...selectedFiles]}
-                  onDelete={handleDelete}
-                  onNameChange={handleNameChange}
-                  onSetAsFeatured={setAsFeatured}
-                  onReorder={handleReorder}
-                />
+              {selectedFiles.length > 0 && (
+                <Box sx={{ mt: 3 }}>
+                  <FileListDisplay
+                    files={[...selectedFiles]}
+                    onDelete={handleDelete}
+                    onNameChange={handleNameChange}
+                    onSetAsFeatured={setAsFeatured}
+                    onReorder={handleReorder}
+                  />
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </Box>
+        <Box sx={evidenceLinkContainerStyles}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Typography sx={{ ...formLabelStyles, }}>
+              Add Evidence Link
+            </Typography>
+            {selectedFiles.length === 0 && links.length === 1 && (
+              <Box sx={featuredImageBadgeStyles}>
+                Featured Image
+                <StarIcon sx={{ fontSize: '14px' }} />
               </Box>
             )}
           </Box>
-        </Box>
-        <Box sx={{ backgroundColor: '#EFF6FF', p: '16px', borderRadius: '14px', mt: '32px', mb: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <Typography sx={{ ...formLabelStyles, }}>
-            Add Evidence Link
-          </Typography>
           {(() => {
             const index = links.length - 1
             const link = links[index]
@@ -558,28 +586,10 @@ export function Step2({
                   value={link.name}
                   onChange={(e) => handleLinkChange(index, 'name', e.target.value)}
                   variant="outlined"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: '#FFFFFF',
-                      borderRadius: '8px',
-                      height: '48px',
-                      '& fieldset': { borderColor: '#E5E7EB' },
-                      '&:hover fieldset': { borderColor: '#9CA3AF' },
-                      '&.Mui-focused fieldset': { borderColor: '#2563EB' },
-                    },
-                    '& .MuiInputBase-input': {
-                      color: '#1F2937',
-                      fontFamily: 'Inter',
-                      paddingLeft: '12px'
-                    },
-                    '& .MuiInputBase-input::placeholder': {
-                      color: '#9CA3AF',
-                      opacity: 1
-                    }
-                  }}
+                  sx={linkInputFieldStyles}
                 />
                 {/* URL Field + Add Button */}
-                <Box sx={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                   <TextField
                     fullWidth
                     placeholder="URL (e.g., 'https://...')"
@@ -589,55 +599,16 @@ export function Step2({
                     variant="outlined"
                     error={!!urlErrors[index]}
                     helperText={urlErrors[index]}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: '#FFFFFF',
-                        borderRadius: '8px',
-                        height: '48px',
-                        '& fieldset': { borderColor: '#E5E7EB' },
-                        '&:hover fieldset': { borderColor: '#9CA3AF' },
-                        '&.Mui-focused fieldset': { borderColor: '#2563EB' },
-                      },
-                      '& .MuiInputBase-input': {
-                        color: '#1F2937',
-                        fontFamily: 'Inter',
-                        paddingLeft: '12px'
-                      },
-                      '& .MuiInputBase-input::placeholder': {
-                        color: '#9CA3AF',
-                        opacity: 1
-                      }
-                    }}
+                    sx={linkInputFieldStyles}
                   />
                   <Button
                     onClick={handleAddLink}
                     disabled={!isActive}
                     variant="outlined"
                     sx={{
-                      minWidth: '80px',
-                      height: '48px',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      fontFamily: 'Inter',
-                      borderRadius: '8px',
-                      borderColor: '#E5E7EB',
-                      color: '#374151',
-                      backgroundColor: '#F3F4F6',
-
-                      ...(isActive && {
-                        color: '#FFFFFF',
-                        borderColor: '#2563EB',
-                        backgroundColor: '#2563EB',
-                        '&:hover': {
-                          backgroundColor: '#1d4ed8',
-                          borderColor: '#1d4ed8'
-                        }
-                      }),
-                      ...(!isActive && {
-                        color: '#9CA3AF',
-                        borderColor: '#F3F4F6',
-                        backgroundColor: '#FFFFFF',
-                      })
+                      ...addLinkButtonBaseStyles,
+                      ...(isActive && addLinkButtonActiveStyles),
+                      ...(!isActive && addLinkButtonDisabledStyles)
                     }}
                   >
                     + Add
@@ -646,40 +617,16 @@ export function Step2({
               </Box>
             )
           })()}
-          {/* 
-          <Typography sx={{ fontFamily: 'Inter', fontSize: '12px', color: '#6B7280', mb: '16px' }}>
-            Press Enter to add link
-          </Typography> */}
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {links.slice(0, links.length - 1).map((link, index) => (
             <Box
               key={link.id}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '0px 16px',
-                backgroundColor: '#F3F4F6',
-                borderRadius: '8px',
-                width: '100%',
-                height: '48px',
-                border: '1px solid #E5E7EB'
-              }}
+              sx={savedLinkRowStyles}
             >
-              <InsertLinkIcon sx={{ color: '#2563EB', transform: 'rotate(-45deg)' }} />
+              <InsertLinkIcon />
               <Typography
-                sx={{
-                  flex: 1,
-                  fontFamily: 'Inter',
-                  fontSize: '14px',
-                  color: '#2563EB',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
+                sx={savedLinkTextStyles}
               >
                 <a href={link.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
                   {link.name || link.url}
@@ -687,14 +634,7 @@ export function Step2({
               </Typography>
               <IconButton
                 onClick={() => handleRemoveLink(index)}
-                sx={{
-                  color: '#6B7280',
-                  padding: '4px',
-                  '&:hover': {
-                    color: '#EF4444',
-                    backgroundColor: '#F3F4F6'
-                  }
-                }}
+                sx={linkDeleteButtonStyles}
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
@@ -709,38 +649,3 @@ export function Step2({
   )
 }
 
-const CardStyle = styled(Card, {
-  shouldForwardProp: (prop) => prop !== 'isDragActive'
-})<{ isDragActive?: boolean }>(
-  ({ isDragActive = false }) => ({
-    padding: '40px 20px',
-    cursor: 'default',
-    width: '100%',
-    transition: 'all 0.3s ease',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    borderRadius: '12px',
-    gap: 2,
-    border: isDragActive ? '2px dashed #2563EB' : '1px solid #D1D5DB',
-    backgroundColor: isDragActive ? '#f0f9ff' : '#FFFFFF',
-    boxShadow: 'none',
-    '&:hover': {
-      borderColor: '#9CA3AF'
-    }
-  })
-)
-
-const StyledTipBox = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: '24px',
-  width: '100%',
-  maxWidth: '800px',
-  gap: '1rem',
-  marginTop: theme.spacing(2),
-  backgroundColor: '#DDF4FF',
-  padding: '0.6rem 1rem',
-  borderRadius: '1rem'
-}))

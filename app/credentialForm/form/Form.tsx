@@ -7,7 +7,6 @@ import { FormControl, Box, Slide, Button, Typography } from '@mui/material'
 import { FormData } from './types/Types'
 import { Step0 } from './Steps/Step0_connectToGoogle'
 import { Buttons } from './buttons/Buttons'
-// import DataComponent from './Steps/dataPreview' // No longer needed
 import { createDID, signCred } from '../../utils/credential'
 import { ISkillClaimCredential } from 'hr-context'
 import { GoogleDriveStorage, saveToGoogleDrive, CredentialEngine } from '@cooperation/vc-storage'
@@ -17,7 +16,6 @@ import { saveSession } from '../../utils/saveSession'
 import SnackMessage from '../../components/SnackMessage'
 import { useStepContext } from './StepContext'
 import SuccessPage from './Steps/SuccessPage'
-// import FileUploadAndList from './Steps/Step3_uploadEvidence' // Removed
 import { Step1 } from './Steps/Step1_userName'
 import { Step2 } from './Steps/Step2_descreptionFields'
 import { storeFileTokens } from '../../firebase/storage'
@@ -228,7 +226,6 @@ const Form = ({ onStepChange }: any) => {
 
   const handleFormSubmit = handleSubmit(async (data: FormData) => {
     try {
-      console.log('🚀 ~ Form ~ data:', data)
       await sign(data)
     } catch (error: any) {
       if (error.message === 'MetaMask address could not be retrieved') {
@@ -262,7 +259,6 @@ const Form = ({ onStepChange }: any) => {
         },
         type: 'DID'
       })
-      console.log('🚀 ~ sign ~ saveResponse:', saveResponse)
 
       const result = await signCred(
         accessToken,
@@ -277,7 +273,6 @@ const Form = ({ onStepChange }: any) => {
         undefined,
         true
       ) as { signedVC: ISkillClaimCredential; file: any }
-      console.log('🚀 ~ sign ~ result:', result)
 
       const res = result.signedVC
       const file = result.file
@@ -295,7 +290,6 @@ const Form = ({ onStepChange }: any) => {
         localStorage.removeItem('vcs')
       } catch (error) {
         console.warn('Error storing file tokens:', error)
-        //TODO: throw error (warn->error)
       }
 
       const folderIds = await storage?.getFileParents(file.id)
@@ -305,11 +299,13 @@ const Form = ({ onStepChange }: any) => {
       setLink(`https://drive.google.com/file/d/${file.id}/view`)
       setFileId(`${file.id}`)
 
-      console.log('🚀 ~ handleFormSubmit ~ res:', res)
       setRes(res)
       return res
     } catch (error: any) {
       console.error('Error during signing process:', error)
+      if (error.message?.includes('invalid authentication credentials') || error.message?.includes('401')) {
+        setErrorMessage('Your Google session has expired. Please sign in again.')
+      }
       throw error
     }
   }
@@ -329,25 +325,68 @@ const Form = ({ onStepChange }: any) => {
     }
   }
 
+  if ((session as any)?.error === 'RefreshAccessTokenError') {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '60vh',
+          gap: 2,
+          px: 4,
+          textAlign: 'center',
+          backgroundColor: '#FFF',
+          borderRadius: '14px',
+          boxShadow: '0 6px 6px rgba(0, 0, 0, 0.25)',
+          m: { xs: '24px auto', sm: '40px auto', md: '80px auto' },
+          maxWidth: '872px'
+        }}
+      >
+        <Typography variant='h6' color='error'>
+          Your Google Drive session has expired.
+        </Typography>
+        <Typography variant='body1'>
+          To sign and save your credentials, please sign in again to refresh your permissions.
+        </Typography>
+        <Button
+          variant='contained'
+          onClick={() => signIn('google')}
+          sx={{
+            mt: 2,
+            backgroundColor: '#2563EB',
+            textTransform: 'none',
+            borderRadius: '8px',
+            '&:hover': {
+              backgroundColor: '#1D4ED8'
+            }
+          }}
+        >
+          Sign In with Google
+        </Button>
+      </Box>
+    )
+  }
+
   return (
     <Box
       sx={{
         m: { xs: '24px auto', sm: '40px auto', md: '80px auto' },
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
-        gap: { xs: 3, md: '80px' },
+        gap: { xs: 3, md: '30px' },
         alignItems: { xs: 'stretch', md: 'flex-start' },
         justifyContent: 'center',
         width: '100%',
         maxWidth: { xs: '100%', md: '1280px' },
-        px: { xs: 2, sm: 3, md: 4 }
       }}
     >
       <Box
         sx={{
           flex: 1,
-          maxWidth: activeStep === 4 ? '100%' : '800px',
-          width: '100%'
+          maxWidth: activeStep === 4 ? '100%' : '872px',
+          width: activeStep === 4 ? '100%' : { xs: '100%', md: '872px' }
         }}
       >
         <Box
@@ -425,9 +464,6 @@ const Form = ({ onStepChange }: any) => {
                         removedSkills: removedSkills
                       }}
                       selectedFiles={selectedFiles}
-                      currentStep={activeStep}
-                      onSkillsChange={setActiveSkills}
-                      onRemovedSkillsChange={setRemovedSkills}
                       onBack={costumedHandleBackStep}
                     />
                   </Box>
@@ -487,7 +523,7 @@ const Form = ({ onStepChange }: any) => {
       {activeStep >= 1 && activeStep < 3 && (
         <Box
           sx={{
-            width: { xs: '100%', md: '350px' },
+            width: { xs: '100%', md: '384px' },
             mt: { xs: 4, md: 0 },
             alignSelf: { xs: 'stretch', md: 'auto' }
           }}
@@ -512,11 +548,7 @@ const Form = ({ onStepChange }: any) => {
                 removedSkills: removedSkills
               }}
               selectedFiles={selectedFiles}
-              currentStep={activeStep}
-              onSkillsChange={setActiveSkills}
-              onRemovedSkillsChange={setRemovedSkills}
-              onManualSkillsChange={setManuallyAddedSkills}
-              manuallyAddedSkills={manuallyAddedSkills}
+               onBack={costumedHandleBackStep}
             />
           )}
         </Box>

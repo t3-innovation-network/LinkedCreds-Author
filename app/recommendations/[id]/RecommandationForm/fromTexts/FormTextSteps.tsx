@@ -42,25 +42,18 @@ export const StorageText =
 export const featuresRecommendations = (fullName: string) => [
   {
     id: 1,
-    name: `How you know ${fullName}`,
-    description: `Provide details on how you know ${fullName}, including the context of your relationship and the duration.`
+    name: 'A little background on who you are',
+    description: 'Provide some background information about yourself.'
   },
   {
     id: 2,
-    name: 'Proof of your qualifications',
-    description:
-      'Attach or mention any relevant qualifications or certifications that support your expertise.'
+    name: `How you know ${fullName}`,
+    description: `Provide details on how you know ${fullName}.`
   },
   {
     id: 3,
-    name: `Comment on ${fullName}’s skills`,
+    name: 'Your recommendation',
     description: `Share specific examples of ${fullName}'s skills, strengths, and contributions in relevant projects or roles.`
-  },
-  {
-    id: 4,
-    name: 'Any additional evidence, if available',
-    description:
-      'Include any other supporting documents or evidence that can strengthen the recommendation.'
   }
 ]
 

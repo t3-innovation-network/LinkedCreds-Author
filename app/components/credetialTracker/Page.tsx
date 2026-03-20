@@ -1,26 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import {
   Box,
   Typography,
-  Paper,
-  styled,
-  Card,
-  CardContent,
   Divider,
   Button
 } from '@mui/material'
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
-import InsertLinkIcon from '@mui/icons-material/InsertLink'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { FormData } from '../../credentialForm/form/types/Types'
-import { Logo, SVGSparkles, SVGSparklesBlue, SVGDescribeBadge } from '../../Assets/SVGs'
+import { SVGSparklesBlue, SVGDescribeBadge, DescriptionOutlinedIcon, InsertLinkIcon } from '../../Assets/SVGs'
 import Image from 'next/image'
 import { SkillMatch } from '../../utils/skillsApi'
-import { GlobalWorkerOptions } from 'pdfjs-dist'
+import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import {
   sectionLabelStyles,
   sectionValueStyles,
-  sectionDescriptionStyles,
   PreviewCard,
   CredentialContent,
   StepIndicator,
@@ -38,8 +31,65 @@ import {
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
 // Helper functions for file type detection
-const isPDF = (fileName: string) => fileName.toLowerCase().endsWith('.pdf')
-const isMP4 = (fileName: string) => fileName.toLowerCase().endsWith('.mp4')
+const isPDF = (fileName: string) => fileName?.toLowerCase().endsWith('.pdf')
+const isMP4 = (fileName: string) => fileName?.toLowerCase().endsWith('.mp4')
+
+// PDF thumbnail generation
+const renderPDFThumbnail = async (fileUrl: string): Promise<string> => {
+    try {
+        const loadingTask = getDocument({ url: fileUrl })
+        const pdf = await loadingTask.promise
+        const page = await pdf.getPage(1)
+        const viewport = page.getViewport({ scale: 1 })
+        const canvas = document.createElement('canvas')
+        const context = canvas.getContext('2d')
+        if (!context) throw new Error('Could not get 2D context')
+
+        canvas.height = viewport.height
+        canvas.width = viewport.width
+        await page.render({ canvasContext: context, viewport }).promise
+        return canvas.toDataURL()
+    } catch (error) {
+        console.error('Error rendering PDF thumbnail:', error)
+        return '/fallback-pdf-thumbnail.svg'
+    }
+}
+
+// Video thumbnail generation
+const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const video = document.createElement('video')
+        video.src = videoUrl
+        video.addEventListener(
+            'loadeddata',
+            () => {
+                video.currentTime = 1
+            },
+            { once: true }
+        )
+        video.addEventListener(
+            'seeked',
+            () => {
+                const canvas = document.createElement('canvas')
+                canvas.width = video.videoWidth
+                canvas.height = video.videoHeight
+                const ctx = canvas.getContext('2d')
+                if (!ctx) {
+                    reject(new Error('Could not get 2D canvas context'))
+                    return
+                }
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+                const dataURL = canvas.toDataURL('image/png')
+                resolve(dataURL)
+            },
+            { once: true }
+        )
+
+        video.addEventListener('error', e => {
+            reject(e)
+        })
+    })
+}
 
 interface CredentialTrackerProps {
   formData?: FormData
@@ -49,28 +99,86 @@ interface CredentialTrackerProps {
     url: string
     isFeatured?: boolean
   }[]
-  onSkillsChange?: (skills: SkillMatch[]) => void
-  onRemovedSkillsChange?: (skills: SkillMatch[]) => void
-  onManualSkillsChange?: (skills: SkillMatch[]) => void
-  manuallyAddedSkills?: SkillMatch[]
-  currentStep?: number
   onBack?: () => void
 }
 
 const CredentialTracker: React.FC<CredentialTrackerProps> = ({
   formData,
   selectedFiles = [],
-  currentStep = 2,
   onBack
 }) => {
   const [pdfThumbnails, setPdfThumbnails] = useState<Record<string, string>>({})
   const [videoThumbnails, setVideoThumbnails] = useState<Record<string, string>>({})
 
-  // Use props directly for display in final preview
+  // Generate thumbnails for PDFs and Videos
+  useEffect(() => {
+    selectedFiles.forEach(async (file) => {
+      if (file.url) {
+        if (isPDF(file.name) && !pdfThumbnails[file.id]) {
+          const thumb = await renderPDFThumbnail(file.url)
+          setPdfThumbnails(prev => ({ ...prev, [file.id]: thumb }))
+        } else if (isMP4(file.name) && !videoThumbnails[file.id]) {
+          try {
+            const thumb = await generateVideoThumbnail(file.url)
+            setVideoThumbnails(prev => ({ ...prev, [file.id]: thumb }))
+          } catch (e) {
+            console.error("Error generating video thumbnail", e)
+          }
+        }
+      }
+    })
+  }, [selectedFiles])
+
   const selectedSkills = formData?.skills || []
 
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0)
   const [isHoveringMedia, setIsHoveringMedia] = useState<boolean>(false)
+
+  // Memoized supporting evidence links
+  const uniqueLinks = useMemo(() => {
+    const links: { name: string; url: string; hasId: boolean }[] = []
+    const seenUrls = new Set<string>()
+
+    const normalize = (val: any) => {
+      if (!val || typeof val !== 'string') return ''
+      let u = val.trim().toLowerCase()
+      if (!u.startsWith('http') && !u.startsWith('blob:')) u = 'https://' + u
+      if (u.endsWith('/')) u = u.slice(0, -1)
+      return u
+    }
+
+    // 1. Files from selectedFiles
+    selectedFiles.forEach(file => {
+      const nUrl = normalize(file.url)
+      if (nUrl && !seenUrls.has(nUrl)) {
+        links.push({
+          name: file.name || 'View File',
+          url: file.url,
+          hasId: !!(file as any).googleId || !!(file as any).wasId
+        })
+        seenUrls.add(nUrl)
+      }
+    })
+
+    // 2. Manual links from formData.evidence
+    if (formData?.evidence && Array.isArray(formData.evidence)) {
+      formData.evidence.forEach(item => {
+        const isManual = !item.googleId && !item.wasId
+        if (isManual) {
+          const nUrl = normalize(item.url)
+          if (nUrl && !seenUrls.has(nUrl)) {
+            links.push({
+              name: item.name || item.url,
+              url: item.url,
+              hasId: false
+            })
+            seenUrls.add(nUrl)
+          }
+        }
+      })
+    }
+    return links
+  }, [selectedFiles, formData?.evidence])
 
 
   // Image gallery navigation handlers
@@ -188,21 +296,21 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                       src={pdfThumbnails[currentDisplayFile.id] ?? '/fallback-pdf-thumbnail.svg'}
                       alt='PDF Preview'
                       fill
-                      style={{ objectFit: 'cover' }}
+                      style={{ objectFit: 'contain' }}
                     />
                   ) : isMP4(currentDisplayFile.name) ? (
                     <Image
                       src={videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'}
                       alt='Video Thumbnail'
                       fill
-                      style={{ objectFit: 'cover' }}
+                      style={{ objectFit: 'contain' }}
                     />
                   ) : (
                     <Image
                       src={currentDisplayFile.url}
                       alt='Featured Media'
                       fill
-                      style={{ objectFit: 'cover' }}
+                      style={{ objectFit: 'contain' }}
                     />
                   )}
 
@@ -237,7 +345,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                   src={formData.evidenceLink}
                   alt='Featured Media'
                   fill
-                  style={{ objectFit: 'cover' }}
+                  style={{ objectFit: 'contain' }}
                 />
               ) : null}
             </MediaContainer>
@@ -279,40 +387,50 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
               </EmptySkillsState>
             )}
           </Box>
-
-
           {/* Supporting Evidence Section */}
-          {((formData?.evidence && (formData.evidence as any[]).length > 0) || formData?.evidenceLink) && (
+          {uniqueLinks.length > 0 && (
             <Box>
               <SectionHeader>
-                Supporting Evidence
+                Supporting Documentation
               </SectionHeader>
+              {/* Thumbnails for Images */}
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px', mt: '8px', mb: '8px' }}>
+                {selectedFiles.map((file, idx) => (
+                  <Box
+                    key={file.id || idx}
+                    sx={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '6px',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      border: '1px solid #E2E8F0',
+                      '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' }
+                    }}
+                    onClick={() => window.open(file.url, '_blank')}
+                  >
+                    <Image
+                      src={pdfThumbnails[file.id] || videoThumbnails[file.id] || file.url}
+                      alt={file.name}
+                      width={60}
+                      height={60}
+                      style={{ objectFit: 'cover' }}
+                      unoptimized={!!(pdfThumbnails[file.id] || videoThumbnails[file.id] || file.url.startsWith('blob:') || file.url.startsWith('data:'))}
+                    />
+                  </Box>
+                ))}
+              </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mt: 1 }}>
-                {(() => {
-                  const evidenceItems = (formData?.evidence as any[]) || []
-                  const evidenceLink = formData?.evidenceLink
-
-                  // Check if evidenceLink is already in evidence to avoid duplicates
-                  const isLinkInEvidence = evidenceLink && evidenceItems.some(item => item.url === evidenceLink)
-
-                  // Create display list
-                  const displayItems: any[] = [...evidenceItems]
-                  if (evidenceLink && !isLinkInEvidence) {
-                    displayItems.push({ name: 'Media Link', url: evidenceLink })
+                {uniqueLinks.map((item, index) => {
+                  const isDocOrImage = (url: string) => {
+                    if (!url) return false
+                    return /\.(pdf|png|jpe?g|gif|webp|svg|doc|docx|xls|xlsx|ppt|pptx)$/i.test(url) ||
+                      url.includes('drive.google.com') ||
+                      url.startsWith('blob:') ||
+                      url.startsWith('data:')
                   }
 
-                  // Add selectedFiles (local previews) that aren't already in evidence
-                  if (selectedFiles && selectedFiles.length > 0) {
-                    selectedFiles.forEach(file => {
-                      // Avoid duplicates if file is already represented
-                      const exists = displayItems.some((p: any) => p.name === file.name)
-                      if (!exists) {
-                        displayItems.push({ name: file.name, url: file.url, isLocal: true })
-                      }
-                    })
-                  }
-
-                  return displayItems.map((item, index) => (
+                  return (
                     <Box
                       key={index}
                       component="a"
@@ -330,24 +448,25 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                         }
                       }}
                     >
-                      {!item.googleId && !item.wasId ? (
-                        <InsertLinkIcon style={{ transform: 'rotate(-45deg)' }} fontSize="small" />
+                      {isDocOrImage(item.url) ? (
+                        <DescriptionOutlinedIcon />
                       ) : (
-                        <DescriptionOutlinedIcon fontSize="small" />
+                        <InsertLinkIcon />
                       )}
                       <Typography
                         sx={{
                           fontFamily: 'Inter',
                           fontSize: '14px',
-                          fontWeight: 500
+                          fontWeight: 500,
+                          color: 'inherit'
                         }}
                       >
-                        {item.name || item.url}
+                        {item.name}
                       </Typography>
                       <OpenInNewIcon sx={{ fontSize: '14px' }} />
                     </Box>
-                  ))
-                })()}
+                  )
+                })}
               </Box>
             </Box>
           )}

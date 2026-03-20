@@ -26,7 +26,9 @@ import {
   NewCopy,
   NewLinkedin,
   SVGEmail,
-  SVGDescribeBadge
+  SVGDescribeBadge,
+  DescriptionOutlinedIcon,
+  InsertLinkIcon
 } from '../../../Assets/SVGs'
 import LoadingOverlay from '../../../components/Loading/LoadingOverlay'
 import { FormData } from '../../../credentialForm/form/types/Types'
@@ -35,9 +37,7 @@ import { useStepContext } from '../StepContext'
 import { useRouter } from 'next/navigation'
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import QRCode from "react-qr-code";
-import InsertLinkIcon from '@mui/icons-material/InsertLink'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
 import Link from 'next/link'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { OutlinedInput, InputAdornment, IconButton } from '@mui/material';
@@ -699,7 +699,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                             width: '100%',
                             height: '100%',
                             borderRadius: '16px',
-                            objectFit: 'cover'
+                            objectFit: 'contain'
                           }}
                         />
                       ) : isMP4(currentDisplayFile.name || currentDisplayFile.url) ? (
@@ -712,7 +712,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                             width: '100%',
                             height: '100%',
                             borderRadius: '16px',
-                            objectFit: 'cover'
+                            objectFit: 'contain'
                           }}
                         />
                       ) : (
@@ -725,7 +725,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                             width: '100%',
                             height: '100%',
                             borderRadius: '16px',
-                            objectFit: 'cover'
+                            objectFit: 'contain'
                           }}
                         />
                       )}
@@ -844,9 +844,9 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                       }}
                     >
                       {!item.googleId ? (
-                        <InsertLinkIcon style={{ transform: 'rotate(-45deg)' }} fontSize="small" />
+                        <InsertLinkIcon />
                       ) : (
-                        <DescriptionOutlinedIcon fontSize="small" />
+                        <DescriptionOutlinedIcon />
                       )}
                       <Typography
                         sx={{
@@ -992,7 +992,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                   disabled={!fileId}
                   fullWidth
                   variant="outlined"
-                  startIcon={<InsertLinkIcon sx={{ transform: 'rotate(-45deg)' }} />}
+                  startIcon={<InsertLinkIcon />}
                   sx={actionButtonStyles}
                 >
                   Copy URL

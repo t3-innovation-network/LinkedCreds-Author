@@ -26,7 +26,14 @@ const useGoogleDrive = () => {
 
   const getContent = useCallback(async (fileID: string) => {
     try {
-      const response = await fetch(`/api/drive/${fileID}`)
+      const headers: Record<string, string> = {}
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`
+      }
+
+      const response = await fetch(`/api/drive/${fileID}`, {
+        headers
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`)

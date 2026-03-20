@@ -19,6 +19,7 @@ import {
   Tooltip,
   useMediaQuery
 } from '@mui/material'
+import { useSession, signIn } from 'next-auth/react'
 import { getFileViaFirebase } from '../firebase/storage'
 import QRCode from 'qrcode'
 
@@ -136,6 +137,7 @@ const Page = () => {
   const [qrCodeDataUrlMobile, setQrCodeDataUrlMobile] = useState<string>('')
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const { data: session } = useSession()
 
   const SectionTitle = styled(Typography)(({ theme }) => ({
     fontSize: '0.875rem',
@@ -276,7 +278,7 @@ const Page = () => {
           return
         }
         // const recommendation = await storage?.retrieve(recId as string)
-        const recommendation = await getFileViaFirebase(recId)
+        const recommendation = await getFileViaFirebase(recId, session?.accessToken as string)
 
         if (!recommendation) {
           console.log('No recommendation file')
@@ -284,11 +286,12 @@ const Page = () => {
         }
         const recData = recommendation
 
-        if (!recommendation) {
-          console.log('No recommendation file')
-          return
+        let recBody = recData
+        if (recData?.body && typeof recData.body === 'string') {
+          recBody = JSON.parse(recData.body)
+        } else if (typeof recData === 'string') {
+          recBody = JSON.parse(recData)
         }
-        const recBody = recData?.body ? JSON.parse(recData?.body) : recData
 
         setRecommendation(recBody.credentialSubject)
       } catch (error) {
@@ -453,6 +456,38 @@ const Page = () => {
       return completeText
     }
     return initialText
+  }
+
+  if ((session as any)?.error === 'RefreshAccessTokenError') {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          gap: 2,
+          px: 4,
+          textAlign: 'center'
+        }}
+      >
+        <Typography variant='h6' color='error'>
+          Your Google Drive session has expired.
+        </Typography>
+        <Typography variant='body1'>
+          To provide or view recommendations, please sign in again to refresh your permissions.
+        </Typography>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={() => signIn('google')}
+          sx={{ borderRadius: '100px', textTransform: 'none', px: 4 }}
+        >
+          Sign In with Google
+        </Button>
+      </Box>
+    )
   }
 
   if (loading) {

@@ -13,7 +13,8 @@ const AccessibilityPolicy = () => {
         padding: '20px',
         gap: '20px',
         textAlign: 'left',
-        maxWidth: '800px',
+        maxWidth: '872px',
+        width: { xs: '100%', md: '872px' },
         margin: 'auto'
       }}
     >

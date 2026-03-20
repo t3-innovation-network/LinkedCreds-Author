@@ -1,6 +1,7 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react'
 import { Box, Typography, Paper, Divider, styled, Button } from '@mui/material'
-import { SVGDescribeBadge, SVGSparklesBlue, SVGSparkles } from '../../Assets/SVGs'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import { SVGDescribeBadge, SVGSparklesBlue, SVGSparkles, LightbulbSVG, DescriptionOutlinedIcon, InsertLinkIcon } from '../../Assets/SVGs'
 import RestoreIcon from '@mui/icons-material/Restore'
 import {
     previewContainerStyles,
@@ -9,7 +10,21 @@ import {
     placeholderTextStyles,
     previewHeaderStyles,
     previewTitleStyles,
-    previewSubtitleStyles
+    previewSubtitleStyles,
+    SkillBadgePill,
+    previewDividerStyles,
+    descriptionClampStyles,
+    viewMoreButtonStyles,
+    previewMediaContainerStyles,
+    carouselNavButtonStyles,
+    carouselCounterStyles,
+    skillRemoveButtonStyles,
+    manualSkillInputStyles,
+    addSkillButtonStyles,
+    removedSkillPillStyles,
+    sidebarHeaderStyles,
+    evidenceTipBoxStyles,
+    evidenceTipBoxTextStyles,
 } from '../Styles/appStyles'
 import { FormData } from '../../credentialForm/form/types/Types'
 import { SkillMatch, extractRawSkillsApi, searchSkillsApi } from '../../utils/skillsApi'
@@ -21,10 +36,19 @@ import { ensureProtocol } from '../../utils/urlValidation'
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
 // Helper functions for file type detection
-const isPDF = (fileName: string) => fileName.toLowerCase().endsWith('.pdf')
+const isPDF = (fileName: string) => fileName?.toLowerCase().endsWith('.pdf')
 const isMP4 = (fileName: string) => fileName.toLowerCase().endsWith('.mp4')
 const isGoogleDriveImageUrl = (url: string): boolean => {
     return /https:\/\/drive\.google\.com\/uc\?export=view&id=.+/.test(url)
+}
+
+// Helper to check if a URL is likely a file (doc or image)
+const isDocOrImage = (url: string) => {
+    if (!url) return false
+    return /\.(pdf|png|jpe?g|gif|webp|svg|doc|docx|xls|xlsx|ppt|pptx)$/i.test(url) ||
+        url.includes('drive.google.com') ||
+        url.startsWith('blob:') ||
+        url.startsWith('data:')
 }
 
 // PDF thumbnail generation
@@ -96,18 +120,6 @@ interface CredentialPreviewProps {
     currentStep?: number
 }
 
-// Reuse or adapt styled components from Page.tsx if they aren't in appStyles.tsx
-// For now, defining minimal needed styles locally or using Box/sx for speed and keeping it self-contained as requested.
-
-const FieldLabel = styled(Typography)(({ theme }) => ({
-    fontFamily: 'Inter',
-    fontSize: theme.breakpoints.down('sm') ? '14px' : '16px',
-    fontWeight: 700,
-    lineHeight: '24px',
-    color: '#000e40',
-    letterSpacing: '0.08px'
-}))
-
 const EmptySkillsState = styled(Box)(({ theme }) => ({
     width: '100%',
     backgroundColor: '#f2f8ff',
@@ -146,7 +158,51 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
     const [currentImageIndex, setCurrentImageIndex] = useState<number>(0)
     const [isHoveringMedia, setIsHoveringMedia] = useState<boolean>(false)
 
+
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
+
+    // Combined evidence (files + manual links) for the Supporting Documentation section
+    const uniqueLinks = useMemo(() => {
+        const links: { name: string; url: string; hasId?: boolean }[] = []
+        const seenUrls = new Set<string>()
+
+        const normalize = (val: any) => {
+            if (!val || typeof val !== 'string') return ''
+            let u = val.trim().toLowerCase()
+            if (!u.startsWith('http') && !u.startsWith('blob:')) u = 'https://' + u
+            if (u.endsWith('/')) u = u.slice(0, -1)
+            return u
+        }
+
+        // 1. Files from selectedFiles (maintains user's reorder)
+        selectedFiles.forEach(file => {
+            const nUrl = normalize(file.url)
+            if (nUrl && !seenUrls.has(nUrl)) {
+                links.push({ name: file.name || 'View File', url: file.url })
+                seenUrls.add(nUrl)
+            }
+        })
+
+        // 2. Manual links from formData.evidence (those without Drive/Was IDs)
+        if (formData?.evidence && Array.isArray(formData.evidence)) {
+            formData.evidence.forEach(item => {
+                const isManual = !item.googleId && !item.wasId
+                if (isManual) {
+                    const nUrl = normalize(item.url)
+                    if (nUrl && !seenUrls.has(nUrl)) {
+                        links.push({ name: item.name || item.url, url: item.url, hasId: false })
+                        seenUrls.add(nUrl)
+                    }
+                }
+            })
+        }
+
+        // 3. Mark selectedFiles as having ID
+        return links.map(l => {
+            const isFile = selectedFiles.find(f => normalize(f.url) === normalize(l.url))
+            return { ...l, hasId: !!isFile?.googleId || !!isFile?.wasId }
+        })
+    }, [selectedFiles, formData?.evidence])
 
     useEffect(() => {
         if (initialRemovedSkills && initialRemovedSkills.length > 0) {
@@ -188,7 +244,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
             } else {
                 setHasFetched(true)
             }
-        }, 500)
+        }, 200)
 
         return () => clearTimeout(timer)
     }, [formData?.credentialDescription, currentStep])
@@ -331,7 +387,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
     return (
         <Paper sx={previewContainerStyles} elevation={0}>
             <Box sx={previewHeaderStyles}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <Box sx={{ ...sidebarHeaderStyles, gap: '16px' }}>
                     <SVGDescribeBadge width="48" height="48" />
                     <Box>
                         <Typography sx={previewTitleStyles}>
@@ -344,7 +400,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                 </Box>
             </Box>
 
-            <Divider sx={{ borderColor: '#E2E8F0' }} />
+            <Divider sx={previewDividerStyles} />
 
             {/* Credential Recipient */}
             <Box>
@@ -353,7 +409,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                     {formData?.fullName || 'Your Name'}
                 </Typography>
             </Box>
-            {currentStep == 1 && <Divider sx={{ borderColor: '#E2E8F0' }} />}
+            {currentStep == 1 && <Divider sx={previewDividerStyles} />}
 
 
             {/* Skill Name */}
@@ -390,12 +446,8 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                         <Box>
                             <Typography
                                 sx={{
-                                    ...sectionValueStyles,
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: isDescriptionExpanded ? 'unset' : 3,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
+                                    ...descriptionClampStyles,
+                                    WebkitLineClamp: isDescriptionExpanded ? 'unset' : 3
                                 }}
                                 component="div"
                                 dangerouslySetInnerHTML={{ __html: formData.credentialDescription }}
@@ -404,18 +456,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                             {(formData.credentialDescription.length > 150) && (
                                 <Button
                                     onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                                    sx={{
-                                        textTransform: 'none',
-                                        fontSize: '12px',
-                                        padding: '4px 0',
-                                        minWidth: 'auto',
-                                        marginTop: '4px',
-                                        color: '#2563EB',
-                                        '&:hover': {
-                                            backgroundColor: 'transparent',
-                                            textDecoration: 'underline'
-                                        }
-                                    }}
+                                    sx={viewMoreButtonStyles}
                                 >
                                     {isDescriptionExpanded ? 'View Less' : 'View More'}
                                 </Button>
@@ -426,134 +467,51 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                     )}
                 </Box>
             )}
-            {currentStep == 2 && <Divider sx={{ borderColor: '#E2E8F0' }} />}
+            {currentStep == 2 && <Divider sx={previewDividerStyles} />}
 
 
-            {/* Media (Optional) */}
+            {/* Media Carousel (restored) */}
             {currentStep >= 2 && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                     <Box
                         onMouseEnter={() => setIsHoveringMedia(true)}
                         onMouseLeave={() => setIsHoveringMedia(false)}
-                        sx={{
-                            width: '100%',
-                            height: '160px',
-                            borderRadius: '12px',
-                            backgroundColor: '#F8FAFC',
-                            border: '1px dashed #E2E8F0',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            overflow: 'hidden',
-                            position: 'relative'
-                        }}>
+                        sx={previewMediaContainerStyles}>
                         {currentDisplayFile ? (
-                            // Handle different file types with proper thumbnails
                             <>
                                 {isPDF(currentDisplayFile.name) ? (
                                     <Image
-                                        src={
-                                            pdfThumbnails[currentDisplayFile.id] ??
-                                            '/fallback-pdf-thumbnail.svg'
-                                        }
+                                        src={pdfThumbnails[currentDisplayFile.id] ?? '/fallback-pdf-thumbnail.svg'}
                                         alt='PDF Preview'
                                         fill
-                                        style={{
-                                            objectFit: 'cover'
-                                        }}
+                                        style={{ objectFit: 'contain' }}
                                     />
                                 ) : isMP4(currentDisplayFile.name) ? (
                                     <Image
-                                        src={
-                                            videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'
-                                        }
+                                        src={videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'}
                                         alt='Video Thumbnail'
                                         fill
-                                        style={{
-                                            objectFit: 'cover'
-                                        }}
+                                        style={{ objectFit: 'contain' }}
                                     />
                                 ) : (
                                     <Image
                                         src={currentDisplayFile.url}
                                         alt='Featured Media'
                                         fill
-                                        style={{
-                                            objectFit: 'cover'
-                                        }}
+                                        style={{ objectFit: 'contain' }}
                                     />
                                 )}
 
-                                {/* Navigation Controls */}
                                 {isHoveringMedia && selectedFiles.length > 1 && (
                                     <>
-                                        <Box
-                                            onClick={handlePrevImage}
-                                            sx={{
-                                                position: 'absolute',
-                                                left: '8px',
-                                                top: '50%',
-                                                transform: 'translateY(-50%)',
-                                                width: '32px',
-                                                height: '32px',
-                                                borderRadius: '50%',
-                                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer',
-                                                color: '#ffffff',
-                                                fontSize: '20px',
-                                                fontWeight: 'bold',
-                                                zIndex: 10,
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                                }
-                                            }}
-                                        >
-                                            ‹
-                                        </Box>
+                                        <Box onClick={handlePrevImage} sx={{ ...carouselNavButtonStyles, left: '8px' }}>‹</Box>
                                         <Box
                                             onClick={handleNextImage}
-                                            sx={{
-                                                position: 'absolute',
-                                                right: '8px',
-                                                top: '50%',
-                                                transform: 'translateY(-50%)',
-                                                width: '32px',
-                                                height: '32px',
-                                                borderRadius: '50%',
-                                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer',
-                                                color: '#ffffff',
-                                                fontSize: '20px',
-                                                fontWeight: 'bold',
-                                                zIndex: 10,
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                                }
-                                            }}
+                                            sx={{ ...carouselNavButtonStyles, right: '8px' }}
                                         >
                                             ›
                                         </Box>
-                                        <Box
-                                            sx={{
-                                                position: 'absolute',
-                                                bottom: '8px',
-                                                left: '50%',
-                                                transform: 'translateX(-50%)',
-                                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                                                color: '#ffffff',
-                                                padding: '4px 8px',
-                                                borderRadius: '12px',
-                                                fontSize: '10px',
-                                                fontWeight: 500,
-                                                zIndex: 10
-                                            }}
-                                        >
+                                        <Box sx={carouselCounterStyles}>
                                             {currentImageIndex + 1} / {selectedFiles.length}
                                         </Box>
                                     </>
@@ -564,9 +522,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                                 src={formData.evidenceLink}
                                 alt='Evidence Link'
                                 fill
-                                style={{
-                                    objectFit: 'cover'
-                                }}
+                                style={{ objectFit: 'contain' }}
                             />
                         ) : (
                             <Image
@@ -578,12 +534,17 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                             />
                         )}
                     </Box>
-                    <Typography sx={sectionLabelStyles} style={{ fontSize: '12px' }}>{(currentDisplayFile || formData?.evidenceLink) ? '' : 'Media (optional)'}</Typography>
+                    <Typography sx={sectionLabelStyles}>{(currentDisplayFile || formData?.evidenceLink) ? '' : 'Media (optional)'}</Typography>
                 </Box>
             )}
 
-            {currentStep == 2 && <Divider sx={{ borderColor: '#E2E8F0' }} />}
-
+            {currentStep == 2 && <Divider sx={previewDividerStyles} />}
+            {currentStep == 2 && <Box sx={evidenceTipBoxStyles}>
+                <LightbulbSVG />
+                <Typography sx={evidenceTipBoxTextStyles}>
+                    Be sure to review detected skills before continuing to the next step.
+                </Typography>
+            </Box>}
             {/* Detected Skills */}
             {currentStep >= 2 && (
                 <Box>
@@ -602,21 +563,12 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                         <Box>
                             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
                                 {selectedSkills.map(skill => (
-                                    <Box
+                                    <SkillBadgePill
                                         key={skill.name}
                                         sx={{
-                                            background: '#2563EB',
-                                            color: '#ffffff',
                                             padding: '6px 10px',
-                                            borderRadius: '8px',
-                                            fontSize: '12px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 1,
                                             transition: 'all 0.2s',
-                                            '&:hover': {
-                                                background: '#1d4ed8'
-                                            }
+                                            '&:hover': { background: '#1d4ed8' }
                                         }}
                                     >
                                         {skill.name}
@@ -624,22 +576,12 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                                             <Box
                                                 component='span'
                                                 onClick={() => handleRemoveSkill(skill)}
-                                                sx={{
-                                                    cursor: 'pointer',
-                                                    fontSize: '12px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    lineHeight: '16px',
-                                                    '&:hover': {
-                                                        opacity: 0.9
-                                                    }
-                                                }}
+                                                sx={skillRemoveButtonStyles}
                                             >
                                                 ×
                                             </Box>
                                         )}
-                                    </Box>
+                                    </SkillBadgePill>
                                 ))}
                             </Box>
 
@@ -647,7 +589,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                                 {currentStep == 2 && 'Click any skill to remove it'}
                             </Typography>
 
-                            <Divider sx={{ borderColor: '#E2E8F0' }} />
+                            <Divider sx={previewDividerStyles} />
                         </Box>
                     ) : (
                         <EmptySkillsState>
@@ -679,44 +621,61 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                                         handleAddManualSkill()
                                     }
                                 }}
-                                style={{
-                                    flex: 1,
-                                    background: '#fff',
-                                    color: '#000000ff',
-                                    padding: '12px 16px',
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: '8px',
-                                    fontSize: '14px',
-                                    fontFamily: 'Inter',
-                                    outline: 'none'
-                                }}
+                                style={manualSkillInputStyles}
                             />
                             <Box
                                 onClick={handleAddManualSkill}
-                                sx={{
-                                    width: '48px',
-                                    height: '48px',
-                                    background: '#2563EB',
-                                    borderRadius: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    fontSize: '24px',
-                                    color: '#ffffff',
-                                    transition: 'all 0.2s',
-                                    '&:hover': {
-                                        background: '#2563EB'
-                                    }
-                                }}
+                                sx={addSkillButtonStyles}
                             >
                                 +
                             </Box>
                         </Box>
                     </Box>
+
+                    {/* Supporting Documentation Section */}
+                    <Box sx={{ mt: 2 }}>
+                        <Typography sx={sectionLabelStyles}>Supporting Documentation</Typography>
+
+                        {uniqueLinks.length > 0 ? (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mt: '8px' }}>
+                                {uniqueLinks.map((link, idx) => (
+                                    <Box
+                                        key={`evidence-${idx}`}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            color: '#2563EB',
+                                        }}
+                                    >
+                                        {isDocOrImage(link.url) ? (
+                                            <DescriptionOutlinedIcon />
+                                        ) : (
+                                            <InsertLinkIcon />
+                                        )}
+                                        <Typography sx={{ ...sectionValueStyles, fontSize: '13px', color: 'inherit', textDecoration: 'underline' }}>
+                                            <a
+                                                href={link.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{ color: 'inherit', textDecoration: 'inherit', cursor: 'pointer' }}
+                                            >
+                                                {link.name || 'View File'}
+                                            </a>
+                                        </Typography>
+                                        <OpenInNewIcon sx={{ fontSize: '14px' }} />
+                                    </Box>
+                                ))}
+                            </Box>
+                        ) : (
+                            <Typography sx={{ ...placeholderTextStyles, fontStyle: 'italic', mt: '4px' }}>
+                                Add links or upload files to show evidence of the skills you are claiming.
+                            </Typography>
+                        )}
+                    </Box>
                 </>
             )}
-            <Divider sx={{ borderColor: '#E2E8F0' }} />
+            <Divider sx={previewDividerStyles} />
 
             {currentStep == 2 && removedSkills.length > 0 && (
                 <Box>
@@ -728,26 +687,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                             <Box
                                 key={skill.name}
                                 onClick={() => handleRestoreSkill(skill)}
-                                sx={{
-                                    background: '#fefefeff',
-                                    color: '#666666',
-                                    px: 2,
-                                    py: 0.75,
-                                    borderRadius: '8px',
-                                    fontSize: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1,
-                                    cursor: 'pointer',
-                                    border: '1px dashed #cccccc',
-                                    transition: 'all 0.2s',
-                                    textDecoration: 'line-through',
-                                    '&:hover': {
-                                        background: '#e0e0e0',
-                                        borderColor: '#999999',
-                                        color: '#333333'
-                                    }
-                                }}
+                                sx={removedSkillPillStyles}
                             >
                                 {skill.name}
                                 <Box
@@ -768,7 +708,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                 </Box>
             )}
 
-            {currentStep == 2 && removedSkills.length > 0 && <Divider sx={{ borderColor: '#E2E8F0' }} />}
+            {currentStep == 2 && removedSkills.length > 0 && <Divider sx={previewDividerStyles} />}
 
 
             {/* Issued by */}
@@ -776,7 +716,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                 <Typography sx={sectionLabelStyles}>Issued by</Typography>
                 <Typography sx={sectionValueStyles}>Self-Issued</Typography>
             </Box>
-        </Paper >
+        </Paper>
     )
 }
 

@@ -55,14 +55,10 @@ export const StepProvider = ({ children }: { children: React.ReactNode }) => {
     const updateActiveStep = () => {
       const pathname = window.location.pathname
       const hashStep = getStepFromHash()
-      const savedStep = localStorage.getItem('activeStep')
-
       if (excludedPaths.includes(pathname)) {
         return
       } else if (hashStep !== null) {
         setActiveStep(hashStep)
-      } else if (savedStep) {
-        setActiveStep(Number(savedStep))
       } else {
         setActiveStep(0)
       }
@@ -89,13 +85,7 @@ export const StepProvider = ({ children }: { children: React.ReactNode }) => {
       return
     }
 
-    if (activeStep > 3) {
-      localStorage.removeItem('activeStep')
-      window.location.hash = `#step${activeStep}`
-    } else {
-      localStorage.setItem('activeStep', String(activeStep))
-      window.location.hash = `#step${activeStep}`
-    }
+    window.location.hash = `#step${activeStep}`
   }, [activeStep, excludedPaths])
 
   const handleNext = useCallback(async () => {

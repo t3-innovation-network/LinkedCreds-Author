@@ -6,6 +6,13 @@ import { Edit } from 'lucide-react'
 import { QuoteSVG } from '../../../../Assets/SVGs'
 import LoadingOverlay from '../../../../components/Loading/LoadingOverlay'
 import { FormData } from '../../../../credentialForm/form/types/Types'
+import { SVGRecommendBadge } from '../../../../Assets/SVGs'
+import { StepTrackShape } from '../../../../credentialForm/form/fromTexts & stepTrack/StepTrackShape'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import { Tooltip } from '@mui/material'
+import { recSectionContainerStyles, pageTitleStyles, tooltipIconStyles, sidebarContainerStyles } from '../../../../components/Styles/appStyles'
+import RecommenderPreview from './RecommenderPreview'
+import { SelectedSkill } from '../../../../credentialForm/form/types/Types'
 
 interface DataPreviewProps {
   formData: FormData
@@ -16,6 +23,9 @@ interface DataPreviewProps {
   isLoading: boolean
   onUpdateFormData: (newData: any) => void
   selectedFiles?: any[]
+  originalEvidence?: any[]
+  credentialSubject?: any
+  skills?: SelectedSkill[]
 }
 
 const cleanHTML = (htmlContent: any): string => {
@@ -168,9 +178,13 @@ const EditableCard = ({
 
 const DataPreview: React.FC<DataPreviewProps> = ({
   formData,
+  fullName,
   isLoading,
   onUpdateFormData,
-  selectedFiles = []
+  selectedFiles = [],
+  originalEvidence = [],
+  credentialSubject,
+  skills: originalSkills
 }) => {
   const handleUpdateField = (field: keyof FormData, value: string) => {
     onUpdateFormData({
@@ -180,209 +194,69 @@ const DataPreview: React.FC<DataPreviewProps> = ({
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '30px',
-        // bgcolor: '#f0f4f8',
-        borderRadius: 2
-      }}
-    >
-      <Box
-        sx={{
-          width: '100%',
-          bgcolor: 'white',
-          p: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 1,
-          borderRadius: 2
-        }}
-      >
-        {typeof formData.fullName === 'string' && (
-          <EditableCard
-            title='Your name'
-            content={formData.fullName}
-            onSave={value => handleUpdateField('fullName', value)}
-          />
-        )}
-
-        {typeof formData.howKnow === 'string' && formData.howKnow.trim() && (
-          <EditableCard
-            title='How They Know Each Other'
-            content={formData.howKnow}
-            onSave={value => handleUpdateField('howKnow', value)}
-            multiline
-          />
-        )}
-
-        {typeof formData.recommendationText === 'string' &&
-          formData.recommendationText.trim() && (
-            <EditableCard
-              title='Recommendation'
-              content={formData.recommendationText}
-              onSave={value => handleUpdateField('recommendationText', value)}
-              multiline
-            />
-          )}
-
-        {typeof formData.qualifications === 'string' &&
-          formData.qualifications.trim() && (
-            <EditableCard
-              title='Your Qualifications'
-              content={formData.qualifications}
-              onSave={value => handleUpdateField('qualifications', value)}
-              multiline
-            />
-          )}
-
-        {typeof formData.explainAnswer === 'string' && formData.explainAnswer.trim() && (
-          <EditableCard
-            title='Additional Information'
-            content={formData.explainAnswer}
-            onSave={value => handleUpdateField('explainAnswer', value)}
-            multiline
-            icon={<QuoteSVG />}
-            isQuote={true}
-          />
-        )}
-
-        {(Array.isArray(formData.evidence) &&
-          (formData.evidence as any[]).filter(item => item.name || item.url).length > 0) ||
-          selectedFiles.length > 0 ? (
-          <Card
-            variant='outlined'
-            sx={{
-              p: '10px',
-              border: '1px solid #003fe0',
-              borderRadius: '10px'
-            }}
-          >
-            <Typography
-              variant='subtitle1'
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '15px',
-                letterSpacing: '0.01em'
-              }}
-            >
-              Supporting Evidence
+    <Box sx={recSectionContainerStyles}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
+        <SVGRecommendBadge width="56" height="56" />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Typography sx={pageTitleStyles}>
+              Review before signing
             </Typography>
-            {selectedFiles.length > 0 && (
-              <Box
+            <Tooltip title="Review your recommendation details before final submission">
+              <InfoOutlinedIcon sx={tooltipIconStyles} />
+            </Tooltip>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <StepTrackShape />
+            <Typography variant="body2" sx={{ color: 'text.secondary', display: 'inline' }}>
+              If everything looks good, select{' '}
+              <Link
+                href='#'
                 sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '15px',
-                  mt: 2,
-                  mb: 2
+                  color: 'primary.main',
+                  textDecoration: 'underline',
+                  fontWeight: 500,
+                  display: 'inline'
+                }}
+                onClick={e => {
+                  e.preventDefault()
+                  console.log('Save & Exit clicked')
                 }}
               >
-                {selectedFiles.map(file => (
-                  <Box
-                    key={file.id}
-                    sx={{
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      border: '1px solid #e0e0e0',
-                      '&:hover': {
-                        transform: 'scale(1.05)',
-                        transition: 'transform 0.2s'
-                      }
-                    }}
-                    onClick={() => window.open(file.url, '_blank')}
-                  >
-                    <img
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                      src={file.url}
-                      alt={file.name}
-                    />
-                  </Box>
-                ))}
-              </Box>
-            )}
-
-            {(formData.evidence as any[])
-              ?.filter(item => item.name || item.url)
-              .map((item, index) => (
-                <Box key={`evidence-item-${index}`} sx={{ mt: 1 }}>
-                  {item.name && item.url ? (
-                    <Link
-                      href={item.url}
-                      underline='hover'
-                      color='primary'
-                      sx={{
-                        fontSize: '15px',
-                        textDecoration: 'underline',
-                        color: '#003fe0'
-                      }}
-                      target='_blank'
-                    >
-                      {item.name}
-                    </Link>
-                  ) : null}
-                </Box>
-              ))}
-          </Card>
-        ) : null}
-
-        {formData.selectedSkills && formData.selectedSkills.length > 0 && (
-          <Card
-            variant='outlined'
-            sx={{
-              p: '10px',
-              border: '1px solid #003fe0',
-              borderRadius: '8px',
-              mt: '10px'
-            }}
-          >
-            <Typography
-              variant='subtitle1'
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '15px',
-                letterSpacing: '0.01em',
-                mb: 1
-              }}
-            >
-              Selected Skills
+                Save & Exit
+              </Link>{' '}
+              to complete your recommendation.
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, flexWrap: 'wrap' }}>
-              {formData.selectedSkills.map((skill: any, index: number) => (
-                <Box
-                  key={(skill.id ?? skill.uuid) || index}
-                  sx={{
-                    background: '#2563EB',
-                    color: '#ffffff',
-                    px: '8px',
-                    py: '2px',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    fontWeight: 'medium',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '3px'
-                  }}
-                >
-                  <Typography variant='body2' sx={{ color: '#ffffff' }}>
-                    {skill.name ?? skill.targetName}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Card>
-        )}
+          </Box>
+        </Box>
       </Box>
 
-      <LoadingOverlay text='Saving your recommendation...' open={isLoading} />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '30px',
+          width: '100%',
+          maxWidth: '872px',
+        }}
+      >
+        <RecommenderPreview
+          fullName={fullName}
+          credentialSubject={credentialSubject || formData.credentialSubject}
+          originalEvidence={originalEvidence}
+          skills={originalSkills || (formData.skills as any[]) || []}
+          recommenderName={(formData.fullName as string) || ''}
+          selectedSkills={(formData.selectedSkills as SelectedSkill[]) || []}
+          recommendationText={(formData.recommendationText as string) || ''}
+          howKnow={(formData.howKnow as string) || ''}
+          qualifications={(formData.qualifications as string) || ''}
+          evidence={(formData.evidence as any[]) || []}
+          selectedFiles={selectedFiles}
+          showOnlyRecommendation={true}
+        />
+
+        <LoadingOverlay text='Saving your recommendation...' open={isLoading} />
+      </Box>
     </Box>
   )
 }

@@ -14,6 +14,30 @@ const features = [
   { id: 4, name: 'Share with employers & on LinkedIn' }
 ]
 
+import {
+  hamburgerIconButtonStyles,
+  hamburgerDrawerBoxStyles,
+  hamburgerHeaderBoxStyles,
+  hamburgerLogoBoxStyles,
+  hamburgerLogoTypographyStyles,
+  hamburgerDividerStyles,
+  hamburgerContentContainerStyles,
+  hamburgerNavLinkBoxStyles,
+  hamburgerNavLinkInnerBoxStyles,
+  hamburgerNavLinkTypographyStyles,
+  hamburgerNavLinkActiveIndicatorStyles,
+  hamburgerLoginDescriptionStyles,
+  hamburgerFeatureTitleStyles,
+  hamburgerFeatureBoxStyles,
+  hamburgerFeatureTypographyStyles,
+  hamburgerLoginButtonStyles,
+  hamburgerAboutSupportContainerStyles,
+  hamburgerAboutSupportLinkBoxStyles,
+  hamburgerSupportLinkBoxStyles,
+  hamburgerAboutSupportTypographyStyles,
+  hamburgerLogoutButtonStyles
+} from '../Styles/appStyles'
+
 const HamburgerMenu = () => {
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = React.useState(false)
@@ -28,46 +52,20 @@ const HamburgerMenu = () => {
   return (
     <>
       <IconButton
-        sx={{ padding: '0px', mr: '15px' }}
+        sx={hamburgerIconButtonStyles}
         onClick={toggleDrawer}
         aria-label='Open menu'
       >
         <HamburgerMenuSVG />
       </IconButton>
       <Drawer anchor='left' open={isOpen} onClose={toggleDrawer}>
-        <Box
-          sx={{
-            width: '300px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start'
-          }}
-        >
+        <Box sx={hamburgerDrawerBoxStyles}>
           {/* Header Section */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-              height: '63px',
-              paddingBottom: '15px',
-              gap: '10px',
-              alignSelf: 'stretch'
-            }}
-          >
+          <Box sx={hamburgerHeaderBoxStyles}>
             <Link href='/'>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={hamburgerLogoBoxStyles}>
                 <Logo />
-                <Typography
-                  sx={{
-                    ml: '8px',
-                    fontWeight: 700,
-                    fontSize: '18px',
-                    color: '#000'
-                  }}
-                >
+                <Typography sx={hamburgerLogoTypographyStyles}>
                   LinkedCreds
                 </Typography>
               </Box>
@@ -76,115 +74,33 @@ const HamburgerMenu = () => {
               <CloseIcon />
             </IconButton>
           </Box>
-          <Box
-            sx={{
-              width: 'calc(100% + 40px)',
-              height: '1px',
-              backgroundColor: '#9CA3AF',
-              margin: '0 -20px',
-              alignSelf: 'center'
-            }}
-          />
+          <Box sx={hamburgerDividerStyles} />
 
           {/* Content based on session state */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              gap: '22px',
-              alignSelf: 'stretch',
-              pt: '22px'
-            }}
-          >
+          <Box sx={hamburgerContentContainerStyles}>
             {session ? (
               <>
                 {/* Links with underline effect */}
                 <Link href='/credentialForm' passHref style={{ width: '100%' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      width: '100%',
-                      justifyContent: 'space-between'
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        flex: 1
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: '16px',
-                          fontWeight: isActive('/credentialForm') ? '600' : '400',
-                          color: isActive('/credentialForm') ? '#003FE0' : 'inherit',
-                          cursor: 'pointer',
-                          display: 'inline-block',
-                          position: 'relative',
-                          height: '22px'
-                        }}
-                      >
+                  <Box sx={hamburgerNavLinkBoxStyles}>
+                    <Box sx={hamburgerNavLinkInnerBoxStyles}>
+                      <Typography sx={hamburgerNavLinkTypographyStyles(isActive('/credentialForm'))}>
                         Add a New Skill
                         {isActive('/credentialForm') && (
-                          <Box
-                            sx={{
-                              height: '2px',
-                              width: '100%',
-                              position: 'absolute',
-                              bottom: 0,
-                              left: 0,
-                              backgroundColor: '#003FE0'
-                            }}
-                          />
+                          <Box sx={hamburgerNavLinkActiveIndicatorStyles} />
                         )}
                       </Typography>
                     </Box>
                     <ArrowForwardIosIcon fontSize='small' />
                   </Box>
                 </Link>
-                <Link href='/claims ' passHref style={{ width: '100%' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      width: '100%'
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-start'
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: '16px',
-                          fontWeight: isActive('/claims') ? '600' : '400',
-                          color: isActive('/claims') ? '#003FE0' : 'inherit',
-                          cursor: 'pointer',
-                          display: 'inline-block',
-                          position: 'relative',
-                          height: '22px'
-                        }}
-                      >
+                <Link href='/claims' passHref style={{ width: '100%' }}>
+                  <Box sx={hamburgerNavLinkBoxStyles}>
+                    <Box sx={hamburgerNavLinkInnerBoxStyles}>
+                      <Typography sx={hamburgerNavLinkTypographyStyles(isActive('/claims'))}>
                         My Skills
                         {isActive('/claims') && (
-                          <Box
-                            sx={{
-                              height: '2px',
-                              width: '100%',
-                              position: 'absolute',
-                              bottom: 0,
-                              left: 0,
-                              backgroundColor: '#003FE0'
-                            }}
-                          />
+                          <Box sx={hamburgerNavLinkActiveIndicatorStyles} />
                         )}
                       </Typography>
                     </Box>
@@ -192,44 +108,12 @@ const HamburgerMenu = () => {
                   </Box>
                 </Link>
                 <Link href='/analytics' passHref style={{ width: '100%' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      width: '100%'
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-start'
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: '16px',
-                          fontWeight: isActive('/analytics') ? '600' : '400',
-                          color: isActive('/analytics') ? '#003FE0' : 'inherit',
-                          cursor: 'pointer',
-                          display: 'inline-block',
-                          position: 'relative',
-                          height: '22px'
-                        }}
-                      >
+                  <Box sx={hamburgerNavLinkBoxStyles}>
+                    <Box sx={hamburgerNavLinkInnerBoxStyles}>
+                      <Typography sx={hamburgerNavLinkTypographyStyles(isActive('/analytics'))}>
                         Analytics
                         {isActive('/analytics') && (
-                          <Box
-                            sx={{
-                              height: '2px',
-                              width: '100%',
-                              position: 'absolute',
-                              bottom: 0,
-                              left: 0,
-                              backgroundColor: '#003FE0'
-                            }}
-                          />
+                          <Box sx={hamburgerNavLinkActiveIndicatorStyles} />
                         )}
                       </Typography>
                     </Box>
@@ -237,41 +121,17 @@ const HamburgerMenu = () => {
                   </Box>
                 </Link>
                 <Link href='/credentialImportForm' passHref style={{ width: '100%' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      width: '100%'
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-start'
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: '16px',
-                          fontWeight: isActive('/credentialImportForm') ? '600' : '400',
-                          color: isActive('/credentialImportForm')
-                            ? '#003FE0'
-                            : 'inherit',
-                          cursor: 'pointer',
-                          height: '22px'
-                        }}
-                      >
-                        Import a Skill Credential
+                  <Box sx={hamburgerNavLinkBoxStyles}>
+                    <Box sx={hamburgerNavLinkInnerBoxStyles}>
+                      <Typography sx={hamburgerNavLinkTypographyStyles(isActive('/credentialImportForm'))}>
+                        Import Skill Credential
                       </Typography>
                       {isActive('/credentialImportForm') && (
                         <Box
                           sx={{
-                            height: '2px',
-                            width: '100%',
-                            mt: '5px',
-                            backgroundColor: '#003FE0'
+                            ...hamburgerNavLinkActiveIndicatorStyles,
+                            position: 'static',
+                            mt: '5px'
                           }}
                         />
                       )}
@@ -283,16 +143,16 @@ const HamburgerMenu = () => {
             ) : (
               <>
                 {/* Login description and features */}
-                <Typography variant='h6' sx={{ fontWeight: 400, fontSize: '16px' }}>
+                <Typography variant='h6' sx={hamburgerLoginDescriptionStyles}>
                   Login to access your LinkedCreds
                 </Typography>
-                <Typography sx={{ fontSize: '13px', fontWeight: 400 }}>
+                <Typography sx={hamburgerFeatureTitleStyles}>
                   With LinkedCreds, you can:
                 </Typography>
                 {features.map(feature => (
-                  <Box key={feature.id} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box key={feature.id} sx={hamburgerFeatureBoxStyles}>
                     <SVGCheckMarks />
-                    <Typography sx={{ ml: 1, fontSize: '13px', fontFamily: 'Inter' }}>
+                    <Typography sx={hamburgerFeatureTypographyStyles}>
                       {feature.name}
                     </Typography>
                   </Box>
@@ -300,18 +160,7 @@ const HamburgerMenu = () => {
 
                 {/* Login Button */}
                 <Button
-                  sx={{
-                    width: '91.53%',
-                    borderRadius: '100px',
-                    height: '40px',
-                    textTransform: 'capitalize',
-                    backgroundColor: '#003FE0',
-                    color: '#FFF',
-                    mb: '30px',
-                    '&:hover': {
-                      backgroundColor: '#003FE0'
-                    }
-                  }}
+                  sx={hamburgerLoginButtonStyles}
                   onClick={() => {
                     signIn()
                     toggleDrawer()
@@ -324,37 +173,18 @@ const HamburgerMenu = () => {
           </Box>
 
           {/* About and Support Links */}
-          <Box
-            sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}
-          >
-            <Link href='/about' passHref>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                  height: '22px',
-                  mt: '22px'
-                }}
-              >
-                <Typography sx={{ fontWeight: 400, fontSize: '16px', height: '22px' }}>
-                  Help About LinkedCreds FAQ
+          <Box sx={hamburgerAboutSupportContainerStyles}>
+            <Link href='/help' passHref>
+              <Box sx={hamburgerAboutSupportLinkBoxStyles}>
+                <Typography sx={hamburgerAboutSupportTypographyStyles}>
+                  Help & FAQ
                 </Typography>
                 <ArrowForwardIosIcon fontSize='small' />
               </Box>
             </Link>
             <Link href='mailto:support@linkedcreds.allskillscount.org' passHref>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                  pb: '6px'
-                }}
-              >
-                <Typography sx={{ fontWeight: 400, fontSize: '16px', height: '22px' }}>
+              <Box sx={hamburgerSupportLinkBoxStyles}>
+                <Typography sx={{ ...hamburgerAboutSupportTypographyStyles, fontFamily: 'inherit' }}>
                   Support
                 </Typography>
                 <ArrowForwardIosIcon fontSize='small' />
@@ -365,17 +195,7 @@ const HamburgerMenu = () => {
           {/* Logout Button */}
           {session && (
             <Button
-              sx={{
-                width: '100%',
-                borderRadius: '100px',
-                textTransform: 'capitalize',
-                backgroundColor: '#003FE0',
-                color: '#FFF',
-                mt: 2,
-                '&:hover': {
-                  backgroundColor: '#003FE0'
-                }
-              }}
+              sx={hamburgerLogoutButtonStyles}
               onClick={() => {
                 signOut()
                 toggleDrawer()
@@ -386,6 +206,7 @@ const HamburgerMenu = () => {
           )}
         </Box>
       </Drawer>
+
     </>
   )
 }

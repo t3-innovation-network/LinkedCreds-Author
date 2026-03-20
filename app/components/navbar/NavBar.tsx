@@ -1,19 +1,38 @@
 import { useTheme } from '@mui/material/styles'
 import React from 'react'
-import { Box, Typography, Button } from '@mui/material'
+import { Box, Typography, Button, Avatar, Menu, MenuItem, IconButton } from '@mui/material'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 // import { useRouter } from 'next/navigation'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import HamburgerMenu from '../hamburgerMenu/HamburgerMenu'
 import { Logo } from '../../Assets/SVGs'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import LogoutIcon from '@mui/icons-material/Logout'
 // import router from 'next/router'
+
+import {
+  navBarContainerStyles,
+  navLogoContainerStyles,
+  navLogoTypographyStyles,
+  navLinksContainerStyles,
+  navLinkItemStyles,
+  navLinkTypographyStyles,
+  navActiveIndicatorStyles,
+  userProfileContainerStyles,
+  userAvatarStyles,
+  userNameTypographyStyles,
+  userMenuMoreIconStyles,
+  logoutMenuItemStyles,
+  logoutIconStyles
+} from '../Styles/appStyles'
 
 const NavBar = () => {
   const theme = useTheme()
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
 
   const isActive = (path: string): boolean => pathname === path
   const handleSignOut = async () => {
@@ -29,217 +48,123 @@ const NavBar = () => {
   }
 
   return (
-    <Box
-      sx={{
-        width: '100vw',
-        height: { xs: '27px', md: '100px' },
-        display: 'flex',
-        position: 'sticky',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        justifyContent: 'space-between',
-        my: { xs: '18px', md: '0px' },
-        zIndex: 100,
-        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)'
-
-      }}
-    >
+    <Box sx={navBarContainerStyles}>
       {/* Logo and Name */}
-      <Box
-        sx={{
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          pl: { xs: '15px', md: '9.6vw' }
-        }}
-      >
+      <Box sx={navLogoContainerStyles}>
         <Link href='/' aria-label='LinkedCreds Home'>
           <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '0px' }}>
             <Logo />
           </Box>
         </Link>
         <Link href='/' aria-label='LinkedCreds Home'>
-          <Typography
-            sx={{
-              fontWeight: '700',
-              fontSize: { xs: '18px', md: '24px' },
-              color: theme.palette.t3DarkSlateBlue,
-              fontFamily: 'inter'
-            }}
-          >
+          <Typography sx={navLogoTypographyStyles(theme)}>
             LinkedCreds
           </Typography>
         </Link>
       </Box>
-      <Box sx={{ width: '100%' }}></Box>
+      <Box sx={{ flex: 1 }}></Box>
+
 
       {/* Navigation Links and Sign Button */}
-      <Box
-        sx={{
-          width: '55%',
-          display: { xs: 'none', md: 'flex' },
-          alignItems: 'center',
-          justifyContent: session ? 'space-between' : 'flex-end',
-          mr: { xs: '15px', md: '10.938vw' },
-          gap: '3.9vw',
-          textWrap: 'nowrap'
-        }}
-      >
+      <Box sx={navLinksContainerStyles}>
         {session && (
           <>
             <Link href='/credentialForm#step1' passHref>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: '16px',
-                    fontWeight: isActive('/credentialForm') ? '600' : '400',
-                    color: isActive('/credentialForm')
-                      ? '#2563EB'
-                      : theme.palette.t3DarkSlateBlue,
-                    cursor: 'pointer'
-                  }}
-                >
+              <Box sx={navLinkItemStyles}>
+                <Typography sx={navLinkTypographyStyles(theme, isActive('/credentialForm'))}>
                   Add a New Skill
                 </Typography>
                 {isActive('/credentialForm') && (
-                  <Box
-                    sx={{
-                      height: '2px',
-                      width: '100%',
-                      mt: '5px',
-                      backgroundColor: '#2563EB'
-                    }}
-                  />
+                  <Box sx={navActiveIndicatorStyles} />
                 )}
               </Box>
             </Link>
             <Link href='/credentialImportForm' passHref>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: '16px',
-                    fontWeight: isActive('/credentialImportForm') ? '600' : '400',
-                    color: isActive('/credentialImportForm')
-                      ? '#2563EB'
-                      : theme.palette.t3DarkSlateBlue,
-                    cursor: 'pointer'
-                  }}
-                >
+              <Box sx={navLinkItemStyles}>
+                <Typography sx={navLinkTypographyStyles(theme, isActive('/credentialImportForm'))}>
                   Import Skill Credential
                 </Typography>
                 {isActive('/credentialImportForm') && (
-                  <Box
-                    sx={{
-                      height: '2px',
-                      width: '100%',
-                      mt: '5px',
-                      backgroundColor: '#2563EB'
-                    }}
-                  />
+                  <Box sx={navActiveIndicatorStyles} />
                 )}
               </Box>
             </Link>
             <Link href='/claims' passHref>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: '16px',
-                    fontWeight: isActive('/claims') ? '600' : '400',
-                    color: isActive('/claims')
-                      ? '#003FE0'
-                      : theme.palette.t3DarkSlateBlue,
-                    cursor: 'pointer'
-                  }}
-                >
+              <Box sx={navLinkItemStyles}>
+                <Typography sx={navLinkTypographyStyles(theme, isActive('/claims'))}>
                   My Skills
                 </Typography>
                 {isActive('/claims') && (
-                  <Box
-                    sx={{
-                      height: '2px',
-                      width: '100%',
-                      mt: '5px',
-                      backgroundColor: '#003FE0'
-                    }}
-                  />
+                  <Box sx={navActiveIndicatorStyles} />
                 )}
               </Box>
             </Link>
             <Link href='/analytics' passHref>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-              >
-                <Typography
-                  sx={{
-                    fontSize: '16px',
-                    fontWeight: isActive('/analytics') ? '600' : '400',
-                    color: isActive('/analytics')
-                      ? '#003FE0'
-                      : theme.palette.t3DarkSlateBlue,
-                    cursor: 'pointer'
-                  }}
-                >
+              <Box sx={navLinkItemStyles}>
+                <Typography sx={navLinkTypographyStyles(theme, isActive('/analytics'))}>
                   Analytics
                 </Typography>
                 {isActive('/analytics') && (
-                  <Box
-                    sx={{
-                      height: '2px',
-                      width: '100%',
-                      mt: '5px',
-                      backgroundColor: '#003FE0'
-                    }}
-                  />
+                  <Box sx={navActiveIndicatorStyles} />
                 )}
               </Box>
             </Link>
             <Link href='/help' passHref>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography
-                  sx={{
-                    fontSize: '16px',
-                    fontWeight: isActive('/help') ? '600' : '400',
-                    color: isActive('/help') ? '#003FE0' : theme.palette.t3DarkSlateBlue,
-                    cursor: 'pointer'
-                  }}
-                >
+              <Box sx={navLinkItemStyles}>
+                <Typography sx={navLinkTypographyStyles(theme, isActive('/help'))}>
                   Help & FAQ
                 </Typography>
                 {isActive('/help') && (
-                  <Box sx={{ height: '2px', width: '100%', mt: '5px', backgroundColor: '#003FE0' }} />
+                  <Box sx={navActiveIndicatorStyles} />
                 )}
               </Box>
             </Link>
           </>
         )}
 
-        {/* Sign In/Out Button */}
+        {/* User Profile Section or Sign In */}
         {session ? (
-          <Button
-            sx={{
-              width: '148px',
-              fontFamily: 'roboto',
-              fontSize: '16px',
-              fontWeight: '500',
-              lineHeight: '20px',
-              textAlign: 'center',
-              justifyContent: 'center'
-            }}
-            variant='actionButton'
-            onClick={handleSignOut}
-          >
-            Sign Out
-          </Button>
+          <>
+            <Box
+              sx={userProfileContainerStyles}
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+            >
+              <Avatar sx={userAvatarStyles}>
+                {session.user?.name ? session.user.name[0].toUpperCase() : 'U'}
+              </Avatar>
+              <Typography sx={userNameTypographyStyles}>
+                {session.user?.name}
+              </Typography>
+              <MoreVertIcon sx={userMenuMoreIconStyles} />
+            </Box>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={() => setAnchorEl(null)}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              PaperProps={{
+                sx: {
+                  borderRadius: '12px',
+                  minWidth: '150px',
+                }
+              }}
+            >
+              <MenuItem
+                onClick={() => {
+                  setAnchorEl(null)
+                  handleSignOut()
+                }}
+                sx={logoutMenuItemStyles}
+              >
+                <LogoutIcon
+                  className="logout-icon"
+                  sx={logoutIconStyles}
+                />
+                Sign Out
+              </MenuItem>
+            </Menu>
+          </>
         ) : (
           <Button
             sx={{
@@ -263,7 +188,8 @@ const NavBar = () => {
       <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
         <HamburgerMenu aria-label='Open menu' />
       </Box>
-    </Box>
+    </Box >
+
   )
 }
 

@@ -12,7 +12,7 @@ interface UserTokens {
   expiresAt: number
 }
 
-export const getFileViaFirebase = async (fileId: string) => {
+export const getFileViaFirebase = async (fileId: string, sessionToken?: string) => {
   try {
     // Check if Firebase is configured
     if (!db) {
@@ -21,8 +21,12 @@ export const getFileViaFirebase = async (fileId: string) => {
     }
 
     // 1- getAccessToken   2- fetch file
-    const accessToken = await getAccessToken(fileId)
-    const fileContent = await fetch(
+    let accessToken = sessionToken || await getAccessToken(fileId)
+    if (!accessToken) {
+        console.warn(`No access token available for file ${fileId} (Firestore or session)`)
+        return null
+    }
+    let response = await fetch(
       `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
       {
         method: 'GET',
@@ -31,7 +35,31 @@ export const getFileViaFirebase = async (fileId: string) => {
         }
       }
     )
-    const data = await fileContent.json()
+
+    // Handle 401 Unauthorized by attempting a forced token refresh and retry
+    if (response.status === 401) {
+      console.warn(`401 Unauthorized for file ${fileId}, attempting forced token refresh...`)
+      accessToken = await getAccessToken(fileId, true)
+      if (accessToken) {
+        response = await fetch(
+          `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        )
+      }
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`Error fetching file ${fileId} from Google Drive: ${response.status} ${response.statusText}`, errorText)
+      return null
+    }
+
+    const data = await response.json()
     return data
   } catch (error) {
     console.error(`Error retrieving file ${fileId} from Firebase:`, error)
@@ -75,7 +103,7 @@ export const storeFileTokens = async ({
   }
 }
 
-export const getAccessToken = async (fileId: string) => {
+export const getAccessToken = async (fileId: string, forceRefresh: boolean = false) => {
   try {
     if (!db) {
       console.error('Firebase is not configured. Cannot retrieve access token.')
@@ -98,8 +126,8 @@ export const getAccessToken = async (fileId: string) => {
     }
 
     const isExpired = data.expiresAt < Date.now()
-    if (isExpired) {
-      console.log(`Access token for file ${fileId} is expired, refreshing...`)
+    if (isExpired || forceRefresh) {
+      console.log(`Access token for file ${fileId} is ${forceRefresh ? 'being forced to refresh' : 'expired'}, refreshing...`)
       try {
         const refreshedToken = await refreshAccessToken({
           accessToken: data.accessToken,
@@ -121,24 +149,28 @@ export const getAccessToken = async (fileId: string) => {
   }
 }
 
-const client_id = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
-const client_secret = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET || ''
+
 const refreshAccessToken = async (tokens: any) => {
   try {
+
     const response = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: new URLSearchParams({
-        client_id,
-        client_secret,
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+        client_secret: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET || '',
         refresh_token: tokens.refreshToken,
         grant_type: 'refresh_token'
       })
     })
 
     const data = await response.json()
+    if (!response.ok) {
+        console.error('Google token refresh failed:', data)
+        throw new Error(`Token refresh failed: ${JSON.stringify(data)}`)
+    }
     const newAccessToken = data.access_token
 
     if (!newAccessToken) {
@@ -169,11 +201,6 @@ export const updateFileAccessToken = async ({
   googleFileId: string
   accessToken: string
 }): Promise<void> => {
-  console.log(
-    '🚀 ~ googleFileId: string accessToken, expiresAt',
-    googleFileId,
-    accessToken
-  )
   try {
     if (!db) {
       throw new Error('Firebase is not configured')
@@ -184,8 +211,6 @@ export const updateFileAccessToken = async ({
       { accessToken, expiresAt: Date.now() + 3600 * 1000 },
       { merge: true }
     )
-
-    console.log(`Access token updated for file ${googleFileId}`)
   } catch (error) {
     console.error('Error updating file access token:', error)
     throw error
@@ -242,61 +267,7 @@ export const getUserTokens = async ({
   }
 }
 
-/**
- * Retrieves or refreshes the access token for a Google Drive file.
- */
-export const getAccessTokenForFile = async ({
-  googleFileId
-}: {
-  googleFileId: string
-}): Promise<string | null> => {
-  try {
-    const tokens = await getFileTokens({ googleFileId })
-    if (!tokens) {
-      console.error(`No tokens found for file: ${googleFileId}`)
-      return null
-    }
 
-    // Check if the access token is still valid
-    if (tokens.expiresAt > Date.now()) {
-      console.log('Access token is still valid')
-      return tokens.accessToken
-    }
-
-    // Refresh the access token
-    console.log(`Refreshing access token for file: ${googleFileId}...`)
-    const response = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        client_id: process.env.GOOGLE_CLIENT_ID || '',
-        client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
-        refresh_token: tokens.refreshToken,
-        grant_type: 'refresh_token'
-      })
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to refresh access token')
-    }
-
-    const data = await response.json()
-    const newAccessToken = data.accessToken
-    // Update the access token in Firestore
-    await updateFileAccessToken({
-      googleFileId,
-      accessToken: newAccessToken
-    })
-
-    console.log(`Access token refreshed successfully for file: ${googleFileId}`)
-    return newAccessToken
-  } catch (error) {
-    console.error('Error refreshing access token:', error)
-    throw error
-  }
-}
 
 /**
  * Deletes tokens for a Google Drive file from Firestore.
@@ -312,7 +283,6 @@ export const deleteFileTokens = async ({
     }
 
     await setDoc(doc(db, 'files', googleFileId), {})
-    console.log(`Tokens deleted successfully for file ${googleFileId}`)
   } catch (error) {
     console.error('Error deleting file tokens:', error)
     throw error
@@ -329,7 +299,6 @@ export const deleteUserTokens = async ({ userId }: { userId: string }): Promise<
     }
 
     await setDoc(doc(db, 'users', userId, 'tokens', 'googleDrive'), {})
-    console.log(`Tokens deleted successfully for user ${userId}`)
   } catch (error) {
     console.error('Error deleting user tokens:', error)
     throw error

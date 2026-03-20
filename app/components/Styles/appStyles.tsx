@@ -1,3 +1,4 @@
+import React from 'react'
 import { styled, TextField, Theme as MuiTheme, Box, Card, Typography } from '@mui/material'
 import Theme from '../../theme'
 import { SxProps } from '@mui/material/styles'
@@ -26,7 +27,7 @@ export const CustomTextField = styled(TextField)({
 
 export const requiredLabelStyles = {
   fontFamily: 'Inter',
-  fontSize: '12px',
+  fontSize: '13px',
   lineHeight: '16px',
   color: '#6A7282'
 }
@@ -38,7 +39,6 @@ export const formLabelStyles = {
   fontWeight: 'bold',
   letterSpacing: '-0.31px',
   lineHeight: '24px',
-  mb: '7px',
   '&.Mui-focused': {
     color: 't3Black'
   }
@@ -193,7 +193,7 @@ export const callToActionButtonStyles = {
 
 export const previewContainerStyles = {
   width: '100%',
-  maxWidth: '350px',
+  maxWidth: '384px',
   padding: '24px',
   backgroundColor: '#fff',
   borderRadius: '16px',
@@ -210,6 +210,23 @@ export const sectionLabelStyles = {
   color: '#62748E',
   marginBottom: '4px',
   lineHeight: '16px'
+}
+
+export const featuredImageBadgeStyles = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '2px 6px',
+  gap: '4px',
+  bgcolor: '#2563EB',
+  color: '#FFFFFF',
+  borderRadius: '4px',
+  fontSize: '12px',
+  fontFamily: 'Inter',
+  letterSpacing: '-0.5px',
+  lineHeight: '16px',
+  fontWeight: 'bold',
+  textTransform: 'uppercase' as const,
+  border: '1px solid #2563EB'
 }
 
 export const sectionValueStyles = {
@@ -247,7 +264,7 @@ export const previewSubtitleStyles = {
   color: '#90A1B9'
 }
 export const actionButtonTitleStyles = {
-  fontFamily: 'Lato',
+  fontFamily: 'Inter',
   fontSize: '24px',
   letterSpacing: '0%',
   lineHeight: 'auto',
@@ -276,6 +293,10 @@ export const actionButtonStyles = {
   }
 }
 
+export const recommendationDividerStyles = {
+  borderColor: '#B9F8CF',
+  mr: '20px'
+}
 
 // Success Page Specific Styles
 export const successPageContainerStyles = {
@@ -342,7 +363,7 @@ export const sectionTitleStyles = {
 // Styled Components for Success Page
 export const PreviewCard = styled(Card)(({ theme }) => ({
   width: '100%',
-  maxWidth: '800px',
+  maxWidth: '872px',
   backgroundColor: '#fff',
   overflow: 'hidden',
 }))
@@ -371,19 +392,27 @@ export const StepDot = styled(Box, {
   backgroundColor: active ? '#2563EB' : '#E5E7EB'
 }))
 
-export const BadgePill = styled(Box)(({ theme }) => ({
+// Shared base for all badge pill variants
+const baseBadgePillStyles = {
   display: 'inline-flex',
   alignItems: 'center',
-  padding: '3px 12px',
+  padding: '6px 12px',
   maxWidth: 'fit-content',
+  borderRadius: '8px',
+  fontFamily: 'Inter',
+  fontWeight: 'medium',
+  fontSize: '13px',
+  lineHeight: '16px',
+  gap: '8px',
+
+}
+
+export const BadgePill = styled(Box)(() => ({
+  ...baseBadgePillStyles,
+  padding: '3px 12px',
   backgroundColor: '#DCFCE7',
   color: '#016630',
   borderRadius: '16777200px',
-  fontFamily: 'Inter',
-  fontWeight: 'medium',
-  fontSize: '12px',
-  lineHeight: '16px',
-  gap: '10px'
 }))
 
 export const CredentialTitle = styled(Typography)(({ theme }) => ({
@@ -433,8 +462,8 @@ export const MediaContainer = styled(Box)(({ theme }) => ({
   borderRadius: '10px',
   overflow: 'hidden',
   position: 'relative',
-  aspectRatio: '16/9',
-  backgroundColor: '#F3F4F6',
+  aspectRatio: '4/3',
+  backgroundColor: '#FFFFFF',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center'
@@ -541,5 +570,843 @@ export const credentialCardStyles = {
   borderRadius: '14px',
   border: '1px solid #E2E8F0',
   boxShadow: '0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06)'
+}
+
+// =============================================
+// Recommendation Sidebar Styles
+// =============================================
+
+export const sidebarContainerStyles = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '20px'
+}
+
+// Credential Preview Card
+export const sidebarCredentialCardStyles = {
+  ...credentialCardStyles,
+  p: '20px',
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '16px'
+}
+
+export const sidebarHeaderStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px'
+}
+
+
+// Blue pill (skills in sidebar credential preview)
+export const SkillBadgePill = styled(Box)(() => ({
+  ...baseBadgePillStyles,
+  backgroundColor: '#2563EB',
+  color: '#FFFFFF',
+}))
+
+// Green solid pill (recommendation preview skills)
+export const RecommendationBadgePill = styled(Box)(() => ({
+  ...baseBadgePillStyles,
+  backgroundColor: '#00A63E',
+  color: '#FFFFFF',
+}))
+export const sidebarChipsContainerStyles = {
+  display: 'flex',
+  flexWrap: 'wrap' as const,
+  gap: '6px',
+  mt: '6px'
+}
+
+// Recommendation Preview Card
+export const sidebarRecommendationCardStyles = {
+  ...credentialCardStyles,
+  p: '20px',
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '12px',
+  borderColor: '#B9F8CF',
+  backgroundColor: '#F0FDF4'
+}
+
+// =============================================
+// Credential Preview Styles
+// =============================================
+
+export const previewDividerStyles = {
+  borderColor: '#E2E8F0'
+}
+
+export const descriptionClampStyles = {
+  ...sectionValueStyles,
+  display: '-webkit-box',
+  WebkitLineClamp: 3,
+  WebkitBoxOrient: 'vertical' as const,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis'
+}
+
+export const viewMoreButtonStyles = {
+  textTransform: 'none' as const,
+  fontSize: '13px',
+  padding: '4px 0',
+  minWidth: 'auto',
+  marginTop: '4px',
+  color: '#2563EB',
+  '&:hover': {
+    backgroundColor: 'transparent',
+    textDecoration: 'underline'
+  }
+}
+
+export const previewMediaContainerStyles = {
+  width: '100%',
+  height: '160px',
+  borderRadius: '12px',
+  backgroundColor: '#FFFFFF',
+  border: '1px dashed #E2E8F0',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  overflow: 'hidden',
+  position: 'relative' as const
+}
+
+export const carouselNavButtonStyles = {
+  position: 'absolute' as const,
+  top: '50%',
+  transform: 'translateY(-50%)',
+  width: '32px',
+  height: '32px',
+  borderRadius: '50%',
+  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  color: '#ffffff',
+  fontSize: '20px',
+  fontWeight: 'bold',
+  zIndex: 10,
+  '&:hover': {
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  }
+}
+
+export const carouselCounterStyles = {
+  position: 'absolute' as const,
+  bottom: '8px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  color: '#ffffff',
+  padding: '4px 8px',
+  borderRadius: '12px',
+  fontSize: '10px',
+  fontWeight: 500,
+  zIndex: 10
+}
+
+export const skillRemoveButtonStyles = {
+  cursor: 'pointer',
+  fontSize: '12px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  lineHeight: '16px',
+  '&:hover': {
+    opacity: 0.9
+  }
+}
+
+export const manualSkillInputStyles: React.CSSProperties = {
+  flex: 1,
+  background: '#fff',
+  color: '#000000ff',
+  padding: '12px 16px',
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  fontSize: '14px',
+  fontFamily: 'Inter',
+  outline: 'none'
+}
+
+export const addSkillButtonStyles = {
+  width: '48px',
+  height: '48px',
+  background: '#2563EB',
+  borderRadius: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  fontSize: '24px',
+  color: '#ffffff',
+  transition: 'all 0.2s',
+  '&:hover': {
+    background: '#1d4ed8'
+  }
+}
+
+export const removedSkillPillStyles = {
+  background: '#fefefeff',
+  color: '#666666',
+  px: 2,
+  py: 0.75,
+  borderRadius: '8px',
+  fontSize: '12px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 1,
+  cursor: 'pointer',
+  border: '1px dashed #cccccc',
+  transition: 'all 0.2s',
+  textDecoration: 'line-through',
+  '&:hover': {
+    background: '#e0e0e0',
+    borderColor: '#999999',
+    color: '#333333'
+  }
+}
+
+// =============================================
+// Step2 Form Styles
+// =============================================
+
+export const pageTitleStyles = {
+  fontFamily: 'Inter',
+  fontSize: '28px',
+  fontWeight: 700,
+  color: '#000e40',
+  lineHeight: '1.2'
+}
+
+export const formLabelRowStyles = {
+  display: 'flex',
+  alignItems: 'center',
+}
+
+export const tooltipIconStyles = {
+  color: '#3B82F6',
+  fontSize: '20px',
+  cursor: 'pointer'
+}
+
+export const tipTextStyles = {
+  fontFamily: 'Inter',
+  fontSize: '14px',
+  color: '#6B7280',
+}
+
+export const focusedTextFieldStyles = {
+  ...TextFieldStyles,
+  '& .MuiOutlinedInput-root': {
+    ...TextFieldStyles['& .MuiOutlinedInput-root'],
+    '&.Mui-focused fieldset': {
+      borderColor: '#2DD4BF'
+    }
+  }
+}
+
+export const infoBannerStyles = {
+  backgroundColor: '#EFF6FF',
+  borderRadius: '8px',
+  padding: '16px',
+  display: 'flex',
+  gap: '12px',
+  alignItems: 'flex-start',
+  mb: '24px'
+}
+
+export const infoBannerTextStyles = {
+  fontFamily: 'Inter',
+  fontSize: '14px',
+  color: '#1F2937'
+}
+
+export const sectionHeadingStyles = {
+  fontFamily: 'Inter',
+  fontSize: '16px',
+  fontWeight: 700,
+  color: '#000e40',
+}
+
+export const linkInputFieldStyles = {
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: '#FFFFFF',
+    borderRadius: '8px',
+    height: '48px',
+    '& fieldset': { borderColor: '#E5E7EB' },
+    '&:hover fieldset': { borderColor: '#9CA3AF' },
+    '&.Mui-focused fieldset': { borderColor: '#2563EB' },
+  },
+  '& .MuiInputBase-input': {
+    color: '#1F2937',
+    fontFamily: 'Inter',
+    paddingLeft: '12px'
+  },
+  '& .MuiInputBase-input::placeholder': {
+    color: '#9CA3AF',
+    opacity: 1
+  }
+}
+
+export const addLinkButtonBaseStyles = {
+  minWidth: '80px',
+  height: '48px',
+  textTransform: 'none' as const,
+  fontWeight: 600,
+  fontFamily: 'Inter',
+  borderRadius: '8px',
+  borderColor: '#E5E7EB',
+  color: '#374151',
+  backgroundColor: '#F3F4F6'
+}
+
+export const addLinkButtonActiveStyles = {
+  color: '#FFFFFF',
+  borderColor: '#2563EB',
+  backgroundColor: '#2563EB',
+  '&:hover': {
+    backgroundColor: '#1d4ed8',
+    borderColor: '#1d4ed8'
+  }
+}
+
+export const addLinkButtonDisabledStyles = {
+  color: '#9CA3AF',
+  borderColor: '#F3F4F6',
+  backgroundColor: '#FFFFFF'
+}
+
+export const savedLinkRowStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+  padding: '0px 16px',
+  backgroundColor: '#F3F4F6',
+  borderRadius: '8px',
+  width: '100%',
+  height: '48px',
+  border: '1px solid #E5E7EB'
+}
+
+export const savedLinkTextStyles = {
+  flex: 1,
+  fontFamily: 'Inter',
+  fontSize: '14px',
+  color: '#2563EB',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  display: 'flex',
+  alignItems: 'center'
+}
+
+export const linkDeleteButtonStyles = {
+  color: '#6B7280',
+  padding: '4px',
+  '&:hover': {
+    color: '#EF4444',
+    backgroundColor: '#F3F4F6'
+  }
+}
+
+export const uploadClickTextStyles = {
+  color: '#3B82F6',
+  fontWeight: 600,
+  fontFamily: 'Inter',
+  fontSize: '16px'
+}
+
+export const uploadDragTextStyles = {
+  color: '#4B5563',
+  fontFamily: 'Inter',
+  fontSize: '16px'
+}
+
+export const uploadHintTextStyles = {
+  color: '#6B7280',
+  fontFamily: 'Inter',
+  fontSize: '12px'
+}
+
+export const evidenceLinkContainerStyles = {
+  backgroundColor: '#EFF6FF',
+  p: '16px',
+  borderRadius: '14px',
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '8px'
+}
+
+
+// =============================================
+// Recommendation Form Container Styles
+// =============================================
+
+export const recFormOuterContainerStyles = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '30px',
+  bgcolor: '#f0f4f8',
+  borderRadius: 2
+}
+
+export const recFormCardStyles = {
+  width: '100%',
+  bgcolor: 'white',
+  p: '20px',
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '30px',
+  borderRadius: 2
+}
+
+export const recSkillSectionStyles = {
+  width: '100%',
+  bgcolor: 'white',
+  display: 'flex',
+  flexDirection: 'column' as const
+}
+
+export const recSkillChipsContainerStyles = {
+  display: 'flex',
+  flexWrap: 'wrap' as const,
+  gap: '8px',
+  mt: '10px',
+  backgroundColor: '#F8FAFC',
+  borderRadius: '10px',
+  p: '12px',
+  border: '1px solid #E2E8F0'
+}
+
+export const unselectedSkillPillStyles = {
+  backgroundColor: '#F8FAFC',
+  color: '#0A0A0A',
+  border: '1px solid #E2E8F0'
+}
+
+// =============================================
+// Evidence Section Redesign Styles
+// =============================================
+
+export const evidenceTipBoxStyles = {
+  backgroundColor: '#CFF0FF',
+  borderRadius: '8px',
+  padding: '10px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'auto'
+}
+
+export const evidenceTipBoxTextStyles = {
+  fontFamily: 'Lato',
+  fontSize: '16px',
+  fontWeight: 'medium',
+  color: '#1F2937',
+  lineHeight: '1.2',
+  letterSpacing: '0.5%',
+}
+
+export const CardStyle = styled(Card, {
+  shouldForwardProp: (prop) => prop !== 'isDragActive'
+})<{ isDragActive?: boolean }>(
+  ({ isDragActive = false }) => ({
+    padding: '40px 20px',
+    cursor: 'default',
+    width: '100%',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    borderRadius: '12px',
+    gap: 2,
+    border: isDragActive ? '2px dashed #2563EB' : '1px solid #D1D5DB',
+    backgroundColor: isDragActive ? '#f0f9ff' : '#FFFFFF',
+    boxShadow: 'none',
+    '&:hover': {
+      borderColor: '#9CA3AF'
+    }
+  })
+)
+
+export const StyledTipBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginBottom: '24px',
+  width: '100%',
+  maxWidth: '872px',
+  gap: '1rem',
+  marginTop: theme.spacing(2),
+  backgroundColor: '#DDF4FF',
+  padding: '0.6rem 1rem',
+  borderRadius: '1rem'
+}))
+
+export const recGrayTextFieldStyles = {
+  bgcolor: '#FFFFFF', // Reverted to white per user request
+  width: '100%',
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '12px', // Keep the premium rounded corners
+    '& fieldset': {
+      borderColor: '#E2E8F0',
+    },
+    '&:hover fieldset': {
+      borderColor: '#CBD5E1',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#2563EB',
+    },
+  },
+}
+
+export const primaryButtonStyles = {
+  backgroundColor: '#2563EB',
+  color: '#FFFFFF',
+  borderRadius: '100px',
+  px: 4,
+  py: 1.5,
+  textTransform: 'none',
+  fontSize: '16px',
+  fontWeight: 600,
+  fontFamily: 'Inter',
+  '&:hover': {
+    backgroundColor: '#1D4ED8'
+  },
+  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '8px'
+}
+
+export const secondaryButtonStyles = {
+  backgroundColor: '#EFF6FF',
+  color: '#2563EB',
+  border: '1.5px solid #2563EB',
+  borderRadius: '100px',
+  px: 4,
+  py: 1.5,
+  textTransform: 'none',
+  fontSize: '16px',
+  fontWeight: 600,
+  fontFamily: 'Inter',
+  '&:hover': {
+    backgroundColor: '#DBEAFE',
+    borderColor: '#1D4ED8'
+  },
+  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '8px'
+}
+
+export const estimatedTimeBannerStyles = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '8px',
+  backgroundColor: '#FFF530',
+  padding: '15px',
+  borderRadius: '10px',
+  '& .MuiTypography-root': {
+    fontSize: '16px',
+    color: 't3BodyText',
+    fontFamily: 'Inter'
+  }
+}
+
+export const recSectionContainerStyles = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '32px',
+  width: '100%',
+  alignItems: 'center'
+}
+
+// =============================================
+// Navigation & Hamburger Menu Styles
+// =============================================
+
+export const navBarContainerStyles = {
+  width: '100%',
+  height: { xs: '27px', md: '100px' },
+  display: 'flex',
+  position: 'sticky',
+  alignItems: 'center',
+  backgroundColor: 'white',
+  justifyContent: 'space-between',
+  my: { xs: '18px', md: '0px' },
+  zIndex: 100,
+  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)'
+}
+
+export const navLogoContainerStyles = {
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  pl: { xs: '15px', md: '9.6vw' }
+}
+
+export const navLogoTypographyStyles = (theme: any) => ({
+  fontWeight: '700',
+  fontSize: { xs: '18px', md: '24px' },
+  color: theme.palette.t3DarkSlateBlue,
+  fontFamily: 'inter'
+})
+
+export const navLinksContainerStyles = {
+  display: { xs: 'none', md: 'flex' },
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  mr: { xs: '15px', md: '8vw' },
+  gap: '3vw',
+  textWrap: 'nowrap'
+}
+
+export const navLinkItemStyles = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center'
+}
+
+export const navLinkTypographyStyles = (theme: any, active: boolean) => ({
+  fontSize: '16px',
+  fontWeight: active ? '600' : '400',
+  color: active ? '#2563EB' : theme.palette.t3DarkSlateBlue,
+  cursor: 'pointer',
+  fontFamily: 'Lato, sans-serif'
+})
+
+export const navActiveIndicatorStyles = {
+  height: '2px',
+  width: '100%',
+  mt: '5px',
+  backgroundColor: '#2563EB'
+}
+
+export const userProfileContainerStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  padding: '4px 8px 4px 4px',
+  borderRadius: '100px',
+  cursor: 'pointer',
+  transition: 'background-color 0.2s',
+}
+
+export const userAvatarStyles = {
+  width: 36,
+  height: 36,
+  bgcolor: '#DBEAFE',
+  color: '#1E40AF',
+  fontSize: '16px',
+  fontWeight: 600,
+  border: 'none',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+}
+
+export const userNameTypographyStyles = {
+  fontSize: '15px',
+  fontWeight: 500,
+  color: '#1E293B',
+  fontFamily: 'Inter',
+  ml: 0.5
+}
+
+export const userMenuMoreIconStyles = {
+  color: '#64748B',
+  ml: 0.5,
+  fontSize: '20px',
+  borderRadius: '8px',
+}
+
+export const logoutMenuItemStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+  fontSize: '14px',
+  fontWeight: 500,
+  borderRadius: '8px',
+  '&:hover': {
+    backgroundColor: '#FEF2F2',
+    color: '#EF4444',
+    '& .logout-icon': {
+      color: '#EF4444'
+    }
+  }
+}
+
+export const logoutIconStyles = {
+  fontSize: '18px',
+  color: '#64748B',
+  transition: 'color 0.2s'
+}
+
+// Hamburger Menu Styles
+export const hamburgerIconButtonStyles = {
+  padding: '0px',
+  mr: '15px'
+}
+
+export const hamburgerDrawerBoxStyles = {
+  width: '300px',
+  padding: '20px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start'
+}
+
+export const hamburgerHeaderBoxStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+  height: '63px',
+  paddingBottom: '15px',
+  gap: '10px',
+  alignSelf: 'stretch'
+}
+
+export const hamburgerLogoBoxStyles = {
+  display: 'flex',
+  alignItems: 'center'
+}
+
+export const hamburgerLogoTypographyStyles = {
+  ml: '8px',
+  fontWeight: 700,
+  fontSize: '18px',
+  color: '#000'
+}
+
+export const hamburgerDividerStyles = {
+  width: 'calc(100% + 40px)',
+  height: '1px',
+  backgroundColor: '#9CA3AF',
+  margin: '0 -20px',
+  alignSelf: 'center'
+}
+
+export const hamburgerContentContainerStyles = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: '22px',
+  alignSelf: 'stretch',
+  pt: '22px'
+}
+
+export const hamburgerNavLinkBoxStyles = {
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  justifyContent: 'space-between'
+}
+
+export const hamburgerNavLinkInnerBoxStyles = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  flex: 1
+}
+
+export const hamburgerNavLinkTypographyStyles = (active: boolean) => ({
+  fontSize: '16px',
+  fontWeight: active ? '600' : '400',
+  color: active ? '#2563EB' : 'inherit',
+  cursor: 'pointer',
+  display: 'inline-block',
+  position: 'relative',
+  height: '22px',
+  fontFamily: 'Lato, sans-serif'
+})
+
+export const hamburgerNavLinkActiveIndicatorStyles = {
+  height: '2px',
+  width: '100%',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  backgroundColor: '#2563EB'
+}
+
+export const hamburgerLoginDescriptionStyles = {
+  fontWeight: 400,
+  fontSize: '16px'
+}
+
+export const hamburgerFeatureTitleStyles = {
+  fontSize: '13px',
+  fontWeight: 400
+}
+
+export const hamburgerFeatureBoxStyles = {
+  display: 'flex',
+  alignItems: 'center'
+}
+
+export const hamburgerFeatureTypographyStyles = {
+  ml: 1,
+  fontSize: '13px',
+  fontFamily: 'Inter'
+}
+
+export const hamburgerLoginButtonStyles = {
+  width: '91.53%',
+  borderRadius: '100px',
+  height: '40px',
+  textTransform: 'capitalize' as const,
+  backgroundColor: '#003FE0',
+  color: '#FFF',
+  mb: '30px',
+  '&:hover': {
+    backgroundColor: '#003FE0'
+  }
+}
+
+export const hamburgerAboutSupportContainerStyles = {
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '22px'
+}
+
+export const hamburgerAboutSupportLinkBoxStyles = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+  height: '22px',
+  mt: '22px'
+}
+
+export const hamburgerSupportLinkBoxStyles = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+  pb: '6px'
+}
+
+export const hamburgerAboutSupportTypographyStyles = {
+  fontWeight: 400,
+  fontSize: '16px',
+  height: '22px',
+  fontFamily: 'Lato, sans-serif'
+}
+
+export const hamburgerLogoutButtonStyles = {
+  width: '100%',
+  borderRadius: '100px',
+  textTransform: 'capitalize' as const,
+  backgroundColor: '#003FE0',
+  color: '#FFF',
+  mt: 2,
+  '&:hover': {
+    backgroundColor: '#003FE0'
+  }
 }
 

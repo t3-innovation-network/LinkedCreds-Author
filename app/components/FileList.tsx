@@ -9,8 +9,16 @@ import {
 } from '@mui/material'
 import Image from 'next/image'
 import { FileItem } from '../credentialForm/form/types/Types'
+import {
+  CardStyle,
+  StyledTipBox,
+  featuredImageBadgeStyles
+} from './Styles/appStyles'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import DeleteIcon from '@mui/icons-material/Delete'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
+import StarIcon from '@mui/icons-material/Star'
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
 interface FileListProps {
@@ -78,7 +86,8 @@ const formatBytes = (bytes: number, decimals = 2) => {
 
 const FileListDisplay: React.FC<FileListProps> = ({
   files,
-  onDelete
+  onDelete,
+  onReorder
 }) => {
   const [pdfThumbs, setPdfThumbs] = useState<Record<string, string>>({})
   const [vidThumbs, setVidThumbs] = useState<Record<string, string>>({})
@@ -181,7 +190,15 @@ const FileListDisplay: React.FC<FileListProps> = ({
                   textOverflow: 'ellipsis'
                 }}
               >
-                {f.name}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  {f.name}
+                  {files.indexOf(f) === 0 && (
+                    <Box sx={featuredImageBadgeStyles}>
+                      Featured Image
+                      <StarIcon sx={{ fontSize: '14px' }} />
+                    </Box>
+                  )}
+                </Box>
               </Box>
               {f.file?.size && (
                 <Box
@@ -197,22 +214,73 @@ const FileListDisplay: React.FC<FileListProps> = ({
               )}
             </Box>
 
-            {/* Delete Action */}
-            <Tooltip title='Delete media' arrow>
-              <IconButton
-                onClick={e => onDelete(e, f.googleId ?? f.id)}
+            {/* Actions: Delete + Reorder */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                width: files.length > 1 ? '120px' : 'auto',
+                justifyContent: 'flex-end'
+              }}
+            >
+              <Tooltip title='Delete media' arrow>
+                <IconButton
+                  onClick={e => onDelete(e, f.googleId ?? f.id)}
+                  sx={{
+                    color: '#9CA3AF',
+                    padding: '8px',
+                    '&:hover': {
+                      color: '#EF4444',
+                      backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                    }
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+
+              <Box
                 sx={{
-                  color: '#9CA3AF',
-                  padding: '8px',
-                  '&:hover': {
-                    color: '#EF4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)'
-                  }
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: files.length > 1 ? '72px' : 'auto',
+                  justifyContent: 'flex-end'
                 }}
               >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
+                {files.indexOf(f) > 0 && (
+                  <Tooltip title="Move Up" arrow>
+                    <IconButton
+                      onClick={() => {
+                        const idx = files.indexOf(f);
+                        const newFiles = [...files];
+                        [newFiles[idx - 1], newFiles[idx]] = [newFiles[idx], newFiles[idx - 1]];
+                        onReorder(newFiles);
+                      }}
+                      sx={{ color: '#9CA3AF', padding: '8px' }}
+                    >
+                      <ArrowUpwardIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                {files.indexOf(f) < files.length - 1 && (
+                  <Tooltip title="Move Down" arrow>
+                    <IconButton
+                      onClick={() => {
+                        const idx = files.indexOf(f);
+                        const newFiles = [...files];
+                        [newFiles[idx], newFiles[idx + 1]] = [newFiles[idx + 1], newFiles[idx]];
+                        onReorder(newFiles);
+                      }}
+                      sx={{ color: '#9CA3AF', padding: '8px' }}
+                    >
+                      <ArrowDownwardIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
+            </Box>
           </Box>
         )
       })}

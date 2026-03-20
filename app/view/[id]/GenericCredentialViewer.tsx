@@ -2,6 +2,7 @@
 import React from 'react'
 import { Box, Typography, Paper, Divider, Link, Chip, Button } from '@mui/material'
 import { SVGBadge, CheckMarkSVG } from '../../Assets/SVGs'
+import { useSession } from 'next-auth/react'
 import { GoogleDriveStorage } from '@cooperation/vc-storage'
 import { getAccessToken, getFileViaFirebase } from '../../firebase/storage'
 import { verifyCredentialWithEngine } from '../../utils/verification'
@@ -17,6 +18,8 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
   qrCodeDataUrl,
   fileID
 }) => {
+  const { data: session } = useSession()
+  const accessToken = session?.accessToken
   // Extract issuer information
   const getIssuerInfo = () => {
     if (typeof credential.issuer === 'string') {
@@ -61,7 +64,10 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
     normalizedId: string
   ): Promise<string | null> => {
     try {
-      const accessToken1 = await getAccessToken(normalizedId)
+      let accessToken1 = await getAccessToken(normalizedId)
+      if (!accessToken1) {
+        accessToken1 = accessToken ?? null
+      }
       const storage = new GoogleDriveStorage(accessToken1)
       const parents = await storage.getFileParents(normalizedId)
       const folderId = Array.isArray(parents) ? parents[0] : parents
@@ -140,6 +146,7 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
     <Paper
       elevation={0}
       sx={{
+        mb: 2,
         p: 3,
         border: '1px solid #003FE0',
         borderRadius: '10px',

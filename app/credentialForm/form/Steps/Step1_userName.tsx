@@ -48,7 +48,6 @@ export function Step1({ register, errors, handleNext }: Readonly<Step1Props>) {
         gap: '32px',
         width: '100%',
         maxWidth: '100%',
-        padding: '32px 32px 0px 32px'
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', alignItems: 'flex-start', }}>

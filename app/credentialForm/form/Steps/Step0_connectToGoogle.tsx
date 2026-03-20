@@ -47,7 +47,7 @@ export function Step0() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 3,
+        gap: '30px',
         textAlign: 'center',
         height: '60vh',
         mt: 4
@@ -69,34 +69,44 @@ export function Step0() {
       {/* Main text */}
       <Typography
         sx={{
-          fontSize: 24
+          fontSize: 24,
+          fontFamily: 'Lato, sans-serif',
+          lineHeight: 'auto'
         }}
       >
         First, login with Google Drive so you can save your data.
       </Typography>
 
       {/* Connect to Google Drive Button */}
-      <Button variant='actionButton' color='primary' onClick={connectToGoogleDrive}>
-        Login with Google Drive{' '}
-        <Tooltip title='You must have a Google Drive account and be able to login. This is where your credentials will be saved.'>
-          <Box sx={{ ml: 2, mt: '2px' }}>
-            <SVGSinfo />
-          </Box>
-        </Tooltip>
-      </Button>
-      <Button
-        variant='text'
-        color='primary'
-        onClick={() => setActiveStep(1)}
-        sx={{
-          fontSize: '14px',
-          fontWeight: 600,
-          textDecoration: 'underline',
-          textTransform: 'none'
-        }}
-      >
-        Continue without Saving
-      </Button>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+        <Button variant='actionButton' color='primary' onClick={connectToGoogleDrive} sx={{
+          fontSize: '15px',
+          fontFamily: 'Inter',
+          fontWeight: 'semi-bold',
+          lineHeight: 'auto'
+        }}>
+          Connect to Google Drive{' '}
+          <Tooltip title='You must have a Google Drive account and be able to login. This is where your credentials will be saved.'>
+            <Box sx={{ ml: 2, }}>
+              <SVGSinfo />
+            </Box>
+          </Tooltip>
+        </Button>
+        <Button
+          variant='text'
+          color='primary'
+          onClick={() => setActiveStep(1)}
+          sx={{
+            fontSize: '14px',
+            fontFamily: 'Roboto',
+            textDecoration: 'underline',
+            lineHeight: '20px',
+            textTransform: 'none'
+          }}
+        >
+          Continue without Saving
+        </Button>
+      </Box>
       <LoadingOverlay text='Connecting...' open={loading} />
     </Box>
   )

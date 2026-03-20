@@ -231,7 +231,6 @@ export const generateLinkedInUrl = (claim: any): string => {
     const claimId = getClaimId(claim)
     const credentialName = getCredentialName(claim)
     const issuanceDate = new Date(claim.issuanceDate || claim.proof?.created || new Date())
-    const expirationDate = new Date(claim.expirationDate || new Date())
     const baseLinkedInUrl = 'https://www.linkedin.com/profile/add'
     const params = new URLSearchParams({
       startTask: 'CERTIFICATION_NAME',

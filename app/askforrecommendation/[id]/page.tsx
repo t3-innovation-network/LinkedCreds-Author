@@ -125,7 +125,7 @@ export default function AskForRecommendation() {
         alignItems: 'center',
         gap: '30px',
         px: 3,
-        maxWidth: '800px',
+        maxWidth: '872px',
         mx: 'auto'
       }}
     >

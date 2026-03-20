@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { Box, Button, Typography, useTheme, useMediaQuery, Theme } from '@mui/material'
+import { Box, Button, Typography, useTheme, useMediaQuery, Theme, Link as MuiLink } from '@mui/material'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import Link from 'next/link'
 import Card, { HeroCard } from './components/cards'
@@ -8,7 +8,8 @@ import {
   sectionDescriptionStyles,
   featureTitleStyles,
   featureTextStyles,
-  callToActionButtonStyles
+  primaryButtonStyles,
+  secondaryButtonStyles
 } from './components/Styles/appStyles'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined'
@@ -219,17 +220,8 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
                 variant='contained'
                 endIcon={<KeyboardArrowRightIcon />}
                 sx={{
-                  backgroundColor: '#2563EB',
-                  color: '#FFFFFF',
-                  borderRadius: '8px',
-                  px: 3,
-                  py: 1.5,
-                  textTransform: 'none',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  fontFamily: 'Inter',
-                  '&:hover': { backgroundColor: '#004EEB' },
-                  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)'
+                  ...primaryButtonStyles,
+                  borderRadius: '8px' // Maintain 8px radius for hero as per original design, or use 100px for pill?
                 }}
               >
                 Build your first skill
@@ -239,16 +231,11 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
               <Button
                 variant='outlined'
                 sx={{
-                  backgroundColor: '#FFFFFF',
+                  ...secondaryButtonStyles,
                   color: '#344054',
-                  border: `1px solid #D0D5DD`,
+                  borderColor: '#D0D5DD',
+                  backgroundColor: '#FFFFFF',
                   borderRadius: '8px',
-                  px: 3,
-                  py: 1.5,
-                  textTransform: 'none',
-                  fontFamily: 'Inter',
-                  fontSize: '16px',
-                  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
                   '&:hover': {
                     backgroundColor: '#F9FAFB',
                     borderColor: '#D0D5DD'
@@ -417,21 +404,12 @@ const StepsSection: React.FC<SectionProps> = ({ theme }) => (
       <Button
         variant='contained'
         sx={{
-          backgroundColor: theme.palette.t3ButtonBlue,
-          color: '#FFFFFF',
-          fontFamily: 'Roboto',
-          borderRadius: '100px',
-          py: 1.5,
-          px: 4,
-          textTransform: 'none',
-          fontSize: '16px',
-          lineHeight: '20px',
+          ...primaryButtonStyles,
           mx: 'auto',
           display: { xs: 'block', md: 'none' },
           mb: '30px',
           width: { xs: '100%', md: 'auto' },
-          maxWidth: '360px',
-          fontWeight: 500
+          maxWidth: '360px'
         }}
       >
         Start building your first skill
@@ -457,7 +435,7 @@ const JOB_SEEKER_FEATURES = [
   }
 ]
 
-const JobSeekersSection: React.FC = () => {
+export const JobSeekersSection: React.FC<{ showCreatedByLine?: boolean }> = ({ showCreatedByLine = false }) => {
   return (
     <Box
       sx={{
@@ -523,23 +501,48 @@ const JobSeekersSection: React.FC = () => {
             maxWidth: { md: '550px' }
           }}
         >
-          <Typography
-            sx={{
-              fontSize: { xs: '20px', md: '30px' }, // Reduced from 24/36
-              fontWeight: 700,
-              fontFamily: 'Poppins',
-              color: '#101828',
-              lineHeight: 1.3
-            }}
-            variant='h3'
-          >
-            Built for the modern talent marketplace
-          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <Typography
+              sx={{
+                fontSize: { xs: '20px', md: '48px' }, // Reduced from 24/36
+                fontWeight: 'bold',
+                fontFamily: 'Poppins',
+                color: '#101828',
+                lineHeight: '52px'
+              }}
+            >
+              Built for the modern talent marketplace
+            </Typography>
+            {showCreatedByLine && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <Box sx={{ width: '100%', height: '1px', backgroundColor: '#E5E7EB' }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '50%',
+                      border: '1.5px solid #10B981',
+                      flexShrink: 0
+                    }}
+                  >
+                    <CheckIcon sx={{ color: '#10B981', fontSize: '14px', stroke: '#10B981', strokeWidth: 1 }} />
+                  </Box>
+                  <Typography sx={{ color: '#667085', fontSize: '13px', fontFamily: 'Inter' }}>
+                    Created by the <MuiLink href="https://www.uschamberfoundation.org/t3-innovation" target="_blank" rel="noopener noreferrer" sx={{ color: '#667085', textDecoration: 'underline', '&:hover': { color: '#344054' } }}>US Chamber of Commerce Foundation T3 Innovation Network</MuiLink>
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+          </Box>
           <Typography
             sx={sectionDescriptionStyles}
           >
-            In a world where trust matters, LinkedCreds provides a way for you to document
-            skills and collect the verification needed to showcase your true potential.
+            In a world where trust matters, LinkedCreds provides a way for people from all walks of life to document
+            skills and collect the verification needed to showcase their true potential.
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px', mt: 1 }}>
             {JOB_SEEKER_FEATURES.map((feature, index) => (
@@ -580,7 +583,7 @@ const JobSeekersSection: React.FC = () => {
           sx={{
             flex: 1,
             width: '100%',
-            maxWidth: '600px',
+            maxWidth: '666px',
             borderRadius: '16px',
             boxShadow: '0px 20px 40px -10px rgba(0, 0, 0, 0.15)',
             objectFit: 'cover'
@@ -642,7 +645,7 @@ const FEATURES_LIST = [
   }
 ]
 
-const FeaturesGridSection: React.FC = () => {
+export const FeaturesGridSection: React.FC = () => {
   return (
     <Box
       sx={{
@@ -802,7 +805,7 @@ const CallToActionSection: React.FC = () => {
           <Box sx={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <Link href='/credentialForm' passHref>
               <Button
-                sx={callToActionButtonStyles}
+                sx={{ ...secondaryButtonStyles, borderRadius: '8px' }}
                 endIcon={<KeyboardArrowRightIcon />}
               >
                 Build your first skill
@@ -810,7 +813,7 @@ const CallToActionSection: React.FC = () => {
             </Link>
             <Link href='/help' passHref>
               <Button
-                sx={callToActionButtonStyles}
+                sx={{ ...secondaryButtonStyles, borderRadius: '8px' }}
               >
                 Learn more
               </Button>

@@ -3,6 +3,28 @@ import {
   GoogleDriveStorage,
   saveToGoogleDrive
 } from '@cooperation/vc-storage'
+import jsonld from 'jsonld'
+
+if (jsonld) {
+  const patch = (method: string, optionsIndex: number) => {
+    const original = (jsonld as any)[method]
+    if (typeof original === 'function') {
+      ;(jsonld as any)[method] = function (...args: any[]) {
+        args[optionsIndex] = { ...args[optionsIndex], safe: false }
+        return original.apply(this, args)
+      }
+    }
+  }
+  ;[
+    ['expand', 1],
+    ['toRDF', 1],
+    ['canonize', 1],
+    ['normalize', 1],
+    ['compact', 2],
+    ['flatten', 2],
+    ['frame', 2]
+  ].forEach(([m, i]) => patch(m as string, i as number))
+}
 import type { ISkillClaimCredential } from 'hr-context'
 import type { FormData } from '../credentialForm/form/types/Types'
 import { normalizeSkillClaimFormData, SkillClaimFormData } from './normalization/hrContextSkillClaim'

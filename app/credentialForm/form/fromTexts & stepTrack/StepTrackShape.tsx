@@ -13,18 +13,29 @@ export function StepTrackShape() {
   const { data: session } = useSession()
   const accessToken = session?.accessToken
 
-  const mappedStep = (() => {
-    switch (activeStep) {
-      case 1: return 1
-      case 2: return 2
-      case 3: return 3
-      case 4: return 4
-      default: return 0
-    }
-  })()
+  const isRecommendationFlow = typeof window !== 'undefined' && window.location.pathname.includes('/recommendations/')
 
-  // Always 4 steps for this flow
-  const DISPLAY_TOTAL_STEPS = 4
+  const DISPLAY_TOTAL_STEPS = isRecommendationFlow ? 3 : 4
+
+  let mappedStep = 0
+  if (isRecommendationFlow) {
+    if (activeStep === 2) mappedStep = 1
+    else if (activeStep === 3) mappedStep = 2
+    else if (activeStep === 4) mappedStep = 3
+  } else {
+    switch (activeStep) {
+      case 1: mappedStep = 1; break
+      case 2: mappedStep = 2; break
+      case 3: mappedStep = 3; break
+      case 4: mappedStep = 4; break
+      default: mappedStep = 0
+    }
+  }
+
+  // Hide the tracker entirely if it's not a mapped step in recommendation flow
+  if (isRecommendationFlow && (mappedStep === 0 || activeStep > 4)) {
+    return null
+  }
 
   const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -93,7 +104,7 @@ export function StepTrackShape() {
         {Array.from({ length: DISPLAY_TOTAL_STEPS }, (_, index) => renderStepBox(index))}
       </Box>
 
-      <Typography sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: 500, color: '#4D4D4D' }}>
+      <Typography sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: 500, color: '#4D4D4D', whiteSpace: 'nowrap' }}>
         Step {mappedStep} of {DISPLAY_TOTAL_STEPS}
       </Typography>
 

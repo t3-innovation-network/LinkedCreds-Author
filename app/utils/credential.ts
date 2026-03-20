@@ -1,5 +1,27 @@
 import { CredentialEngine, GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
 import type { ISkill, IFrameworkMatch } from 'hr-context'
+import jsonld from 'jsonld'
+
+if (jsonld) {
+  const patch = (method: string, optionsIndex: number) => {
+    const original = (jsonld as any)[method]
+    if (typeof original === 'function') {
+      ;(jsonld as any)[method] = function (...args: any[]) {
+        args[optionsIndex] = { ...args[optionsIndex], safe: false }
+        return original.apply(this, args)
+      }
+    }
+  }
+  ;[
+    ['expand', 1],
+    ['toRDF', 1],
+    ['canonize', 1],
+    ['normalize', 1],
+    ['compact', 2],
+    ['flatten', 2],
+    ['frame', 2]
+  ].forEach(([m, i]) => patch(m as string, i as number))
+}
 import { FormData } from '../credentialForm/form/types/Types'
 
 interface FormDataI {
@@ -235,7 +257,7 @@ export const generateCredentialData = (data: FormData): FormDataI => {
     evidenceDescription: data.evidenceDescription || '',
     credentialType: data.persons || '',
     alignment: alignment,
-    expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
+    expirationDate: '4000-01-01T00:00:00Z'
   }
 }
 
@@ -265,7 +287,7 @@ const generateRecommendationData = (data: any): RecommendationI => {
       data.evidence && (data.evidence as any[]).length > 0
         ? (data.evidence as any[]).map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
         : [{ name: '', url: '', type: ['Evidence'] }],
-    expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString()
+    expirationDate: '4000-01-01T00:00:00Z'
   }
 }
 

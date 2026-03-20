@@ -187,7 +187,8 @@ export default function MailRecommendation() {
         alignItems: 'center',
         gap: '30px',
         px: 3,
-        maxWidth: '800px',
+        maxWidth: '872px',
+        width: { xs: '100%', md: '872px' },
         mx: 'auto'
       }}
     >

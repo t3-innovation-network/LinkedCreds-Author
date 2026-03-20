@@ -36,6 +36,6 @@ export function normalizeSkillClaimFormData(formData: FormData): SkillClaimFormD
     skills,
     evidence: evidence.length ? evidence : [],
     portfolio: formData.evidence && Array.isArray(formData.evidence) ? formData.evidence : [],
-    expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
+    expirationDate: '4000-01-01T00:00:00Z'
   }
 }

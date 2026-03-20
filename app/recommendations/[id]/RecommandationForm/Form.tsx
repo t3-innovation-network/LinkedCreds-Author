@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { FormControl, Box, Link, Typography } from '@mui/material'
 import { useParams } from 'next/navigation'
@@ -19,13 +19,17 @@ import { useSession } from 'next-auth/react'
 import { Logo } from '../../../Assets/SVGs'
 import useGoogleDrive from '../../../hooks/useGoogleDrive'
 import { storeFileTokens } from '../../../firebase/storage'
+import { leftColumnStyles } from '../../../components/Styles/appStyles'
 interface FormProps {
   fullName: string  // This is the recipient's name
   email: string
   skills: SelectedSkill[]
+  credentialSubject?: any
+  originalEvidence?: any[]
+  onFormDataChange?: (data: { recommenderName: string; selectedSkills: SelectedSkill[]; recommendationText: string; howKnow: string; qualifications: string; evidence: any[]; selectedFiles: any[] }) => void
 }
 
-const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) => {
+const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills, credentialSubject, originalEvidence = [], onFormDataChange }) => {
   const { activeStep, handleNext, handleBack, setActiveStep } = useStepContext()
   const { data: session } = useSession()
   const accessToken = session?.accessToken
@@ -45,7 +49,21 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
   const [isLoading, setIsLoading] = useState(false)
   const [tooltipText, setTooltipText] = useState('saving your recommendation')
   const [recId, setRecId] = useState<string | null>(null)
-  const [selectedFiles, setSelectedFiles] = useState<any[]>([])
+  const [selectedFiles, setSelectedFiles] = useState<any[]>(() => {
+    // Reconstruct selectedFiles from persisted evidence on initial load
+    const storedEvidence = storedValue?.evidence || []
+    return storedEvidence
+      .filter((item: any) => (item.googleId || item.wasId) && item.url)
+      .map((item: any) => ({
+        id: item.googleId || item.wasId,
+        name: item.name || 'Untitled',
+        url: item.url,
+        googleId: item.googleId,
+        wasId: item.wasId,
+        isFeatured: item.isFeatured || false,
+        uploaded: true
+      }))
+  })
 
   const defaultValues: FormData = storedValue
 
@@ -74,7 +92,35 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
     }
   }, [formData, storedValue, setStoreNewValue])
 
+  // Separate effect for sidebar updates to avoid infinite loops
+  const prevSidebarRef = useRef('')
+  useEffect(() => {
+    if (!onFormDataChange) return
+    const sidebarPayload = {
+      recommenderName: String(formData.fullName || ''),
+      selectedSkills: (formData.selectedSkills as SelectedSkill[]) || [],
+      recommendationText: String(formData.recommendationText || ''),
+      howKnow: String(formData.howKnow || ''),
+      qualifications: String(formData.qualifications || ''),
+      evidence: formData.evidence || [],
+      selectedFiles: selectedFiles || []
+    }
+    const key = JSON.stringify(sidebarPayload)
+    if (key !== prevSidebarRef.current) {
+      prevSidebarRef.current = key
+      onFormDataChange(sidebarPayload)
+    }
+  }, [formData.fullName, formData.selectedSkills, formData.recommendationText, formData.howKnow, formData.qualifications, formData.evidence, selectedFiles])
+
   const { storage } = useGoogleDrive()
+
+  const customHandleBack = () => {
+    if (activeStep === 2 && session?.accessToken) {
+      setActiveStep(0)
+    } else {
+      handleBack()
+    }
+  }
 
   const saveAndAddComment = async () => {
     try {
@@ -143,6 +189,7 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
       setSubmittedFullName(data.fullName)
       await saveAndAddComment()
       clearValue()
+      setSelectedFiles([])
       reset({
         storageOption: 'Google Drive',
         fullName: '',
@@ -170,112 +217,29 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
 
   return (
     <FormProvider {...methods}>
-      <form
-        style={{
+      <Box
+        component="form"
+        sx={{
+          ...leftColumnStyles,
           display: 'flex',
           flexDirection: 'column',
           gap: '30px',
           alignItems: 'center',
           marginTop: '5px',
-          padding: '20px',
-          width: '100%',
-          maxWidth: '720px',
+          width: { xs: '100%', md: '872px' },
+          maxWidth: '872px',
           minWidth: '320px',
-          backgroundColor: '#FFF',
           margin: '0 auto',
-          marginBottom: '20px'
+          marginBottom: '20px',
+          boxSizing: 'border-box'
         }}
         onSubmit={handleFormSubmit}
       >
-        {(activeStep === 2 || activeStep === 3) && (
-          <Box
-            sx={{
-              backgroundColor: 'white',
-              p: 2,
-              borderRadius: 2,
-              width: '100%'
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-              <Box
-                sx={{
-                  backgroundColor: 'blue.50',
-                  borderRadius: '8px',
-                  mt: 1
-                }}
-              >
-                <Logo />
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                {activeStep === 2 && (
-                  <Typography
-                    variant='h6'
-                    sx={{ fontWeight: 'bold', color: 'text.primary' }}
-                  >
-                    Create your recommendation
-                  </Typography>
-                )}
-                {activeStep === 3 && (
-                  <Typography
-                    variant='h6'
-                    sx={{ fontWeight: 'bold', color: 'text.primary' }}
-                  >
-                    Review before signing
-                  </Typography>
-                )}
-                {activeStep === 2 && (
-                  <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    You can also{' '}
-                    <Link
-                      href='#'
-                      sx={{
-                        color: 'primary.main',
-                        '&:hover': {
-                          color: 'primary.dark'
-                        },
-                        textDecoration: 'underline'
-                      }}
-                      onClick={e => {
-                        e.preventDefault()
-                        console.log('Save & Exit clicked')
-                      }}
-                    >
-                      Save & Exit
-                    </Link>{' '}
-                    to keep this as a draft.
-                  </Typography>
-                )}
-                {activeStep === 3 && (
-                  <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    if everything looks good, select{'  '}
-                    <Link
-                      href='#'
-                      sx={{
-                        color: 'primary.main',
-                        '&:hover': {
-                          color: 'primary.dark'
-                        },
-                        textDecoration: 'underline'
-                      }}
-                      onClick={e => {
-                        e.preventDefault()
-                        console.log('Save & Exit clicked')
-                      }}
-                    >
-                      Save & Exit
-                    </Link>{' '}
-                    to complete your recommendation.
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-          </Box>
-        )}
 
         <Box sx={{ width: '100%' }}>
           <FormControl sx={{ width: '100%' }}>
             {activeStep === 1 && (
-              <Step1 watch={watch} setValue={setValue} handleNext={handleNext} />
+              <Step1 watch={watch} setValue={setValue} handleNext={handleNext} fullName={recipientName} />
             )}
             {activeStep === 2 && (
               <Step2
@@ -295,11 +259,17 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
                 formData={formData}
                 fullName={recipientName}
                 handleNext={handleNext}
-                handleBack={handleBack}
-                handleSign={handleFormSubmit}
+                handleBack={customHandleBack}
+                handleSign={saveAndAddComment}
                 isLoading={isLoading}
-                onUpdateFormData={handleUpdateFormData}
+                onUpdateFormData={newValue => {
+                  reset(newValue)
+                  setStoreNewValue(newValue)
+                }}
                 selectedFiles={selectedFiles}
+                originalEvidence={originalEvidence}
+                credentialSubject={credentialSubject}
+                skills={skills}
               />
             )}
             {activeStep === 4 && (
@@ -308,8 +278,10 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
                 submittedFullName={submittedFullName}
                 fullName={recipientName}
                 email={email}
-                handleBack={handleBack}
+                handleBack={customHandleBack}
                 recId={recId}
+                credentialSubject={credentialSubject}
+                skills={skills}
               />
             )}
           </FormControl>
@@ -320,12 +292,12 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills }) =
           maxSteps={textGuid(recipientName).length}
           handleNext={handleNext}
           handleSign={handleFormSubmit}
-          handleBack={handleBack}
+          handleBack={customHandleBack}
           isValid={isValid}
           isLoading={isLoading}
           tooltipText={tooltipText}
         />
-      </form>
+      </Box>
     </FormProvider>
   )
 }

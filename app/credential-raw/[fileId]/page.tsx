@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter, usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { getFileViaFirebase } from '../../firebase/storage'
 
 export default function CredentialRawPage() {
@@ -9,6 +10,7 @@ export default function CredentialRawPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [viewType, setViewType] = useState<'formatted' | 'raw'>('formatted')
+  const { data: session } = useSession()
 
   const params = useParams()
   // Extract the full file ID from the URL path
@@ -58,9 +60,18 @@ export default function CredentialRawPage() {
         const actualFileId = extractGoogleDriveId(fullFileId)
 
         console.log('Using file ID:', actualFileId)
-        const fileData = await getFileViaFirebase(actualFileId)
+        const fileData = await getFileViaFirebase(actualFileId, session?.accessToken as string)
+        if (!fileData) {
+            throw new Error('File not found or unauthorized')
+        }
         console.log('🚀 ~ extractRawCredential ~ fileData:', fileData.body)
-        const vcJSON = JSON.parse(fileData.body)
+
+        let vcJSON = fileData
+        if (fileData.body && typeof fileData.body === 'string') {
+            vcJSON = JSON.parse(fileData.body)
+        } else if (typeof fileData === 'string') {
+            vcJSON = JSON.parse(fileData)
+        }
         setRawCredential(vcJSON)
       } catch (err) {
         setError('Failed to extract raw credential')

@@ -8,7 +8,13 @@ export async function GET(
   const url = `https://drive.google.com/uc?id=${fileId}&export=download`
 
   try {
-    const response = await fetch(url)
+    const authHeader = request.headers.get('Authorization')
+    const headers: Record<string, string> = {}
+    if (authHeader) {
+      headers['Authorization'] = authHeader
+    }
+
+    const response = await fetch(url, { headers })
 
     if (!response.ok) {
       throw new Error(`Drive API error: ${response.status}`)

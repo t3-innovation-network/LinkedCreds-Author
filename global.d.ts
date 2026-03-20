@@ -5,3 +5,5 @@ interface Window {
     on?: (eventName: string, callback: (...args: any[]) => void) => void
   }
 }
+
+declare module 'jsonld'
