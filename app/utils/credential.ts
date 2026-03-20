@@ -1,56 +1,18 @@
-import { CredentialEngine, GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
+import {
+  CredentialEngine,
+  GoogleDriveStorage,
+  saveToGoogleDrive
+} from '@cooperation/vc-storage'
 import type { ISkill, IFrameworkMatch } from 'hr-context'
-import jsonld from 'jsonld'
-
-if (jsonld) {
-  const patch = (method: string, optionsIndex: number) => {
-    const original = (jsonld as any)[method]
-    if (typeof original === 'function') {
-      ;(jsonld as any)[method] = function (...args: any[]) {
-        args[optionsIndex] = { ...args[optionsIndex], safe: false }
-        return original.apply(this, args)
-      }
-    }
-  }
-  ;[
-    ['expand', 1],
-    ['toRDF', 1],
-    ['canonize', 1],
-    ['normalize', 1],
-    ['compact', 2],
-    ['flatten', 2],
-    ['frame', 2]
-  ].forEach(([m, i]) => patch(m as string, i as number))
-}
 import { FormData } from '../credentialForm/form/types/Types'
-
-interface FormDataI {
-  fullName: string
-  duration: string
-  criteriaNarrative: string
-  achievementDescription: string
-  achievementName: string
-  evidence: { googleId?: string; name: string; url: string; type?: string[] }[]
-  portfolio: { googleId?: string; name: string; url: string; type?: string[] }[]
-  evidenceLink: string
-  evidenceDescription: string
-  credentialType: string
-  alignment?: { targetName: string; targetDescription?: string; soc?: string[]; uuid?: string; score?: number }[]
-  expirationDate: string
-}
-
-interface RecommendationI {
-  recommendationText: string
-  qualifications: string
-  fullName: string  // Recommender's name
-  recipientName?: string  // Recipient's name (who the recommendation is for)
-  howKnow: string
-  explainAnswer: string
-  evidence: { googleId?: string; name: string; url: string; type?: string[] }[]
-  portfolio: { googleId?: string; name: string; url: string; type?: string[] }[]
-  skillsEndorsed?: Pick<ISkill, 'name' | 'id' | 'frameworkMatch'>[]
-  expirationDate: string
-}
+// @ts-ignore
+import * as dbVc from '@digitalcredentials/vc'
+// @ts-ignore
+import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020'
+// @ts-ignore
+import { customDocumentLoader } from '@cooperation/vc-storage/dist/utils/digitalbazaar.js'
+import { v4 as uuidv4 } from 'uuid'
+import * as hrContextObj from 'hr-context'
 
 function getCredentialEngine(accessToken: string): CredentialEngine {
   if (!accessToken) {
@@ -84,138 +46,109 @@ const signCred = async (
   accessToken: string,
   data: any,
   issuerDid: string,
-  keyPair: string,
+  keyPair: any,
   type: 'RECOMMENDATION' | 'VC',
   vcFileId?: any,
   saveToDrive: boolean = false
 ) => {
-  if (!accessToken) {
-    throw new Error('Access token is not provided')
-  }
-  let formData: FormDataI | RecommendationI
+  if (!accessToken) throw new Error('Access token is not provided')
   let signedVC
   try {
     const credentialEngine = getCredentialEngine(accessToken)
+
+    const contextArray = [
+      'https://www.w3.org/ns/credentials/v2',
+      'https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json',
+      'https://w3id.org/hr/v1',
+      'https://w3id.org/security/suites/ed25519-2020/v1'
+    ]
+
+    let credentialSubject: any
+    let evidenceItems: any[] = []
+
     if (type === 'RECOMMENDATION') {
-      formData = generateRecommendationData(data)
+      const { subject, evidence } = generateRecommendationData(data)
+      credentialSubject = subject
+      evidenceItems = evidence
+
       signedVC = await credentialEngine.signVC({
-        data: formData,
+        data: {
+          '@context': contextArray,
+          ...credentialSubject
+        },
         type: 'RECOMMENDATION',
         keyPair,
         issuerId: issuerDid,
         vcFileId
       })
-
-      delete signedVC.expirationDate
-      delete signedVC.issuanceDate
-      signedVC.issuer = issuerDid
-      signedVC['@context'] = [
-        "https://www.w3.org/ns/credentials/v2",
-        "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
-        "https://w3id.org/hr/v1",
-        "https://w3id.org/security/suites/ed25519-2020/v1"
-      ]
-
-      const { name, howKnow, recommendationText, qualifications, explainAnswer, evidence, ...rest } = signedVC.credentialSubject
-
-      signedVC.credentialSubject = {
-        name,
-        recipientName: (formData as RecommendationI).recipientName,
-        howKnow,
-        ...((formData as RecommendationI).skillsEndorsed && (formData as RecommendationI).skillsEndorsed!.length > 0 ? { skillsEndorsed: (formData as RecommendationI).skillsEndorsed } : {}),
-        recommendationText,
-        qualifications,
-        explainAnswer,
-        evidence: evidence,
-        ...rest
-      }
     } else {
-      formData = generateCredentialData(data)
-      signedVC = await credentialEngine.signVC({
-        data: formData,
-        type: 'VC',
-        keyPair,
-        issuerId: issuerDid
-      })
-      delete signedVC.issuanceDate
-      delete signedVC.expirationDate
-      signedVC.issuer = issuerDid
+      const { subject, evidence } = generateCredentialData(data, issuerDid)
+      credentialSubject = subject
+      evidenceItems = evidence
 
-      // Restructure to ISkillClaimCredential (hr-context format)
-      const f = formData as FormDataI
-      // Capture the credential name from signVC's achievement before replacing credentialSubject
-      const credentialName = signedVC.credentialSubject?.achievement?.[0]?.name ?? f.achievementName
-      const skills: ISkill[] = (f.alignment ?? []).map(align => ({
-        id: align.uuid ?? `urn:uuid:${align.targetName}`,
-        name: align.targetName,
-        ...(align.targetDescription ? { description: align.targetDescription } : {}),
-        source: 'ollama',
-        frameworkMatch: align.soc?.length
-          ? [{
-            name: align.targetDescription ?? align.targetName,
-            socCode: align.soc,
-            framework: 'O*Net',
-            similarityScore: align.score ?? 0
-          } satisfies IFrameworkMatch]
-          : []
-      }))
-
-      // Standardize @context
-      signedVC['@context'] = [
-        "https://www.w3.org/ns/credentials/v2",
-        "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
-        "https://w3id.org/hr/v1",
-        "https://w3id.org/security/suites/ed25519-2020/v1"
-      ]
-      if (Array.isArray(signedVC.type)) {
-        signedVC.type = signedVC.type.filter((t: string) => t !== 'OpenBadgeCredential')
-        if (!signedVC.type.includes('SkillClaimCredential')) signedVC.type.push('SkillClaimCredential')
-        if (!signedVC.type.includes('SelfIssuedCredential')) signedVC.type.push('SelfIssuedCredential')
+      const unsignedCredential: any = {
+        '@context': contextArray,
+        id: `urn:uuid:${uuidv4()}`,
+        type: ['VerifiableCredential', 'SkillClaimCredential', 'SelfIssuedCredential'],
+        issuer: { id: issuerDid, type: ['Profile'] },
+        issuanceDate: new Date().toISOString(),
+        credentialSubject: credentialSubject
       }
 
-      // Reshape credentialSubject
-      signedVC.credentialSubject = {
-        type: ['SkillClaim'],
-        person: {
-          type: ['Person'],
-          id: issuerDid,
-          name: f.fullName
-
-        },
-        name: credentialName,
-        ...(f.criteriaNarrative ? { narrative: f.criteriaNarrative } : {}),
-        ...(f.duration ? { durationPerformed: f.duration } : {}),
-        skill: skills
+      if (evidenceItems && evidenceItems.length > 0) {
+        unsignedCredential.evidence = evidenceItems
       }
-      const evidenceItems: { id: string; name: string; type?: string[] }[] = []
 
-      if (f.evidence?.length) {
-        f.evidence.forEach((p: any) => {
-          if (p.id || p.url) {
-            evidenceItems.push({
-              id: p.id || p.url,
-              name: p.name || 'Evidence',
-              type: ['Evidence']
-            })
+      console.log('VC BEFORE SIGNING (SkillClaim):', JSON.stringify(unsignedCredential, null, 2))
+
+      const wrappedDocumentLoader = async (url: string) => {
+        if (url === 'https://w3id.org/hr/v1' || url === 'https://w3id.org/hr/v1/') {
+          return {
+            contextUrl: null,
+            documentUrl: url,
+            document: (hrContextObj as any).CONTEXT_V1 || (hrContextObj as any).contexts?.get(url)
           }
-        })
+        }
+        if (url === 'https://www.w3.org/ns/credentials/v2' || url === 'https://www.w3.org/ns/credentials/v2/') {
+          const v1Doc = await customDocumentLoader('https://www.w3.org/2018/credentials/v1')
+          return {
+            contextUrl: null,
+            documentUrl: url,
+            document: v1Doc.document
+          }
+        }
+        return customDocumentLoader(url)
       }
 
+      const suite = new Ed25519Signature2020({ key: keyPair, verificationMethod: keyPair.id })
+      signedVC = await dbVc.issue({ credential: unsignedCredential, suite, documentLoader: wrappedDocumentLoader })
+    }
 
-      if (evidenceItems.length) signedVC['evidence'] = evidenceItems
+    const finalVC: any = {
+      '@context': signedVC['@context'] || contextArray,
+      id: signedVC.id,
+      type: signedVC.type,
+      issuer: signedVC.issuer,
+      issuanceDate: signedVC.issuanceDate,
+      credentialSubject: signedVC.credentialSubject,
+      proof: signedVC.proof
+    }
+
+    if (signedVC.evidence) {
+      finalVC.evidence = signedVC.evidence
     }
 
     if (saveToDrive) {
       const storage = new GoogleDriveStorage(accessToken)
       const file = await saveToGoogleDrive({
         storage,
-        data: signedVC,
+        data: finalVC,
         type: type === 'RECOMMENDATION' ? 'RECOMMENDATION' : 'VC'
       })
-      return { signedVC, file }
+      return { signedVC: finalVC, file }
     }
 
-    return signedVC
+    return finalVC
   } catch (error) {
     console.error('Error during VC signing:', error)
     throw error
@@ -225,70 +158,108 @@ const signCred = async (
 /**
  * Generate credential data for 'VC' type
  * @param data - The form data
- * @returns FormDataI object
+ * @param issuerDid - The issuer's DID
+ * @returns { subject, evidence }
  */
-export const generateCredentialData = (data: FormData): FormDataI => {
-  const alignment = data.skills?.map(skill => ({
-    targetName: skill.name,
-    targetDescription: skill.description || skill.frameworkMatch?.[0]?.name,
-    soc: skill.frameworkMatch?.[0]?.socCode,
-    uuid: skill.id,
-    score: skill.frameworkMatch?.[0]?.similarityScore
-  })) || []
+export const generateCredentialData = (data: FormData, issuerDid: string) => {
+  const skills: ISkill[] = (data.skills ?? []).map(skill => {
+    const align = {
+      targetName: skill.name,
+      targetDescription: skill.description || skill.frameworkMatch?.[0]?.name,
+      soc: skill.frameworkMatch?.[0]?.socCode,
+      uuid: skill.id,
+      score: skill.frameworkMatch?.[0]?.similarityScore
+    }
+    return {
+      id: align.uuid ?? `urn:uuid:${align.targetName}`,
+      name: align.targetName,
+      ...(align.targetDescription ? { description: align.targetDescription } : {}),
+      source: 'ollama',
+      frameworkMatch: align.soc?.length
+        ? [
+          {
+            name: align.targetDescription ?? align.targetName,
+            socCode: align.soc,
+            framework: 'O*Net',
+            similarityScore: align.score ?? 0
+          } satisfies IFrameworkMatch
+        ]
+        : []
+    }
+  })
 
-  return {
-    fullName: data.fullName || '',
-    duration: data.credentialDuration || '',
-    criteriaNarrative: data.credentialDescription || '',
-    achievementDescription:
-      typeof data.description === 'string'
-        ? data.description
-        : String(data.description || ''),
-    achievementName: data.credentialName || '',
-    evidence:
-      data.evidence && data.evidence.length > 0
-        ? data.evidence.map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
-        : [{ name: '', url: '', type: ['Evidence'] }],
-    portfolio:
-      data.evidence && data.evidence.length > 0
-        ? data.evidence.map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
-        : [{ name: '', url: '', type: ['Evidence'] }],
-    evidenceLink: data?.evidenceLink || '',
-    evidenceDescription: data.evidenceDescription || '',
-    credentialType: data.persons || '',
-    alignment: alignment,
-    expirationDate: '4000-01-01T00:00:00Z'
+  const subject = {
+    type: ['SkillClaim'],
+    person: {
+      id: issuerDid,
+      name: data.fullName || ''
+    },
+    name: data.credentialName || '',
+    ...(data.credentialDescription ? { description: data.credentialDescription } : {}),
+    ...(data.credentialDuration ? { durationPerformed: data.credentialDuration } : {}),
+    skill: skills
   }
+
+  const evidence: any[] = []
+  if (data.evidence && data.evidence.length > 0) {
+    data.evidence.forEach((p: any) => {
+      const url = p.url || p.googleId || p.id || ''
+      if (url) {
+        evidence.push({
+          id: url,
+          name: p.name || 'Evidence',
+          type: ['Evidence']
+        })
+      }
+    })
+  } else if (data.evidenceLink) {
+    evidence.push({
+      id: data.evidenceLink,
+      name: data.evidenceDescription || 'Evidence',
+      type: ['Evidence']
+    })
+  }
+
+  return { subject, evidence }
 }
 
 /**
  * Generate credential data for 'RECOMMENDATION' type
  * @param data - The form data
- * @returns RecommendationI object
+ * @returns { subject, evidence }
  */
-const generateRecommendationData = (data: any): RecommendationI => {
-  return {
-    recommendationText: data.recommendationText,
-    qualifications: data.qualifications,
-    fullName: data.fullName,
-    recipientName: data.recipientName,
-    howKnow: data.howKnow,
-    skillsEndorsed: data.selectedSkills?.map((skill: any) => ({
-      name: skill.name ?? skill.targetName,
-      id: skill.id ?? skill.uuid,
-      frameworkMatch: skill.frameworkMatch ?? (skill.soc ? [{ socCode: skill.soc, similarityScore: skill.score }] : [])
-    })) || [],
-    explainAnswer: data.explainAnswer,
-    evidence:
-      data.evidence && (data.evidence as any[]).length > 0
-        ? (data.evidence as any[]).map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
-        : [{ name: '', url: '', type: ['Evidence'] }],
-    portfolio:
-      data.evidence && (data.evidence as any[]).length > 0
-        ? (data.evidence as any[]).map(({ googleId, ...rest }: any) => ({ ...rest, type: ['Evidence'] }))
-        : [{ name: '', url: '', type: ['Evidence'] }],
-    expirationDate: '4000-01-01T00:00:00Z'
+const generateRecommendationData = (data: any) => {
+  const subject: any = {
+    name: data.recommendationText || '',
+    recipientName: data.recipientName || '',
+    howKnow: data.howKnow || '',
+    skillsEndorsed:
+      data.selectedSkills?.map((skill: any) => ({
+        name: skill.name ?? skill.targetName,
+        id: skill.id ?? skill.uuid,
+        frameworkMatch:
+          skill.frameworkMatch ??
+          (skill.soc ? [{ socCode: skill.soc, similarityScore: skill.score }] : [])
+      })) || [],
+    recommendationText: data.recommendationText || '',
+    qualifications: data.qualifications || '',
+    explainAnswer: data.explainAnswer || ''
   }
+
+  const evidence: any[] = []
+  if (data.evidence && (data.evidence as any[]).length > 0) {
+    ; (data.evidence as any[]).forEach((p: any) => {
+      if (p.url || p.googleId || p.id) {
+        evidence.push({
+          id: p.url || p.googleId || p.id || '',
+          name: p.name || 'Evidence',
+          type: ['Evidence']
+        })
+      }
+    })
+  }
+
+  return { subject, evidence }
 }
 
 export { signCred }

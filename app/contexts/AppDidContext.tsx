@@ -40,14 +40,10 @@ export function AppDidProvider({ children }: AppDidProviderProps) {
   const value: AppDidContextType = {
     appInstanceDid,
     hasZcap,
-    zcapInfo,
+    zcapInfo
   }
 
-  return (
-    <AppDidContext.Provider value={value}>
-      {children}
-    </AppDidContext.Provider>
-  )
+  return <AppDidContext.Provider value={value}>{children}</AppDidContext.Provider>
 }
 
 export function useAppDid() {

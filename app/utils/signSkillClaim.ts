@@ -3,31 +3,9 @@ import {
   GoogleDriveStorage,
   saveToGoogleDrive
 } from '@cooperation/vc-storage'
-import jsonld from 'jsonld'
-
-if (jsonld) {
-  const patch = (method: string, optionsIndex: number) => {
-    const original = (jsonld as any)[method]
-    if (typeof original === 'function') {
-      ;(jsonld as any)[method] = function (...args: any[]) {
-        args[optionsIndex] = { ...args[optionsIndex], safe: false }
-        return original.apply(this, args)
-      }
-    }
-  }
-  ;[
-    ['expand', 1],
-    ['toRDF', 1],
-    ['canonize', 1],
-    ['normalize', 1],
-    ['compact', 2],
-    ['flatten', 2],
-    ['frame', 2]
-  ].forEach(([m, i]) => patch(m as string, i as number))
-}
 import type { ISkillClaimCredential } from 'hr-context'
 import type { FormData } from '../credentialForm/form/types/Types'
-import { normalizeSkillClaimFormData, SkillClaimFormData } from './normalization/hrContextSkillClaim'
+import { normalizeSkillClaimFormData } from './normalization/hrContextSkillClaim'
 
 /**
  * Sign a SkillClaimCredential using the HR Context data model.
@@ -49,10 +27,7 @@ export async function signSkillClaim(
     saveToDrive?: boolean
   }
 ): Promise<ISkillClaimCredential | { signedVC: ISkillClaimCredential; file: any }> {
-  if (!storage || !engine)
-    throw new Error('Storage and CredentialEngine are required.')
-
-  const normalizedData: SkillClaimFormData = normalizeSkillClaimFormData(formData)
+  if (!storage || !engine) throw new Error('Storage and CredentialEngine are required.')
 
   let keyPair = options?.keyPair
   let issuerId = options?.issuerId
@@ -61,42 +36,61 @@ export async function signSkillClaim(
     const { didDocument, keyPair: kp } = await engine.createDID()
     keyPair = kp
     issuerId = didDocument.id
-    normalizedData.personId = normalizedData.personId ?? issuerId
   }
 
   if (!issuerId) throw new Error('Issuer DID is required.')
 
+  const { subject, evidence } = normalizeSkillClaimFormData(formData, issuerId)
+
   try {
-    const signedVC = await engine.signVC({
-      data: normalizedData as unknown as any,
+    const contextArray = [
+      'https://www.w3.org/ns/credentials/v2',
+      'https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json',
+      'https://w3id.org/hr/v1',
+      'https://w3id.org/security/suites/ed25519-2020/v1'
+    ]
+
+    let signedVC = (await engine.signVC({
+      data: {
+        '@context': contextArray,
+        ...subject
+      },
       type: 'VC',
       keyPair,
       issuerId
-    }) as unknown as ISkillClaimCredential
+    })) as any
 
-    delete (signedVC as any).expirationDate
-    delete (signedVC as any).issuanceDate
-      ; (signedVC as any).issuer = issuerId
-      ; (signedVC as any)['@context'] = [
-        "https://www.w3.org/ns/credentials/v2",
-        "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
-        "https://w3id.org/hr/v1",
-        "https://w3id.org/security/suites/ed25519-2020/v1"
-      ]
+    delete signedVC.expirationDate
+    delete signedVC.issuanceDate
+    signedVC.issuer = issuerId
 
     if (Array.isArray(signedVC.type)) {
-      ; (signedVC as any).type = (signedVC.type as any).filter((t: string) => t !== 'OpenBadgeCredential')
+      signedVC.type = signedVC.type.filter((t: string) => t !== 'OpenBadgeCredential')
     }
+
+    const finalVC: any = {
+      '@context': signedVC['@context'] || contextArray,
+      id: signedVC.id,
+      type: signedVC.type,
+      issuer: signedVC.issuer,
+      credentialSubject: signedVC.credentialSubject,
+      proof: signedVC.proof
+    }
+
+    if (evidence && evidence.length > 0) {
+      finalVC.evidence = evidence
+    }
+
     if (options?.saveToDrive) {
       const file = await saveToGoogleDrive({
         storage,
-        data: signedVC,
+        data: finalVC,
         type: 'VC'
       })
-      return { signedVC, file }
+      return { signedVC: finalVC, file }
     }
 
-    return signedVC
+    return finalVC
   } catch (error) {
     console.error('🚀 ~ signSkillClaim ~ error:', JSON.stringify(error, null, 2))
     throw error

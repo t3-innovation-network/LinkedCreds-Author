@@ -53,7 +53,13 @@ import { HighlightedTextArea } from '../../../components/inputs/HighlightedTextA
 import { UseFormRegister, FieldErrors, Controller } from 'react-hook-form'
 import { FormData, FileItem } from '../types/Types'
 import { StepTrackShape } from '../fromTexts & stepTrack/StepTrackShape'
-import { SVGDescribeBadge, SVGSparkles, SVGUploadMedia, LightbulbSVG, InsertLinkIcon } from '../../../Assets/SVGs'
+import {
+  SVGDescribeBadge,
+  SVGSparkles,
+  SVGUploadMedia,
+  LightbulbSVG,
+  InsertLinkIcon
+} from '../../../Assets/SVGs'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useStepContext } from '../StepContext'
@@ -121,10 +127,13 @@ export function Step2({
 
   useEffect(() => {
     const evidence = watch('evidence')
-    if (evidence && Array.isArray(evidence) && links.length === 1 && links[0].url === '') {
-      const manualLinks = evidence.filter(
-        (item: any) => !item.googleId && !item.wasId
-      )
+    if (
+      evidence &&
+      Array.isArray(evidence) &&
+      links.length === 1 &&
+      links[0].url === ''
+    ) {
+      const manualLinks = evidence.filter((item: any) => !item.googleId && !item.wasId)
 
       if (manualLinks.length > 0) {
         const restoredLinks = manualLinks.map((item: any) => ({
@@ -178,16 +187,15 @@ export function Step2({
     setLinks(prev => [...prev, { id: crypto.randomUUID(), name: '', url: '' }])
   }, [])
 
-  const handleRemoveLink = useCallback(
-    (index: number) => {
-      setLinks(prev => prev.filter((_, i) => i !== index))
-    },
-    []
-  )
+  const handleRemoveLink = useCallback((index: number) => {
+    setLinks(prev => prev.filter((_, i) => i !== index))
+  }, [])
 
   const handleLinkChange = useCallback(
     async (index: number, field: 'name' | 'url', value: string) => {
-      setLinks(prev => prev.map((link, i) => (i === index ? { ...link, [field]: value } : link)))
+      setLinks(prev =>
+        prev.map((link, i) => (i === index ? { ...link, [field]: value } : link))
+      )
 
       if (field === 'url') {
         const fakeEvent = { target: { value } } as React.ChangeEvent<HTMLInputElement>
@@ -255,7 +263,11 @@ export function Step2({
       .filter(file => file.googleId || file.wasId)
       .map(file => ({
         name: file.name,
-        url: file.wasId || (file.googleId ? `https://drive.google.com/uc?export=view&id=${file.googleId}` : ''),
+        url:
+          file.wasId ||
+          (file.googleId
+            ? `https://drive.google.com/uc?export=view&id=${file.googleId}`
+            : ''),
         googleId: file.googleId,
         wasId: file.wasId
       }))
@@ -271,7 +283,13 @@ export function Step2({
 
     const featuredFile = files.find(f => f.googleId || f.wasId)
     if (featuredFile) {
-      setValue('evidenceLink', featuredFile.wasId || (featuredFile.googleId ? `https://drive.google.com/uc?export=view&id=${featuredFile.googleId}` : ''))
+      setValue(
+        'evidenceLink',
+        featuredFile.wasId ||
+          (featuredFile.googleId
+            ? `https://drive.google.com/uc?export=view&id=${featuredFile.googleId}`
+            : '')
+      )
     } else {
       setValue('evidenceLink', '')
     }
@@ -360,15 +378,21 @@ export function Step2({
         gap: '24px',
         alignItems: 'center',
         width: '100%',
-        maxWidth: '100%',
+        maxWidth: '100%'
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', alignItems: 'flex-start', width: '100%' }}>
-        <SVGDescribeBadge width="56" height="56" />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '16px',
+          alignItems: 'flex-start',
+          width: '100%'
+        }}
+      >
+        <SVGDescribeBadge width='56' height='56' />
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <Typography sx={pageTitleStyles}>
-            Document Your Skill
-          </Typography>
+          <Typography sx={pageTitleStyles}>Document Your Skill</Typography>
           <StepTrackShape />
         </Box>
       </Box>
@@ -376,7 +400,8 @@ export function Step2({
       <Box sx={{ width: '100%' }}>
         <Box sx={formLabelRowStyles}>
           <FormLabel sx={{ ...formLabelStyles, mb: 0 }} id='name-label'>
-            What skill do you want to claim? <span style={requiredLabelStyles}>(required)</span>
+            What skill do you want to claim?{' '}
+            <span style={requiredLabelStyles}>(required)</span>
           </FormLabel>
           <Tooltip title='Enter the name of the skill you want to verify'>
             <InfoOutlinedIcon sx={tooltipIconStyles} />
@@ -405,8 +430,7 @@ export function Step2({
                   variant='outlined'
                   sx={{
                     ...focusedTextFieldStyles,
-                    '& .MuiInputBase-input::placeholder': {
-                    }
+                    '& .MuiInputBase-input::placeholder': {}
                   }}
                   aria-labelledby='name-label'
                   inputProps={{
@@ -439,8 +463,7 @@ export function Step2({
           variant='outlined'
           sx={{
             ...focusedTextFieldStyles,
-            '& .MuiInputBase-input::placeholder': {
-            }
+            '& .MuiInputBase-input::placeholder': {}
           }}
           aria-labelledby='duration-label'
           inputProps={{
@@ -452,7 +475,11 @@ export function Step2({
         />
       </Box>
 
-      <Box position='relative' width='100%' sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <Box
+        position='relative'
+        width='100%'
+        sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+      >
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Box sx={formLabelRowStyles}>
             <FormLabel sx={{ ...formLabelStyles }} id='description-label'>
@@ -466,7 +493,9 @@ export function Step2({
         <Box sx={evidenceTipBoxStyles}>
           <LightbulbSVG />
           <Typography sx={evidenceTipBoxTextStyles}>
-            As you enter your skill description, skill suggestions are generated using AI processing on LinkedCreds-hosted infrastructure. Your narrative is not sent to external AI providers and we do not retain any of your data.
+            As you enter your skill description, skill suggestions are generated using AI
+            processing on LinkedCreds-hosted infrastructure. Your narrative is not sent to
+            external AI providers and we do not retain any of your data.
           </Typography>
         </Box>
         <Controller
@@ -482,19 +511,15 @@ export function Step2({
                 'Example:\nWatering and feeding on a routine schedule, diagnosing plant sickness, over/under watering, removing dead leaves, and cultivating rich soil.'
               }
               sx={{
-                '& textarea::placeholder': {
-                }
+                '& textarea::placeholder': {}
               }}
               error={!!error}
-              helperText={
-                error?.message
-              }
+              helperText={error?.message}
               keywords={activeSkills}
-              focusColor="#2DD4BF"
+              focusColor='#2DD4BF'
             />
           )}
         />
-
       </Box>
 
       {/* Evidence Section */}
@@ -504,16 +529,19 @@ export function Step2({
             <Typography sx={sectionHeadingStyles}>
               Evidence <span style={{ color: '#6B7280' }}>(optional)</span>
             </Typography>
-            <Typography sx={{ ...tipTextStyles, }}>
-              Adding evidence helps others verify your skills, you can skip this step, but will not be able to add evidence later.
+            <Typography sx={{ ...tipTextStyles }}>
+              Adding evidence helps others verify your skills, you can skip this step, but
+              will not be able to add evidence later.
             </Typography>
           </Box>
 
           <Box sx={evidenceTipBoxStyles}>
             <LightbulbSVG />
             <Typography sx={evidenceTipBoxTextStyles}>
-              Use the arrows to change the order of an image or place it in the first position as a featured image.
-              Featured images serve as the main image for your skill and may also serve as supporting evidence unless you elect to exclude them.
+              Use the arrows to change the order of an image or place it in the first
+              position as a featured image. Featured images serve as the main image for
+              your skill and may also serve as supporting evidence unless you elect to
+              exclude them.
             </Typography>
           </Box>
 
@@ -526,16 +554,31 @@ export function Step2({
             width='100%'
           >
             <Box width='100%'>
-              <CardStyle variant='outlined' {...getRootProps()} isDragActive={isDragActive} onClick={open} sx={{ cursor: 'pointer' }}>
+              <CardStyle
+                variant='outlined'
+                {...getRootProps()}
+                isDragActive={isDragActive}
+                onClick={open}
+                sx={{ cursor: 'pointer' }}
+              >
                 <input {...getInputProps()} />
-                <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <Box
+                  sx={{
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 1
+                  }}
+                >
                   <SVGUploadMedia />
                   <Box>
-                    <Typography component="span" sx={uploadClickTextStyles}>
+                    <Typography component='span' sx={uploadClickTextStyles}>
                       Click to upload
                     </Typography>
-                    <Typography component="span" sx={uploadDragTextStyles}>
-                      {' '}or drag and drop
+                    <Typography component='span' sx={uploadDragTextStyles}>
+                      {' '}
+                      or drag and drop
                     </Typography>
                   </Box>
                   <Typography sx={uploadHintTextStyles}>
@@ -560,15 +603,7 @@ export function Step2({
         </Box>
         <Box sx={evidenceLinkContainerStyles}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Typography sx={{ ...formLabelStyles, }}>
-              Add Evidence Link
-            </Typography>
-            {selectedFiles.length === 0 && links.length === 1 && (
-              <Box sx={featuredImageBadgeStyles}>
-                Featured Image
-                <StarIcon sx={{ fontSize: '14px' }} />
-              </Box>
-            )}
+            <Typography sx={{ ...formLabelStyles }}>Add Evidence Link</Typography>
           </Box>
           {(() => {
             const index = links.length - 1
@@ -578,14 +613,17 @@ export function Step2({
             if (!link) return null
 
             return (
-              <Box key={link.id} sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <Box
+                key={link.id}
+                sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+              >
                 {/* Link Title Field */}
                 <TextField
                   fullWidth
                   placeholder="Link title (e.g., 'LinkedIn Profile')"
                   value={link.name}
-                  onChange={(e) => handleLinkChange(index, 'name', e.target.value)}
-                  variant="outlined"
+                  onChange={e => handleLinkChange(index, 'name', e.target.value)}
+                  variant='outlined'
                   sx={linkInputFieldStyles}
                 />
                 {/* URL Field + Add Button */}
@@ -594,9 +632,9 @@ export function Step2({
                     fullWidth
                     placeholder="URL (e.g., 'https://...')"
                     value={link.url}
-                    onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
-                    variant="outlined"
+                    onChange={e => handleLinkChange(index, 'url', e.target.value)}
+                    onKeyDown={e => handleKeyDown(e, index)}
+                    variant='outlined'
                     error={!!urlErrors[index]}
                     helperText={urlErrors[index]}
                     sx={linkInputFieldStyles}
@@ -604,7 +642,7 @@ export function Step2({
                   <Button
                     onClick={handleAddLink}
                     disabled={!isActive}
-                    variant="outlined"
+                    variant='outlined'
                     sx={{
                       ...addLinkButtonBaseStyles,
                       ...(isActive && addLinkButtonActiveStyles),
@@ -620,15 +658,15 @@ export function Step2({
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {links.slice(0, links.length - 1).map((link, index) => (
-            <Box
-              key={link.id}
-              sx={savedLinkRowStyles}
-            >
+            <Box key={link.id} sx={savedLinkRowStyles}>
               <InsertLinkIcon />
-              <Typography
-                sx={savedLinkTextStyles}
-              >
-                <a href={link.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+              <Typography sx={savedLinkTextStyles}>
+                <a
+                  href={link.url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  style={{ color: 'inherit', textDecoration: 'none' }}
+                >
                   {link.name || link.url}
                 </a>
               </Typography>
@@ -636,16 +674,14 @@ export function Step2({
                 onClick={() => handleRemoveLink(index)}
                 sx={linkDeleteButtonStyles}
               >
-                <DeleteIcon fontSize="small" />
+                <DeleteIcon fontSize='small' />
               </IconButton>
             </Box>
           ))}
         </Box>
-
       </Box>
 
       <LoadingOverlay text='Uploading files...' open={loading} />
-    </Box >
+    </Box>
   )
 }
-

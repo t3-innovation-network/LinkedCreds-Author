@@ -35,8 +35,8 @@ import { FormData } from '../../../credentialForm/form/types/Types'
 import { copyFormValuesToClipboard } from '../../../utils/formUtils'
 import { useStepContext } from '../StepContext'
 import { useRouter } from 'next/navigation'
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import QRCode from "react-qr-code";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload'
+import QRCode from 'react-qr-code'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import Link from 'next/link'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -64,7 +64,6 @@ import {
 } from '../../../components/Styles/appStyles'
 import CheckIcon from '@mui/icons-material/Check'
 
-
 // Types from ComprehensiveClaimDetails
 interface Portfolio {
   name: string
@@ -86,6 +85,7 @@ interface CredentialSubject {
   durationPerformed?: string
   skill?: { id: string; name: string; description?: string; source?: string; frameworkMatch?: { framework?: string; socCode?: string[]; name?: string; similarityScore?: number }[] }[]
   narrative?: string
+  description?: string
   person?: { type: string[]; id?: string; name?: string; email?: string }
   evidence?: { id: string; name: string }[]
 }
@@ -93,7 +93,7 @@ interface CredentialSubject {
 interface ClaimDetail {
   '@context': string[]
   id: string
-  name?: string          // W3C VC top-level name (credential title)
+  name?: string // W3C VC top-level name (credential title)
   uniqueId?: string
   type: string[]
   issuanceDate?: string
@@ -218,8 +218,6 @@ const GreenCheckMark = () => (
   </svg>
 )
 
-
-
 const SuccessPage: React.FC<SuccessPageProps> = ({
   formData,
   reset,
@@ -243,7 +241,11 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   // Parse credential data from res prop (Google Drive JSON)
-  const claimDetail: ClaimDetail | null = res ? (typeof res === 'string' ? JSON.parse(res) : res) : null
+  const claimDetail: ClaimDetail | null = res
+    ? typeof res === 'string'
+      ? JSON.parse(res)
+      : res
+    : null
   const credentialSubject = claimDetail?.credentialSubject
 
   // Carousel State
@@ -252,14 +254,17 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
   const [imageThumbnails, setImageThumbnails] = useState<Record<string, string>>({})
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0)
   const [isHoveringMedia, setIsHoveringMedia] = useState<boolean>(false)
-  const [displayFiles, setDisplayFiles] = useState<{ id: string, name: string, url: string, isFeatured?: boolean }[]>([])
+  const [displayFiles, setDisplayFiles] = useState<
+    { id: string; name: string; url: string; isFeatured?: boolean }[]
+  >([])
 
-  const isImage = (url: string) => /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url) || isGoogleDriveImageUrl(url)
+  const isImage = (url: string) =>
+    /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url) || isGoogleDriveImageUrl(url)
 
   // Prepare display files from credential data
   useEffect(() => {
     if (credentialSubject) {
-      const files: { id: string, name: string, url: string, isFeatured?: boolean }[] = []
+      const files: { id: string; name: string; url: string; isFeatured?: boolean }[] = []
 
       // Top-level evidence items - Add for visual preview
       if (claimDetail?.evidence && Array.isArray(claimDetail.evidence)) {
@@ -267,7 +272,13 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
           if (item.id) {
             const url = getGoogleDriveDirectLink(ensureProtocol(item.id))
             const name = item.name || `Evidence ${index + 1}`
-            if (isImage(url) || isPDF(name) || isPDF(item.id) || isMP4(name) || isMP4(item.id)) {
+            if (
+              isImage(url) ||
+              isPDF(name) ||
+              isPDF(item.id) ||
+              isMP4(name) ||
+              isMP4(item.id)
+            ) {
               files.push({
                 id: `evidence-${index}`,
                 name: name,
@@ -285,16 +296,45 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
   // Generate thumbnails
   useEffect(() => {
     displayFiles.forEach(async file => {
+      let finalFileUrl = file.url
+      let isFetchedBlob = false
+
+      // Google Drive secure fetch for any file
+      if (isGoogleDriveImageUrl(file.url) && accessToken) {
+        try {
+          const match = file.url.match(/id=([^&]+)/)
+          if (match && match[1]) {
+            const fileId = match[1]
+            const response = await fetch(
+              `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`
+                }
+              }
+            )
+            if (response.ok) {
+              const blob = await response.blob()
+              finalFileUrl = URL.createObjectURL(blob)
+              isFetchedBlob = true
+            }
+          }
+        } catch (e) {
+          console.error('Error fetching file blob:', e)
+        }
+      }
+
       // PDF handling
       if (isPDF(file.name || file.url) && !pdfThumbnails[file.id]) {
-        const thumbnail = await renderPDFThumbnail(file.url)
+        const thumbnail = await renderPDFThumbnail(finalFileUrl)
         setPdfThumbnails(prev => ({ ...prev, [file.id]: thumbnail }))
+        return
       }
 
       // Video handling
       if (isMP4(file.name || file.url) && !videoThumbnails[file.id]) {
         try {
-          const thumbnail = await generateVideoThumbnail(file.url)
+          const thumbnail = await generateVideoThumbnail(finalFileUrl)
           setVideoThumbnails(prev => ({ ...prev, [file.id]: thumbnail }))
         } catch (error) {
           console.error('Error generating video thumbnail:', error)
@@ -303,67 +343,31 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             [file.id]: '/fallback-video.png'
           }))
         }
-      }
-
-      // Google Drive Image handling (authenticated fetch)
-      if (isGoogleDriveImageUrl(file.url) && !imageThumbnails[file.id]) {
-        let blobUrl: string | null = null
-
-        if (accessToken) {
-          try {
-            // Extract ID from Google Drive URL
-            const match = file.url.match(/id=([^&]+)/)
-            if (match && match[1]) {
-              const fileId = match[1]
-              const response = await fetch(
-                `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${accessToken}`
-                  }
-                }
-              )
-              if (response.ok) {
-                const blob = await response.blob()
-                blobUrl = URL.createObjectURL(blob)
-                setImageThumbnails(prev => ({ ...prev, [file.id]: blobUrl as string }))
-              }
-            }
-          } catch (e) {
-            console.error('Error fetching image blob:', e)
-          }
-        }
-
-        // Fallback to direct URL if fetch failed or no token
-        if (!blobUrl && isImage(file.url)) {
-          setImageThumbnails(prev => ({ ...prev, [file.id]: file.url }))
-        }
         return
       }
 
       // Standard Image handling
-      if (isImage(file.url) && !imageThumbnails[file.id]) {
-        setImageThumbnails(prev => ({ ...prev, [file.id]: file.url }))
+      if (!imageThumbnails[file.id] && (isFetchedBlob || isImage(file.url))) {
+        setImageThumbnails(prev => ({ ...prev, [file.id]: finalFileUrl }))
       }
     })
   }, [displayFiles, accessToken])
 
   const handleNextImage = () => {
     if (displayFiles.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % displayFiles.length)
+      setCurrentImageIndex(prev => (prev + 1) % displayFiles.length)
     }
   }
 
   const handlePrevImage = () => {
     if (displayFiles.length > 1) {
-      setCurrentImageIndex((prev) => (prev - 1 + displayFiles.length) % displayFiles.length)
+      setCurrentImageIndex(prev => (prev - 1 + displayFiles.length) % displayFiles.length)
     }
   }
 
   // Get current display image
-  const currentDisplayFile = displayFiles.length > 0
-    ? displayFiles[currentImageIndex]
-    : null
+  const currentDisplayFile =
+    displayFiles.length > 0 ? displayFiles[currentImageIndex] : null
 
   useEffect(() => {
     if (!fileId) {
@@ -433,21 +437,20 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
     }
   }
 
-
-
   // Data extraction
   const selectedSkills = credentialSubject?.skill ?? []
   const credentialTitle = claimDetail?.name || credentialSubject?.name || ''
   const personName = credentialSubject?.person?.name || ''
-  const credentialNarrative = credentialSubject?.narrative || ''
-  const evidenceItems = claimDetail?.evidence?.map(e => {
-    let googleId = undefined
-    const match = e.id.match(/\/file\/d\/([^/]+)/) || e.id.match(/[?&]id=([^&]+)/)
-    if (match && match[1]) {
-      googleId = match[1]
-    }
-    return { name: e.name, url: e.id, googleId }
-  }) || []
+  const credentialNarrative = credentialSubject?.description || credentialSubject?.narrative || ''
+  const evidenceItems =
+    claimDetail?.evidence?.map(e => {
+      let googleId = undefined
+      const match = e.id.match(/\/file\/d\/([^/]+)/) || e.id.match(/[?&]id=([^&]+)/)
+      if (match && match[1]) {
+        googleId = match[1]
+      }
+      return { name: e.name, url: e.id, googleId }
+    }) || []
 
   return (
     <Box
@@ -455,9 +458,8 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
-        maxWidth: '1240px',
-        width: '100%',
-
+        maxWidth: '1280px',
+        width: '100%'
       }}
     >
       {/* Success Message */}
@@ -471,16 +473,18 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             gap: 2,
             p: '30px',
             borderRadius: '10px',
-            backgroundColor: '#FFF',
+            backgroundColor: '#FFF'
           }}
         >
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            flex: 1,
-            width: '100%'
-          }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              flex: 1,
+              width: '100%'
+            }}
+          >
             <CheckIcon
               sx={{
                 color: '#10B981',
@@ -493,10 +497,26 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
               }}
             />
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography sx={{ fontSize: '32px', fontWeight: 'bold', color: '#000E40', fontFamily: 'Lato', lineHeight: 'normal' }}>
+              <Typography
+                sx={{
+                  fontSize: '32px',
+                  fontWeight: 'bold',
+                  color: '#000E40',
+                  fontFamily: 'Lato',
+                  lineHeight: 'normal'
+                }}
+              >
                 Credential Saved!
               </Typography>
-              <Typography sx={{ fontSize: '16px', color: '#4A5565', fontFamily: 'Inter', lineHeight: '24px', letterSpacing: '-0.31px' }}>
+              <Typography
+                sx={{
+                  fontSize: '16px',
+                  color: '#4A5565',
+                  fontFamily: 'Inter',
+                  lineHeight: '24px',
+                  letterSpacing: '-0.31px'
+                }}
+              >
                 Your credential has been successfully signed and saved.
               </Typography>
             </Box>
@@ -571,11 +591,11 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           gap: 3,
-          maxWidth: '1240px',
+          maxWidth: '1280px',
           width: '100%',
           backgroundColor: '#88ABE4',
           p: '30px',
-          borderRadius: '0 0 20px 20px',
+          borderRadius: '0 0 20px 20px'
         }}
       >
         {/* LEFT COLUMN - Credential Preview */}
@@ -584,38 +604,45 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             flex: 1,
             ...credentialCardStyles,
             p: { xs: 3, md: 4 },
-            border: '1px solid #E2E8F0', // Overriding specific border/shadow if needed, but imported style has them
+            border: '1px solid #E2E8F0' // Overriding specific border/shadow if needed, but imported style has them
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Badge and Title */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <BadgePill>
-                Self-issued
-              </BadgePill>
+              <BadgePill>Self-issued</BadgePill>
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: 2
+                }}
+              >
                 <Box>
-                  <CredentialTitle>
-                    {credentialTitle || 'No title found'}
-                  </CredentialTitle>
+                  <CredentialTitle>{credentialTitle || 'No title found'}</CredentialTitle>
                   <RecipientName sx={{ mt: 1 }}>
                     Issued to: {personName || 'No name found'}
                   </RecipientName>
                   <ExperienceText sx={{ mt: 0.5 }}>
-                    {credentialSubject?.durationPerformed ? `${credentialSubject.durationPerformed} of experience` : "5 years of experience"}
+                    {credentialSubject?.durationPerformed
+                      ? `${credentialSubject.durationPerformed} of experience`
+                      : '5 years of experience'}
                   </ExperienceText>
                 </Box>
 
                 {/* QR Code */}
-                <Box
-                  sx={qrCodeBoxStyles}
-                >
-                  <div style={{ height: "100px", width: "100px" }}>
+                <Box sx={qrCodeBoxStyles}>
+                  <div style={{ height: '100px', width: '100px' }}>
                     <QRCode
                       size={256}
-                      style={{ height: "100%", width: "100%" }}
-                      value={fileId ? `https://linkedcreds.allskillscount.org/view/${fileId}` : "https://linkedcreds.com"}
+                      style={{ height: '100%', width: '100%' }}
+                      value={
+                        fileId
+                          ? `https://linkedcreds.allskillscount.org/view/${fileId}`
+                          : 'https://linkedcreds.com'
+                      }
                       viewBox={`0 0 256 256`}
                     />
                   </div>
@@ -624,26 +651,35 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
               <Divider />
             </Box>
 
-
-
             {/* Public Link Section */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Box
-                sx={publicLinkBoxStyles}
-              >
-                <Typography sx={{ fontSize: '14px', fontWeight: 'semibold', color: '#364153', fontFamily: 'Inter', lineHeight: '20px', letterSpacing: '-0.15px' }}>
+              <Box sx={publicLinkBoxStyles}>
+                <Typography
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 'semibold',
+                    color: '#364153',
+                    fontFamily: 'Inter',
+                    lineHeight: '20px',
+                    letterSpacing: '-0.15px'
+                  }}
+                >
                   Public Link
                 </Typography>
 
-                <Stack direction="row" spacing={1} alignItems="center">
+                <Stack direction='row' spacing={1} alignItems='center'>
                   <OutlinedInput
                     fullWidth
                     readOnly
-                    value={fileId ? `https://linkedcreds.allskillscount.org/view/${fileId}` : ''}
+                    value={
+                      fileId
+                        ? `https://linkedcreds.allskillscount.org/view/${fileId}`
+                        : ''
+                    }
                     sx={publicLinkInputStyles}
                   />
                   <Button
-                    variant="contained"
+                    variant='contained'
                     onClick={() => handleShareOption('CopyURL')}
                     startIcon={<ContentCopyIcon />}
                     sx={copyButtonStyles}
@@ -652,30 +688,38 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                   </Button>
                 </Stack>
 
-                <Stack direction="column" spacing={0.5} >
-                  <Typography sx={{ fontSize: '13px', color: '#64748b', fontFamily: 'Inter' }}>
-                    Created: {(() => {
-                      const dateStr = claimDetail?.proof?.created || claimDetail?.issuanceDate || claimDetail?.validFrom || new Date().toISOString();
-                      return new Date(dateStr).toLocaleString();
+                <Stack direction='column' spacing={0.5}>
+                  <Typography
+                    sx={{ fontSize: '13px', color: '#64748b', fontFamily: 'Inter' }}
+                  >
+                    Created:{' '}
+                    {(() => {
+                      const dateStr =
+                        claimDetail?.proof?.created ||
+                        claimDetail?.issuanceDate ||
+                        claimDetail?.validFrom ||
+                        new Date().toISOString()
+                      return new Date(dateStr).toLocaleString()
                     })()}
                   </Typography>
                 </Stack>
-
-
               </Box>
-              <Typography sx={{ fontSize: '13px', color: '#475569', fontFamily: 'Inter', lineHeight: 1.5 }}>
+              <Typography
+                sx={{
+                  fontSize: '13px',
+                  color: '#475569',
+                  fontFamily: 'Inter',
+                  lineHeight: 1.5
+                }}
+              >
                 Anyone with this link can view this credential.
               </Typography>
             </Box>
 
             {/* Skill Description */}
             <Box>
-              <SectionHeader sx={{ mb: 1 }}>
-                Skill Description
-              </SectionHeader>
-              <DescriptionText as="div">
-                {credentialNarrative}
-              </DescriptionText>
+              <SectionHeader>Skill Description</SectionHeader>
+              <DescriptionText as='div'>{credentialNarrative}</DescriptionText>
             </Box>
 
             {/* Featured Image */}
@@ -705,7 +749,8 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                       ) : isMP4(currentDisplayFile.name || currentDisplayFile.url) ? (
                         <img
                           src={
-                            videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'
+                            videoThumbnails[currentDisplayFile.id] ??
+                            '/fallback-video.png'
                           }
                           alt='Video Thumbnail'
                           style={{
@@ -718,7 +763,8 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                       ) : (
                         <img
                           src={
-                            imageThumbnails[currentDisplayFile.id] ?? currentDisplayFile.url
+                            imageThumbnails[currentDisplayFile.id] ??
+                            currentDisplayFile.url
                           }
                           alt='Featured Media'
                           style={{
@@ -761,7 +807,9 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                               '&:hover': { bgcolor: 'white' }
                             }}
                           >
-                            <Typography variant='h6' sx={{ lineHeight: 0.4 }}>‹</Typography>
+                            <Typography variant='h6' sx={{ lineHeight: 0.4 }}>
+                              ‹
+                            </Typography>
                           </Box>
                           <Box
                             onClick={handleNextImage}
@@ -777,7 +825,9 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                               '&:hover': { bgcolor: 'white' }
                             }}
                           >
-                            <Typography variant='h6' sx={{ lineHeight: 0.4, }}>›</Typography>
+                            <Typography variant='h6' sx={{ lineHeight: 0.4 }}>
+                              ›
+                            </Typography>
                           </Box>
                         </>
                       )}
@@ -812,7 +862,9 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                   ))}
                 </Box>
               ) : (
-                <Typography sx={{ fontSize: '14px', color: '#6B7280', fontStyle: 'italic' }}>
+                <Typography
+                  sx={{ fontSize: '14px', color: '#6B7280', fontStyle: 'italic' }}
+                >
                   No specific skills listed.
                 </Typography>
               )}
@@ -821,17 +873,15 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             {/* Supporting Evidence */}
             {evidenceItems.length > 0 && (
               <Box>
-                <SectionHeader sx={{ mb: 1 }}>
-                  Supporting Evidence
-                </SectionHeader>
+                <SectionHeader sx={{ mb: 1 }}>Supporting Evidence</SectionHeader>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {evidenceItems.map((item, index) => (
                     <Box
                       key={index}
-                      component="a"
+                      component='a'
                       href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      target='_blank'
+                      rel='noopener noreferrer'
                       sx={{
                         textDecoration: 'none',
                         display: 'flex',
@@ -843,11 +893,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                         }
                       }}
                     >
-                      {!item.googleId ? (
-                        <InsertLinkIcon />
-                      ) : (
-                        <DescriptionOutlinedIcon />
-                      )}
+                      {!item.googleId ? <InsertLinkIcon /> : <DescriptionOutlinedIcon />}
                       <Typography
                         sx={{
                           fontFamily: 'Inter',
@@ -873,25 +919,35 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                 borderRadius: '8px'
               }}
             >
-              <Typography sx={{ fontSize: '16px', fontWeight: 700, color: '#000E40', mb: 2 }}>
+              <Typography
+                sx={{ fontSize: '16px', fontWeight: 700, color: '#000E40', mb: 2 }}
+              >
                 Credential Verification
               </Typography>
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
                   <GreenCheckMark />
-                  <Typography sx={{ color: '#344054', fontSize: '14px' }}>Has a valid digital signature</Typography>
+                  <Typography sx={{ color: '#344054', fontSize: '14px' }}>
+                    Has a valid digital signature
+                  </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
                   <GreenCheckMark />
-                  <Typography sx={{ color: '#344054', fontSize: '14px' }}>Has not been revoked by issuer</Typography>
+                  <Typography sx={{ color: '#344054', fontSize: '14px' }}>
+                    Has not been revoked by issuer
+                  </Typography>
                 </Box>
               </Box>
 
               <Divider sx={{ my: 2, borderColor: '#D1FADF' }} />
 
               <Typography sx={{ fontSize: '14px', color: '#667085' }}>
-                Issued: {new Date(res?.proof?.created || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                Issued:{' '}
+                {new Date(res?.proof?.created || Date.now()).toLocaleDateString(
+                  undefined,
+                  { year: 'numeric', month: 'long', day: 'numeric' }
+                )}
               </Typography>
             </Box>
 
@@ -900,7 +956,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
               <Button
                 onClick={() => window.open(`/api/credential-raw/${fileId}`, '_blank')}
                 disabled={!fileId}
-                variant="contained"
+                variant='contained'
                 startIcon={<DescriptionOutlinedIcon />}
                 endIcon={<OpenInNewIcon />}
                 sx={{
@@ -949,13 +1005,13 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             sx={{
               backgroundColor: '#FFF',
               borderRadius: '14px',
-              p: '25px',
+              p: '25px'
             }}
           >
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px', p: '5px' }}>
               <Typography
                 sx={{
-                  ...actionButtonTitleStyles,
+                  ...actionButtonTitleStyles
                 }}
               >
                 Strengthen the value of your skill:
@@ -967,7 +1023,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                 }}
                 disabled={!fileId}
                 fullWidth
-                variant="outlined"
+                variant='outlined'
                 startIcon={<HeartSVG />}
                 endIcon={<OpenInNewIcon sx={{ fontSize: '14px' }} />}
                 sx={actionButtonStyles}
@@ -977,10 +1033,18 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             </Box>
 
             {/* Make Skills Work Section */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px', p: '5px', mt: '36px' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '15px',
+                p: '5px',
+                mt: '36px'
+              }}
+            >
               <Typography
                 sx={{
-                  ...actionButtonTitleStyles,
+                  ...actionButtonTitleStyles
                 }}
               >
                 Make your skills work for you:
@@ -991,7 +1055,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                   onClick={() => handleShareOption('CopyURL')}
                   disabled={!fileId}
                   fullWidth
-                  variant="outlined"
+                  variant='outlined'
                   startIcon={<InsertLinkIcon />}
                   sx={actionButtonStyles}
                 >
@@ -1002,7 +1066,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                   disabled={!fileId}
                   onClick={() => handleShareOption('LinkedIn')}
                   fullWidth
-                  variant="outlined"
+                  variant='outlined'
                   startIcon={<NewLinkedin />}
                   endIcon={<OpenInNewIcon sx={{ fontSize: '16px' }} />}
                   sx={actionButtonStyles}
@@ -1014,7 +1078,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                   disabled={!fileId}
                   onClick={() => handleShareOption('Email')}
                   fullWidth
-                  variant="outlined"
+                  variant='outlined'
                   startIcon={<SVGEmail />}
                   endIcon={<OpenInNewIcon sx={{ fontSize: '16px' }} />}
                   sx={actionButtonStyles}
@@ -1022,14 +1086,10 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                   Share via email
                 </Button>
               </Stack>
-
             </Box>
-
           </Box>
         </Box>
       </Box>
-
-
 
       <Snackbar
         open={snackbar.open}
@@ -1041,8 +1101,11 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
           {snackbar.message}
         </Alert>
       </Snackbar>
-      <LoadingOverlay text='Creating public link and saving to Google Drive...' open={!fileId} />
-    </Box >
+      <LoadingOverlay
+        text='Creating public link and saving to Google Drive...'
+        open={!fileId}
+      />
+    </Box>
   )
 }
 

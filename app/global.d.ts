@@ -1,4 +1,4 @@
-declare module '@digitalcredentials/ed25519-signature-2020';
-declare module '@digitalcredentials/ezcap';
-declare module '@digitalcredentials/jsonld-signatures';
-declare module '@digitalcredentials/http-client';
+declare module '@digitalcredentials/ed25519-signature-2020'
+declare module '@digitalcredentials/ezcap'
+declare module '@digitalcredentials/jsonld-signatures'
+declare module '@digitalcredentials/http-client'

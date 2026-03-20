@@ -128,7 +128,7 @@ export default function Main() {
           borderRadius: '20px',
           border: '1px solid #d1e4ff',
           width: '100%',
-          maxWidth: '1240px',
+          maxWidth: '1280px',
           margin: '0 auto'
         }}
       >

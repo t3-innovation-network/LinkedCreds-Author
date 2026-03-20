@@ -11,7 +11,7 @@ import {
   IconButton,
   InputAdornment
 } from '@mui/material'
-import { InsertLinkIcon } from "../../../../Assets/SVGs"
+import { InsertLinkIcon } from '../../../../Assets/SVGs'
 import CheckIcon from '@mui/icons-material/Check'
 import DeleteIcon from '@mui/icons-material/Delete'
 import StarIcon from '@mui/icons-material/Star'
@@ -54,7 +54,11 @@ import {
   StyledTipBox,
   featuredImageBadgeStyles
 } from '../../../../components/Styles/appStyles'
-import { SelectedSkill, FormData, FileItem } from '../../../../credentialForm/form/types/Types'
+import {
+  SelectedSkill,
+  FormData,
+  FileItem
+} from '../../../../credentialForm/form/types/Types'
 import { useDropzone } from 'react-dropzone'
 import FileListDisplay from '../../../../components/FileList'
 import { useStepContext } from '../../../../credentialForm/form/StepContext'
@@ -63,11 +67,22 @@ import useGoogleDrive from '../../../../hooks/useGoogleDrive'
 import { ensureProtocol, handleUrlValidation } from '../../../../utils/urlValidation'
 import { useHandleUpload } from '../../../../hooks/handleUpload'
 import LoadingOverlay from '../../../../components/Loading/LoadingOverlay'
-import { SVGUploadMedia, LightbulbSVG, SVGRecommendBadge, SVGDescribeBadge } from '../../../../Assets/SVGs'
+import {
+  SVGUploadMedia,
+  LightbulbSVG,
+  SVGRecommendBadge,
+  SVGDescribeBadge
+} from '../../../../Assets/SVGs'
 import { StepTrackShape } from '../../../../credentialForm/form/fromTexts & stepTrack/StepTrackShape'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { Tooltip, Link } from '@mui/material'
-import { recSectionContainerStyles, recGrayTextFieldStyles, formLabelRowStyles, tooltipIconStyles, requiredLabelStyles } from '../../../../components/Styles/appStyles'
+import {
+  recSectionContainerStyles,
+  recGrayTextFieldStyles,
+  formLabelRowStyles,
+  tooltipIconStyles,
+  requiredLabelStyles
+} from '../../../../components/Styles/appStyles'
 
 interface Step2Props {
   register: UseFormRegister<FormData>
@@ -81,12 +96,7 @@ interface Step2Props {
   skills: SelectedSkill[]
 }
 
-const options = [
-  'Friend',
-  'Professional colleague',
-  'Volunteered together',
-  'College'
-]
+const options = ['Friend', 'Professional colleague', 'Volunteered together', 'College']
 
 interface LinkItem {
   id: string
@@ -126,7 +136,7 @@ const Step2: React.FC<Step2Props> = ({
 
   // Sync links from form data on mount
   useEffect(() => {
-    const evidence = watch('evidence') as EvidenceItem[] || []
+    const evidence = (watch('evidence') as EvidenceItem[]) || []
     if (evidence.length > 0) {
       const existingLinks = evidence
         .filter(item => !item.googleId && !item.wasId && (item.name || item.url))
@@ -139,7 +149,9 @@ const Step2: React.FC<Step2Props> = ({
       if (existingLinks.length > 0) {
         setLinks(prev => {
           const isInitial = prev.length === 1 && !prev[0].name && !prev[0].url
-          return isInitial ? [...existingLinks, { id: crypto.randomUUID(), name: '', url: '' }] : prev
+          return isInitial
+            ? [...existingLinks, { id: crypto.randomUUID(), name: '', url: '' }]
+            : prev
         })
       }
     }
@@ -163,7 +175,11 @@ const Step2: React.FC<Step2Props> = ({
         .filter(f => f.googleId || f.wasId)
         .map(f => ({
           name: f.name,
-          url: f.wasId || (f.googleId ? `https://drive.google.com/uc?export=view&id=${f.googleId}` : ''),
+          url:
+            f.wasId ||
+            (f.googleId
+              ? `https://drive.google.com/uc?export=view&id=${f.googleId}`
+              : ''),
           googleId: f.googleId,
           wasId: f.wasId
         }))
@@ -176,7 +192,11 @@ const Step2: React.FC<Step2Props> = ({
 
       if (updatedFiles.length > 0) {
         const featured = updatedFiles[0]
-        const evidenceUrl = featured.wasId || (featured.googleId ? `https://drive.google.com/uc?export=view&id=${featured.googleId}` : featured.url)
+        const evidenceUrl =
+          featured.wasId ||
+          (featured.googleId
+            ? `https://drive.google.com/uc?export=view&id=${featured.googleId}`
+            : featured.url)
         setValue('evidenceLink', evidenceUrl)
       }
     },
@@ -205,118 +225,154 @@ const Step2: React.FC<Step2Props> = ({
     setLinks(prev => [...prev, { id: crypto.randomUUID(), name: '', url: '' }])
   }, [links])
 
-  const handleRemoveLink = useCallback((index: number) => {
-    setLinks(prev => {
-      const newLinks = prev.filter((_, i) => i !== index)
-      // Sync with form
-      const manualLinks = newLinks
-        .filter(l => l.url.trim() !== '')
-        .map(l => ({ name: l.name, url: ensureProtocol(l.url) }))
+  const handleRemoveLink = useCallback(
+    (index: number) => {
+      setLinks(prev => {
+        const newLinks = prev.filter((_, i) => i !== index)
+        // Sync with form
+        const manualLinks = newLinks
+          .filter(l => l.url.trim() !== '')
+          .map(l => ({ name: l.name, url: ensureProtocol(l.url) }))
 
-      const fileEvidence = (watch('evidence') as EvidenceItem[] || [])
-        .filter(item => item.googleId || item.wasId)
+        const fileEvidence = ((watch('evidence') as EvidenceItem[]) || []).filter(
+          item => item.googleId || item.wasId
+        )
 
-      setValue('evidence', [...fileEvidence, ...manualLinks])
-      return newLinks
-    })
-  }, [setValue, watch])
+        setValue('evidence', [...fileEvidence, ...manualLinks])
+        return newLinks
+      })
+    },
+    [setValue, watch]
+  )
 
-  const handleLinkChange = useCallback((index: number, field: 'name' | 'url', value: string) => {
-    setLinks(prev => {
-      const newLinks = [...prev]
-      newLinks[index] = { ...newLinks[index], [field]: value }
+  const handleLinkChange = useCallback(
+    (index: number, field: 'name' | 'url', value: string) => {
+      setLinks(prev => {
+        const newLinks = [...prev]
+        newLinks[index] = { ...newLinks[index], [field]: value }
 
-      if (field === 'url') {
-        const fakeEvent = { target: { value } } as React.ChangeEvent<HTMLInputElement>
-        handleUrlValidation(fakeEvent, setUrlErrors, index, urlErrors)
-      }
+        if (field === 'url') {
+          const fakeEvent = { target: { value } } as React.ChangeEvent<HTMLInputElement>
+          handleUrlValidation(fakeEvent, setUrlErrors, index, urlErrors)
+        }
 
-      // Update form data for all complete links
-      const manualLinks = newLinks
-        .filter(l => l.url.trim() !== '')
-        .map(l => ({ name: l.name, url: ensureProtocol(l.url) }))
+        // Update form data for all complete links
+        const manualLinks = newLinks
+          .filter(l => l.url.trim() !== '')
+          .map(l => ({ name: l.name, url: ensureProtocol(l.url) }))
 
-      const fileEvidence = (watch('evidence') as EvidenceItem[] || [])
-        .filter(item => item.googleId || item.wasId)
+        const fileEvidence = ((watch('evidence') as EvidenceItem[]) || []).filter(
+          item => item.googleId || item.wasId
+        )
 
-      setValue('evidence', [...fileEvidence, ...manualLinks])
-      return newLinks
-    })
-  }, [setValue, watch, urlErrors])
+        setValue('evidence', [...fileEvidence, ...manualLinks])
+        return newLinks
+      })
+    },
+    [setValue, watch, urlErrors]
+  )
 
-  const handleDelete = useCallback((event: React.MouseEvent, id: string) => {
-    event.stopPropagation()
-    setSelectedFiles(prev => {
-      const updated = prev.filter(f => f.id !== id && f.googleId !== id)
-      if (updated.length > 0) {
-        updated[0].isFeatured = true
-      }
-      return updated
-    })
-
-    const currentEvidence = watch('evidence') as EvidenceItem[] || []
-    const updatedEvidence = currentEvidence.filter(f => f.googleId !== id && f.wasId !== id)
-    setValue('evidence', updatedEvidence)
-
-    // Update featured link if needed
-    const updatedFiles = selectedFiles.filter(f => f.id !== id && f.googleId !== id)
-    if (updatedFiles.length > 0) {
-      const featured = updatedFiles[0]
-      setValue('evidenceLink', featured.wasId || (featured.googleId ? `https://drive.google.com/uc?export=view&id=${featured.googleId}` : featured.url))
-    } else {
-      setValue('evidenceLink', '')
-    }
-  }, [selectedFiles, setValue, watch, setSelectedFiles])
-
-  const handleNameChange = useCallback((id: string, newName: string) => {
-    setSelectedFiles(prev => prev.map(f => f.id === id ? { ...f, name: newName } : f))
-  }, [setSelectedFiles])
-
-  const setAsFeatured = useCallback((id: string) => {
-    setSelectedFiles(prev => {
-      const updated = prev.map(f => ({ ...f, isFeatured: f.id === id }))
-        .sort((a, b) => (a.isFeatured === b.isFeatured ? 0 : a.isFeatured ? -1 : 1))
-
-      if (updated.length > 0) {
-        const featured = updated[0]
-        setValue('evidenceLink', featured.wasId || (featured.googleId ? `https://drive.google.com/uc?export=view&id=${featured.googleId}` : featured.url))
-      }
-      return updated
-    })
-  }, [setSelectedFiles, setValue])
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (selectedFiles.length + acceptedFiles.length > maxFiles) {
-      alert(`Max ${maxFiles} files allowed`)
-      return
-    }
-
-    const processFile = (file: File) => new Promise<FileItem>(resolve => {
-      const reader = new FileReader()
-      reader.onload = e => {
-        resolve({
-          id: crypto.randomUUID(),
-          file,
-          name: file.name,
-          url: e.target?.result as string,
-          isFeatured: false,
-          uploaded: false,
-          fileExtension: file.name.split('.').pop() || ''
-        })
-      }
-      reader.readAsDataURL(file)
-    })
-
-    Promise.all(acceptedFiles.map(processFile)).then(newItems => {
+  const handleDelete = useCallback(
+    (event: React.MouseEvent, id: string) => {
+      event.stopPropagation()
       setSelectedFiles(prev => {
-        const updated = [...prev, ...newItems]
-        if (updated.length > 0 && !updated.some(f => f.isFeatured)) {
+        const updated = prev.filter(f => f.id !== id && f.googleId !== id)
+        if (updated.length > 0) {
           updated[0].isFeatured = true
         }
         return updated
       })
-    })
-  }, [selectedFiles.length, setSelectedFiles])
+
+      const currentEvidence = (watch('evidence') as EvidenceItem[]) || []
+      const updatedEvidence = currentEvidence.filter(
+        f => f.googleId !== id && f.wasId !== id
+      )
+      setValue('evidence', updatedEvidence)
+
+      // Update featured link if needed
+      const updatedFiles = selectedFiles.filter(f => f.id !== id && f.googleId !== id)
+      if (updatedFiles.length > 0) {
+        const featured = updatedFiles[0]
+        setValue(
+          'evidenceLink',
+          featured.wasId ||
+            (featured.googleId
+              ? `https://drive.google.com/uc?export=view&id=${featured.googleId}`
+              : featured.url)
+        )
+      } else {
+        setValue('evidenceLink', '')
+      }
+    },
+    [selectedFiles, setValue, watch, setSelectedFiles]
+  )
+
+  const handleNameChange = useCallback(
+    (id: string, newName: string) => {
+      setSelectedFiles(prev => prev.map(f => (f.id === id ? { ...f, name: newName } : f)))
+    },
+    [setSelectedFiles]
+  )
+
+  const setAsFeatured = useCallback(
+    (id: string) => {
+      setSelectedFiles(prev => {
+        const updated = prev
+          .map(f => ({ ...f, isFeatured: f.id === id }))
+          .sort((a, b) => (a.isFeatured === b.isFeatured ? 0 : a.isFeatured ? -1 : 1))
+
+        if (updated.length > 0) {
+          const featured = updated[0]
+          setValue(
+            'evidenceLink',
+            featured.wasId ||
+              (featured.googleId
+                ? `https://drive.google.com/uc?export=view&id=${featured.googleId}`
+                : featured.url)
+          )
+        }
+        return updated
+      })
+    },
+    [setSelectedFiles, setValue]
+  )
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      if (selectedFiles.length + acceptedFiles.length > maxFiles) {
+        alert(`Max ${maxFiles} files allowed`)
+        return
+      }
+
+      const processFile = (file: File) =>
+        new Promise<FileItem>(resolve => {
+          const reader = new FileReader()
+          reader.onload = e => {
+            resolve({
+              id: crypto.randomUUID(),
+              file,
+              name: file.name,
+              url: e.target?.result as string,
+              isFeatured: false,
+              uploaded: false,
+              fileExtension: file.name.split('.').pop() || ''
+            })
+          }
+          reader.readAsDataURL(file)
+        })
+
+      Promise.all(acceptedFiles.map(processFile)).then(newItems => {
+        setSelectedFiles(prev => {
+          const updated = [...prev, ...newItems]
+          if (updated.length > 0 && !updated.some(f => f.isFeatured)) {
+            updated[0].isFeatured = true
+          }
+          return updated
+        })
+      })
+    },
+    [selectedFiles.length, setSelectedFiles]
+  )
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -333,20 +389,32 @@ const Step2: React.FC<Step2Props> = ({
 
   return (
     <Box sx={recSectionContainerStyles}>
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '16px', alignItems: 'flex-start', width: '100%', mb: 1 }}>
-        <SVGDescribeBadge width="56" height="56" />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '16px',
+          alignItems: 'flex-start',
+          width: '100%',
+          mb: 1
+        }}
+      >
+        <SVGDescribeBadge width='56' height='56' />
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Typography sx={pageTitleStyles}>
-              Recommend {displayName}
-            </Typography>
+            <Typography sx={pageTitleStyles}>Recommend {displayName}</Typography>
             <Tooltip title={`Provide details for your recommendation of ${displayName}`}>
               <InfoOutlinedIcon sx={tooltipIconStyles} />
             </Tooltip>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}
+          >
             <StepTrackShape />
-            <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', gap: '4px' }}>
+            <Typography
+              variant='body2'
+              sx={{ color: 'text.secondary', display: 'flex', gap: '4px' }}
+            >
               You can also{' '}
               <Link
                 href='#'
@@ -371,7 +439,10 @@ const Step2: React.FC<Step2Props> = ({
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
         <Box sx={{ width: '100%' }}>
           <Box sx={formLabelRowStyles}>
-            <FormLabel sx={{ ...formLabelStyles, fontWeight: 'bold', mb: 0 }} id='fullname-label'>
+            <FormLabel
+              sx={{ ...formLabelStyles, fontWeight: 'bold', mb: 0 }}
+              id='fullname-label'
+            >
               Your Name (required):
             </FormLabel>
             <Tooltip title='Enter your full name'>
@@ -395,7 +466,10 @@ const Step2: React.FC<Step2Props> = ({
 
         <Box sx={{ width: '100%' }}>
           <Box sx={formLabelRowStyles}>
-            <FormLabel sx={{ ...formLabelStyles, fontWeight: 'bold', mb: 0 }} id='relationship-label'>
+            <FormLabel
+              sx={{ ...formLabelStyles, fontWeight: 'bold', mb: 0 }}
+              id='relationship-label'
+            >
               How do you know {displayName}? (required):
             </FormLabel>
             <Tooltip title={`Select your relationship with ${displayName}`}>
@@ -433,36 +507,40 @@ const Step2: React.FC<Step2Props> = ({
         </Box>
 
         <Box sx={{ ...recSkillSectionStyles }}>
-          <Typography sx={sectionHeadingStyles}>
-            Select skills to recommend
-          </Typography>
+          <Typography sx={sectionHeadingStyles}>Select skills to recommend</Typography>
           <Typography sx={{ ...tipTextStyles }}>
             Choose one or more skills that you&apos;re recommending for {displayName}.
           </Typography>
-          <Box sx={{ ...recSkillChipsContainerStyles, }}>
+          <Box sx={{ ...recSkillChipsContainerStyles }}>
             {skills?.length > 0 ? (
               skills.map((skill: SelectedSkill, idx: number) => {
                 const currentSelected: SelectedSkill[] = watch('selectedSkills') || []
                 const skillId = (skill as any).id ?? skill.uuid
                 const skillName = (skill as any).name ?? skill.targetName
-                const isSelected = currentSelected.some(s => ((s as any).id ?? s.uuid) === skillId)
+                const isSelected = currentSelected.some(
+                  s => ((s as any).id ?? s.uuid) === skillId
+                )
 
                 return (
                   <SkillBadgePill
                     key={`${skillId}-${idx}`}
                     onClick={() => {
                       const newSelected = isSelected
-                        ? currentSelected.filter(s => ((s as any).id ?? s.uuid) !== skillId)
+                        ? currentSelected.filter(
+                            s => ((s as any).id ?? s.uuid) !== skillId
+                          )
                         : [...currentSelected, skill]
                       setValue('selectedSkills', newSelected)
                     }}
                     sx={{
                       cursor: 'pointer',
-                      ...(isSelected ? {
-                        backgroundColor: '#2563EB',
-                        color: '#FFFFFF',
-                        '& .MuiSvgIcon-root': { color: '#FFFFFF' }
-                      } : unselectedSkillPillStyles)
+                      ...(isSelected
+                        ? {
+                            backgroundColor: '#2563EB',
+                            color: '#FFFFFF',
+                            '& .MuiSvgIcon-root': { color: '#FFFFFF' }
+                          }
+                        : unselectedSkillPillStyles)
                     }}
                   >
                     {skillName}
@@ -477,15 +555,27 @@ const Step2: React.FC<Step2Props> = ({
             )}
           </Box>
           {(watch('selectedSkills') || []).length > 0 && (
-            <Typography sx={{ ...sectionLabelStyles, mt: '12px', mb: 0, color: '#6B7280', fontSize: '14px' }}>
-              {(watch('selectedSkills') || []).length} skill{(watch('selectedSkills') || []).length !== 1 ? 's' : ''} selected
+            <Typography
+              sx={{
+                ...sectionLabelStyles,
+                mt: '12px',
+                mb: 0,
+                color: '#6B7280',
+                fontSize: '14px'
+              }}
+            >
+              {(watch('selectedSkills') || []).length} skill
+              {(watch('selectedSkills') || []).length !== 1 ? 's' : ''} selected
             </Typography>
           )}
         </Box>
 
         <Box sx={{ width: '100%' }}>
           <Box sx={formLabelRowStyles}>
-            <FormLabel sx={{ ...formLabelStyles, fontWeight: 'bold', mb: 0 }} id='recommendation-text-label'>
+            <FormLabel
+              sx={{ ...formLabelStyles, fontWeight: 'bold', mb: 0 }}
+              id='recommendation-text-label'
+            >
               Recommendation (required):
             </FormLabel>
             <Tooltip title="Write your recommendation here to support or confirm the requestor's skill claims">
@@ -498,21 +588,27 @@ const Step2: React.FC<Step2Props> = ({
             placeholder={`I've worked with ${displayName} for about two years, managing her at The Coffee Place...`}
           />
           {errors.recommendationText && (
-            <Typography color='error' sx={{ mt: 1, fontSize: '12px' }}>{errors.recommendationText.message}</Typography>
+            <Typography color='error' sx={{ mt: 1, fontSize: '12px' }}>
+              {errors.recommendationText.message}
+            </Typography>
           )}
         </Box>
 
         <Box sx={{ width: '100%' }}>
           <Box sx={formLabelRowStyles}>
-            <FormLabel sx={{ ...formLabelStyles, fontWeight: 'bold', mb: 0 }} id='qualifications-label'>
+            <FormLabel
+              sx={{ ...formLabelStyles, fontWeight: 'bold', mb: 0 }}
+              id='qualifications-label'
+            >
               Your Qualifications (optional):
             </FormLabel>
-            <Tooltip title="Share how you are qualified to provide this recommendation">
+            <Tooltip title='Share how you are qualified to provide this recommendation'>
               <InfoOutlinedIcon sx={tooltipIconStyles} />
             </Tooltip>
           </Box>
           <Typography sx={{ ...tipTextStyles, mb: '12px' }}>
-            Sharing your qualifications will further increase the value of this recommendation.
+            Sharing your qualifications will further increase the value of this
+            recommendation.
           </Typography>
           <TextEditor
             value={watch('qualifications') || ''}
@@ -520,7 +616,9 @@ const Step2: React.FC<Step2Props> = ({
             placeholder={`e.g., I have over 10 years of experience in the field...`}
           />
           {errors.qualifications && (
-            <Typography color='error' sx={{ mt: 1, fontSize: '12px' }}>{errors.qualifications.message}</Typography>
+            <Typography color='error' sx={{ mt: 1, fontSize: '12px' }}>
+              {errors.qualifications.message}
+            </Typography>
           )}
         </Box>
 
@@ -531,17 +629,19 @@ const Step2: React.FC<Step2Props> = ({
               Evidence <span style={{ color: '#6B7280' }}>(optional)</span>
             </Typography>
             <Typography sx={{ ...tipTextStyles }}>
-              Adding evidence makes your recommendation more credible. You can skip this step, but will not be able to add evidence later.
+              Adding evidence makes your recommendation more credible. You can skip this
+              step, but will not be able to add evidence later.
             </Typography>
 
             <Box sx={evidenceTipBoxStyles}>
               <LightbulbSVG />
               <Typography sx={evidenceTipBoxTextStyles}>
-                Use the arrows to change the order of an image or place it in the first position as a featured image.
-                Featured images serve as the main image for your skill and may also serve as supporting evidence unless you elect to exclude them.
+                Use the arrows to change the order of an image or place it in the first
+                position as a featured image. Featured images serve as the main image for
+                your skill and may also serve as supporting evidence unless you elect to
+                exclude them.
               </Typography>
             </Box>
-
 
             <Box
               display='flex'
@@ -552,16 +652,31 @@ const Step2: React.FC<Step2Props> = ({
               width='100%'
             >
               <Box width='100%'>
-                <CardStyle variant='outlined' {...getRootProps()} isDragActive={isDragActive} onClick={open} sx={{ cursor: 'pointer' }}>
+                <CardStyle
+                  variant='outlined'
+                  {...getRootProps()}
+                  isDragActive={isDragActive}
+                  onClick={open}
+                  sx={{ cursor: 'pointer' }}
+                >
                   <input {...getInputProps()} />
-                  <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                  <Box
+                    sx={{
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 1
+                    }}
+                  >
                     <SVGUploadMedia />
                     <Box>
-                      <Typography component="span" sx={uploadClickTextStyles}>
+                      <Typography component='span' sx={uploadClickTextStyles}>
                         Click to upload
                       </Typography>
-                      <Typography component="span" sx={uploadDragTextStyles}>
-                        {' '}or drag and drop
+                      <Typography component='span' sx={uploadDragTextStyles}>
+                        {' '}
+                        or drag and drop
                       </Typography>
                     </Box>
                     <Typography sx={uploadHintTextStyles}>
@@ -599,14 +714,17 @@ const Step2: React.FC<Step2Props> = ({
             if (!link) return null
 
             return (
-              <Box key={link.id} sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <Box
+                key={link.id}
+                sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+              >
                 {/* Link Title Field */}
                 <TextField
                   fullWidth
                   placeholder="Link title (e.g., 'LinkedIn Profile')"
                   value={link.name}
-                  onChange={(e) => handleLinkChange(index, 'name', e.target.value)}
-                  variant="outlined"
+                  onChange={e => handleLinkChange(index, 'name', e.target.value)}
+                  variant='outlined'
                   sx={linkInputFieldStyles}
                 />
                 {/* URL Field + Add Button */}
@@ -615,9 +733,9 @@ const Step2: React.FC<Step2Props> = ({
                     fullWidth
                     placeholder="URL (e.g., 'https://...')"
                     value={link.url}
-                    onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
-                    variant="outlined"
+                    onChange={e => handleLinkChange(index, 'url', e.target.value)}
+                    onKeyDown={e => handleKeyDown(e, index)}
+                    variant='outlined'
                     error={!!urlErrors[index]}
                     helperText={urlErrors[index]}
                     sx={linkInputFieldStyles}
@@ -625,7 +743,7 @@ const Step2: React.FC<Step2Props> = ({
                   <Button
                     onClick={handleAddLink}
                     disabled={!isActive}
-                    variant="outlined"
+                    variant='outlined'
                     sx={{
                       ...addLinkButtonBaseStyles,
                       ...(isActive && addLinkButtonActiveStyles),
@@ -638,7 +756,6 @@ const Step2: React.FC<Step2Props> = ({
               </Box>
             )
           })()}
-
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -646,12 +763,20 @@ const Step2: React.FC<Step2Props> = ({
             <Box key={link.id} sx={savedLinkRowStyles}>
               <InsertLinkIcon />
               <Typography sx={savedLinkTextStyles}>
-                <a href={link.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+                <a
+                  href={link.url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  style={{ color: 'inherit', textDecoration: 'none' }}
+                >
                   {link.name || link.url}
                 </a>
               </Typography>
-              <IconButton onClick={() => handleRemoveLink(index)} sx={linkDeleteButtonStyles}>
-                <DeleteIcon fontSize="small" />
+              <IconButton
+                onClick={() => handleRemoveLink(index)}
+                sx={linkDeleteButtonStyles}
+              >
+                <DeleteIcon fontSize='small' />
               </IconButton>
             </Box>
           ))}

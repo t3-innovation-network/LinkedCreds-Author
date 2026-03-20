@@ -13,7 +13,9 @@ export function StepTrackShape() {
   const { data: session } = useSession()
   const accessToken = session?.accessToken
 
-  const isRecommendationFlow = typeof window !== 'undefined' && window.location.pathname.includes('/recommendations/')
+  const isRecommendationFlow =
+    typeof window !== 'undefined' &&
+    window.location.pathname.includes('/recommendations/')
 
   const DISPLAY_TOTAL_STEPS = isRecommendationFlow ? 3 : 4
 
@@ -24,11 +26,20 @@ export function StepTrackShape() {
     else if (activeStep === 4) mappedStep = 3
   } else {
     switch (activeStep) {
-      case 1: mappedStep = 1; break
-      case 2: mappedStep = 2; break
-      case 3: mappedStep = 3; break
-      case 4: mappedStep = 4; break
-      default: mappedStep = 0
+      case 1:
+        mappedStep = 1
+        break
+      case 2:
+        mappedStep = 2
+        break
+      case 3:
+        mappedStep = 3
+        break
+      case 4:
+        mappedStep = 4
+        break
+      default:
+        mappedStep = 0
     }
   }
 
@@ -53,7 +64,7 @@ export function StepTrackShape() {
     const stepNumber = index + 1
     let bgColor
 
-    // Logic: 
+    // Logic:
     // If mappedStep > stepNumber -> Completed (Blue)
     // If mappedStep === stepNumber -> Active (Blue)
     // else -> Gray
@@ -78,7 +89,7 @@ export function StepTrackShape() {
             borderRadius: '50%',
             cursor: isClickable ? 'pointer' : 'default',
             flexShrink: 0,
-            transition: 'background-color 0.3s',
+            transition: 'background-color 0.3s'
           }}
         />
       </Tooltip>
@@ -104,7 +115,15 @@ export function StepTrackShape() {
         {Array.from({ length: DISPLAY_TOTAL_STEPS }, (_, index) => renderStepBox(index))}
       </Box>
 
-      <Typography sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: 500, color: '#4D4D4D', whiteSpace: 'nowrap' }}>
+      <Typography
+        sx={{
+          fontFamily: 'Inter',
+          fontSize: '16px',
+          fontWeight: 500,
+          color: '#4D4D4D',
+          whiteSpace: 'nowrap'
+        }}
+      >
         Step {mappedStep} of {DISPLAY_TOTAL_STEPS}
       </Typography>
 
@@ -118,11 +137,12 @@ export function StepTrackShape() {
             color: '#2563EB',
             fontFamily: 'Inter',
             '&:hover': {
-              backgroundColor: 'transparent',
+              backgroundColor: 'transparent'
             }
           }}
           startIcon={<ArrowBackIcon sx={{ fontSize: '16px !important' }} />}
-        >Previous
+        >
+          Previous
         </Button>
       )}
 

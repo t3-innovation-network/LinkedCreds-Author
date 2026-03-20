@@ -166,10 +166,11 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
             gap: '12px'
           }}
         >
-          <Link
+          <a
             href={`/api/credential-raw/${fileID}`}
             target='_blank'
-            sx={{
+            rel='noopener noreferrer'
+            style={{
               fontSize: '16px',
               fontWeight: 600,
               color: '#003FE0',
@@ -177,7 +178,7 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
             }}
           >
             View Source
-          </Link>
+          </a>
           <img
             src={qrCodeDataUrl}
             alt='QR Code for credential source'
@@ -204,7 +205,11 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
         <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center', mb: 2 }}>
           <SVGBadge />
           <Typography variant='h5' sx={{ fontWeight: 700 }}>
-            {subject.recipientName || credential.name || subject.achievement?.name || subject.name || 'Unnamed Credential'}
+            {subject.recipientName ||
+              credential.name ||
+              subject.achievement?.name ||
+              subject.name ||
+              'Unnamed Credential'}
           </Typography>
         </Box>
 
@@ -242,9 +247,9 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
           </Typography>
           <Typography>{issuer.name}</Typography>
           {issuer.url && (
-            <Link href={issuer.url} target='_blank' sx={{ fontSize: '14px' }}>
+            <a href={issuer.url} target='_blank' rel='noopener noreferrer' style={{ fontSize: '14px', color: '#003FE0', textDecoration: 'underline' }}>
               {issuer.url}
-            </Link>
+            </a>
           )}
           {issuer.email && (
             <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
@@ -295,22 +300,30 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
 
           {subject.name && (
             <Box sx={{ mb: 2 }}>
-              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>Recommender: {subject.name}</Typography>
+              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>
+                Recommender: {subject.name}
+              </Typography>
             </Box>
           )}
 
           {subject.recipientName && (
             <Box sx={{ mb: 2 }}>
-              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>Issued for: {subject.recipientName}</Typography>
+              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>
+                Issued for: {subject.recipientName}
+              </Typography>
             </Box>
           )}
 
           {subject.howKnow && (
             <Box sx={{ mb: 2 }}>
-              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>How They Know You:
+              <Typography sx={{ fontWeight: 500, mb: 0.5 }}>
+                How They Know You:
                 <span
                   dangerouslySetInnerHTML={{
-                    __html: subject.howKnow.replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/<br>/g, ' ')
+                    __html: subject.howKnow
+                      .replace(/<p>/g, '')
+                      .replace(/<\/p>/g, '')
+                      .replace(/<br>/g, ' ')
                   }}
                 />
               </Typography>
@@ -325,7 +338,7 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
                   <Chip
                     key={skill.uuid || `skill-${index}`}
                     label={skill.name ?? skill.targetName}
-                    size="small"
+                    size='small'
                     sx={{
                       backgroundColor: 'rgba(0, 63, 224, 0.08)',
                       border: '1px solid rgba(0, 63, 224, 0.2)',
@@ -344,7 +357,10 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
               <Typography>
                 <span
                   dangerouslySetInnerHTML={{
-                    __html: subject.recommendationText.replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/<br>/g, ' ')
+                    __html: subject.recommendationText
+                      .replace(/<p>/g, '')
+                      .replace(/<\/p>/g, '')
+                      .replace(/<br>/g, ' ')
                   }}
                 />
               </Typography>
@@ -357,7 +373,10 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
               <Typography>
                 <span
                   dangerouslySetInnerHTML={{
-                    __html: subject.qualifications.replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/<br>/g, ' ')
+                    __html: subject.qualifications
+                      .replace(/<p>/g, '')
+                      .replace(/<\/p>/g, '')
+                      .replace(/<br>/g, ' ')
                   }}
                 />
               </Typography>
@@ -380,19 +399,23 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
             {/* Bulleted List */}
             <Box component='ul' sx={{ pl: 2, m: 0 }}>
               {evidence.map((item: any, index: number) => (
-                <Box component='li' key={index} sx={{ color: '#003FE0', mb: 1, '::marker': { fontSize: '1.2em' } }}>
-                  <Link
+                <Box
+                  component='li'
+                  key={index}
+                  sx={{ color: '#003FE0', mb: 1, '::marker': { fontSize: '1.2em' } }}
+                >
+                  <a
                     href={item.url || item.id}
                     target='_blank'
-                    underline='hover'
-                    sx={{
+                    rel='noopener noreferrer'
+                    style={{
                       fontSize: '14px',
                       color: '#003FE0',
                       textDecoration: 'underline'
                     }}
                   >
                     {item.name || item.url || 'Link'}
-                  </Link>
+                  </a>
                 </Box>
               ))}
             </Box>

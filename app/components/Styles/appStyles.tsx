@@ -457,24 +457,25 @@ export const DescriptionText = styled(Typography)(({ theme }) => ({
 }))
 
 export const MediaContainer = styled(Box)(({ theme }) => ({
-  width: '75%',
+  width: '100%',
+  maxWidth: '650px',
   margin: '0 auto',
   borderRadius: '10px',
   overflow: 'hidden',
   position: 'relative',
-  aspectRatio: '4/3',
   backgroundColor: '#FFFFFF',
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
+  padding: '10px',
+  border: '1px solid #E2E8F0'
 }))
 
 export const Media = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'hasImage'
 })<{ hasImage?: boolean }>(({ hasImage, theme }) => ({
   width: '100%',
-  maxWidth: theme.breakpoints.down('sm') ? '600px' : '500px',
-  aspectRatio: hasImage ? '16/9' : 'auto',
+  maxHeight: '450px',
   position: 'relative',
   backgroundImage: 'none',
   backgroundSize: 'contain',
@@ -484,8 +485,8 @@ export const Media = styled(Box, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: '16px',
-  boxShadow: hasImage ? '0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
+  borderRadius: '12px',
+  boxShadow: hasImage ? '0 4px 12px rgba(0, 0, 0, 0.08)' : 'none'
 }))
 
 export const EmptySkillsState = styled(Box)(({ theme }) => ({
@@ -632,6 +633,81 @@ export const sidebarRecommendationCardStyles = {
 // =============================================
 // Credential Preview Styles
 // =============================================
+
+export const recommendationListCardStyles = {
+  border: '1px solid #EAECF0',
+  borderRadius: '12px',
+  mb: 2,
+  bgcolor: '#FFFFFF',
+  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
+  overflow: 'hidden',
+  transition: 'all 0.2s',
+  '&:hover': {
+    borderColor: '#003FE0',
+    boxShadow: '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)'
+  }
+}
+
+export const recommendationDetailLabelStyles = {
+  color: '#344054',
+  fontWeight: 600,
+  mb: 0.5
+}
+
+export const recommendationDetailValueStyles = {
+  color: '#475467',
+  marginLeft: '10px'
+}
+
+export const recommendationSkillChipStyles = {
+  backgroundColor: '#EFF8FF',
+  color: '#175CD3',
+  border: '1px solid #B2DDFF',
+  py: 0.75,
+  borderRadius: '8px',
+  fontSize: '12px'
+}
+
+export const verificationBadgeBoxStyles = {
+  mx: 3,
+  mb: 2,
+  p: 2,
+  bgcolor: '#F6FEF9',
+  border: '1px solid #D1FADF',
+  borderRadius: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 1.5
+}
+
+export const verificationBadgeTextStyles = {
+  color: '#000E40',
+  fontSize: '14px',
+}
+
+export const askRecommendationButtonStyles = {
+  backgroundColor: '#003FE0',
+  textTransform: 'none',
+  borderRadius: '100px',
+  width: { xs: 'fit-content', sm: '300px', md: '300px' }
+}
+
+export const minimizedCredentialCardStyles = {
+  width: '100%',
+  backgroundColor: '#fff',
+  cursor: 'pointer',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px'
+}
+
+export const minimizedCredentialTitleStyles = {
+  fontFamily: 'Inter',
+  fontSize: '24px',
+  fontWeight: 800,
+  lineHeight: '32px',
+  color: '#000E40'
+}
 
 export const previewDividerStyles = {
   borderColor: '#E2E8F0'

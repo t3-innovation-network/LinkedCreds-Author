@@ -27,19 +27,48 @@ import {
 import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
-import { SVGSparklesBlue, SVGBadgeCheck, SVGRecommendBadge, DescriptionOutlinedIcon, InsertLinkIcon } from '../../Assets/SVGs'
+import {
+  SVGSparklesBlue,
+  SVGBadgeCheck,
+  SVGRecommendBadge,
+  DescriptionOutlinedIcon,
+  InsertLinkIcon
+} from '../../Assets/SVGs'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 import { useSession } from 'next-auth/react'
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
 import { GoogleDriveStorage } from '@cooperation/vc-storage'
-import { BadgePill, CredentialTitle, DescriptionText, ExperienceText, MediaContainer, RecipientName, SectionHeader, publicLinkBoxStyles, publicLinkInputStyles, copyButtonStyles, qrCodeBoxStyles, credentialCardStyles } from '../../components/Styles/appStyles'
+import {
+  BadgePill,
+  SkillBadgePill,
+  CredentialTitle,
+  DescriptionText,
+  ExperienceText,
+  MediaContainer,
+  Media,
+  RecipientName,
+  SectionHeader,
+  publicLinkBoxStyles,
+  publicLinkInputStyles,
+  copyButtonStyles,
+  qrCodeBoxStyles,
+  credentialCardStyles,
+  recommendationListCardStyles,
+  recommendationDetailLabelStyles,
+  recommendationDetailValueStyles,
+  recommendationSkillChipStyles,
+  verificationBadgeBoxStyles,
+  verificationBadgeTextStyles,
+  askRecommendationButtonStyles,
+  minimizedCredentialCardStyles,
+  minimizedCredentialTitleStyles,
+  viewMoreButtonStyles
+} from '../../components/Styles/appStyles'
 import dynamic from 'next/dynamic'
-const EvidencePreview = dynamic(() => import('./EvidencePreview'), { ssr: false })
 import { getAccessToken, getFileViaFirebase } from '../../firebase/storage'
-import QRCode from "react-qr-code";
-import { Media } from '../../components/Styles/appStyles'
+import QRCode from 'react-qr-code'
 import GenericCredentialViewer from './GenericCredentialViewer'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import { verifyCredential } from '../../utils/verification'
@@ -53,7 +82,7 @@ if (typeof window !== 'undefined') {
 }
 // Define types
 interface CredentialSubject {
-  type?: string[]        // e.g. ['SkillClaim'] in new ISkillClaimCredential format
+  type?: string[] // e.g. ['SkillClaim'] in new ISkillClaimCredential format
   name?: string
   durationPerformed?: string
   howKnow?: string
@@ -63,8 +92,20 @@ interface CredentialSubject {
   skillsEndorsed?: string[]
   removedSkills?: string[]
   // ISkillClaimCredential format (new)
-  skill?: { id: string; name: string; description?: string; source?: string; frameworkMatch?: { framework?: string; socCode?: string[]; name?: string; similarityScore?: number }[] }[]
+  skill?: {
+    id: string
+    name: string
+    description?: string
+    source?: string
+    frameworkMatch?: {
+      framework?: string
+      socCode?: string[]
+      name?: string
+      similarityScore?: number
+    }[]
+  }[]
   narrative?: string
+  description?: string
   person?: { type: string[]; id?: string; name?: string; email?: string }
   evidence?: { id?: string; url?: string; name: string }[]
   portfolio?: { id?: string; url?: string; name: string }[]
@@ -72,7 +113,7 @@ interface CredentialSubject {
 interface ClaimDetail {
   '@context': string[]
   id: string
-  name?: string          // W3C VC top-level credential title
+  name?: string // W3C VC top-level credential title
   uniqueId?: string
   type: string[]
   issuanceDate?: string
@@ -188,7 +229,7 @@ const HeaderContainer = styled(Paper)(({ theme }) => ({
 }))
 
 const MainContentContainer = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'currentStep'
+  shouldForwardProp: prop => prop !== 'currentStep'
 })<{ currentStep?: number }>(({ theme, currentStep }) => ({
   width: '100%',
   maxWidth: '820px',
@@ -226,8 +267,6 @@ const FieldValue = styled(Typography)(({ theme }) => ({
   overflowWrap: 'anywhere'
 }))
 
-
-
 // Field component for consistent styling
 interface FieldProps {
   label: string
@@ -254,8 +293,20 @@ const Field: React.FC<FieldProps> = ({ label, value, isHtml, placeholder }) => (
 )
 
 const GreenCheckMark = () => (
-  <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 3.625L4.5 9.125L2 6.625" stroke="#12B76A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  <svg
+    width='12'
+    height='13'
+    viewBox='0 0 12 13'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
+  >
+    <path
+      d='M10 3.625L4.5 9.125L2 6.625'
+      stroke='#12B76A'
+      strokeWidth='1.5'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
   </svg>
 )
 
@@ -330,7 +381,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
 
   const credentialTitle = claimDetail?.name || credentialSubject?.name || ''
   const personName = credentialSubject?.person?.name || ''
-  const credentialNarrative = credentialSubject?.narrative || ''
+  const credentialNarrative = credentialSubject?.description || credentialSubject?.narrative || ''
 
   useEffect(() => {
     if (onAchievementLoad && credentialTitle) {
@@ -340,10 +391,20 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
 
   const displayEvidence = useMemo(() => {
     if (!claimDetail && !credentialSubject) return []
-    const evidenceItems = credentialSubject?.evidence || claimDetail?.evidence || (credentialSubject as any)?.portfolio || (claimDetail as any)?.portfolio
+    const evidenceItems =
+      credentialSubject?.evidence ||
+      claimDetail?.evidence ||
+      (credentialSubject as any)?.portfolio ||
+      (claimDetail as any)?.portfolio
     if (!evidenceItems || !Array.isArray(evidenceItems)) return []
 
-    const evidence: { name: string, url: string, googleId?: string, wasId?: string, type?: string[] }[] = []
+    const evidence: {
+      name: string
+      url: string
+      googleId?: string
+      wasId?: string
+      type?: string[]
+    }[] = []
 
     // Add evidence items
     evidenceItems.forEach(item => {
@@ -351,7 +412,8 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
       if (itemUrl) {
         // Extract googleId from URL if possible
         let googleId = undefined
-        const match = itemUrl.match(/\/file\/d\/([^/]+)/) || itemUrl.match(/[?&]id=([^&]+)/)
+        const match =
+          itemUrl.match(/\/file\/d\/([^/]+)/) || itemUrl.match(/[?&]id=([^&]+)/)
         if (match && match[1]) {
           googleId = match[1]
         }
@@ -391,16 +453,17 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
   const [viewToken, setViewToken] = useState<string | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0)
   const [isHoveringMedia, setIsHoveringMedia] = useState<boolean>(false)
-  const [displayFiles, setDisplayFiles] = useState<{ id: string, name: string, url: string, isFeatured?: boolean }[]>([])
+  const [displayFiles, setDisplayFiles] = useState<
+    { id: string; name: string; url: string; isFeatured?: boolean }[]
+  >([])
 
-
-
-  const isImage = (url: string) => /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url) || isGoogleDriveImageUrl(url)
+  const isImage = (url: string) =>
+    /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url) || isGoogleDriveImageUrl(url)
 
   // Prepare display files from credential data
   useEffect(() => {
     if (credentialSubject) {
-      const files: { id: string, name: string, url: string, isFeatured?: boolean }[] = []
+      const files: { id: string; name: string; url: string; isFeatured?: boolean }[] = []
 
       // Top-level evidence items - Add only if visual
       if (claimDetail?.evidence && Array.isArray(claimDetail.evidence)) {
@@ -408,7 +471,13 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
           if (item.id) {
             const url = getGoogleDriveDirectLink(ensureProtocol(item.id))
             const name = item.name || `Evidence ${index + 1}`
-            if (isImage(url) || isPDF(name) || isPDF(item.id) || isMP4(name) || isMP4(item.id)) {
+            if (
+              isImage(url) ||
+              isPDF(name) ||
+              isPDF(item.id) ||
+              isMP4(name) ||
+              isMP4(item.id)
+            ) {
               files.push({
                 id: `evidence-${index}`,
                 name: name,
@@ -426,28 +495,11 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
   // Generate thumbnails
   useEffect(() => {
     displayFiles.forEach(async file => {
-      // PDF handling
-      if (isPDF(file.name || file.url) && !pdfThumbnails[file.id]) {
-        const thumbnail = await renderPDFThumbnail(file.url)
-        setPdfThumbnails(prev => ({ ...prev, [file.id]: thumbnail }))
-      }
+      let finalFileUrl = file.url
+      let isFetchedBlob = false
 
-      // Video handling
-      if (isMP4(file.name || file.url) && !videoThumbnails[file.id]) {
-        try {
-          const thumbnail = await generateVideoThumbnail(file.url)
-          setVideoThumbnails(prev => ({ ...prev, [file.id]: thumbnail }))
-        } catch (error) {
-          console.error('Error generating video thumbnail:', error)
-          setVideoThumbnails(prev => ({
-            ...prev,
-            [file.id]: '/fallback-video.png'
-          }))
-        }
-      }
-
-      // Google Drive Image handling (authenticated fetch)
-      if (isGoogleDriveImageUrl(file.url) && !imageThumbnails[file.id] && viewToken) {
+      // Google Drive secure fetch for any file
+      if (isGoogleDriveImageUrl(file.url) && viewToken) {
         try {
           // Extract ID from Google Drive URL
           const match = file.url.match(/id=([^&]+)/)
@@ -463,36 +515,65 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
             )
             if (response.ok) {
               const blob = await response.blob()
-              const objectUrl = URL.createObjectURL(blob)
-              setImageThumbnails(prev => ({ ...prev, [file.id]: objectUrl }))
+              finalFileUrl = URL.createObjectURL(blob)
+              isFetchedBlob = true
             } else {
               // Fallback to direct URL if fetch fails (public files)
-              console.warn('Failed to fetch private image blob, using direct URL', response.status)
+              console.warn(
+                'Failed to fetch private image blob, using direct URL',
+                response.status
+              )
             }
           }
         } catch (e) {
           console.error('Error fetching image blob:', e)
         }
       }
+
+      // PDF handling
+      if (isPDF(file.name || file.url) && !pdfThumbnails[file.id]) {
+        const thumbnail = await renderPDFThumbnail(finalFileUrl)
+        setPdfThumbnails(prev => ({ ...prev, [file.id]: thumbnail }))
+        return
+      }
+
+      // Video handling
+      if (isMP4(file.name || file.url) && !videoThumbnails[file.id]) {
+        try {
+          const thumbnail = await generateVideoThumbnail(finalFileUrl)
+          setVideoThumbnails(prev => ({ ...prev, [file.id]: thumbnail }))
+        } catch (error) {
+          console.error('Error generating video thumbnail:', error)
+          setVideoThumbnails(prev => ({
+            ...prev,
+            [file.id]: '/fallback-video.png'
+          }))
+        }
+        return
+      }
+
+      // Standard Image handling
+      if (!imageThumbnails[file.id] && (isFetchedBlob || isImage(file.url))) {
+        setImageThumbnails(prev => ({ ...prev, [file.id]: finalFileUrl }))
+      }
     })
   }, [displayFiles, viewToken])
 
   const handleNextImage = () => {
     if (displayFiles.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % displayFiles.length)
+      setCurrentImageIndex(prev => (prev + 1) % displayFiles.length)
     }
   }
 
   const handlePrevImage = () => {
     if (displayFiles.length > 1) {
-      setCurrentImageIndex((prev) => (prev - 1 + displayFiles.length) % displayFiles.length)
+      setCurrentImageIndex(prev => (prev - 1 + displayFiles.length) % displayFiles.length)
     }
   }
 
   // Get current display image
-  const currentDisplayFile = displayFiles.length > 0
-    ? displayFiles[currentImageIndex]
-    : null
+  const currentDisplayFile =
+    displayFiles.length > 0 ? displayFiles[currentImageIndex] : null
 
   useEffect(() => {
     if (!fileID) {
@@ -512,7 +593,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
           accessToken1 = accessToken ?? null
         }
 
-        let vcResponse: Response;
+        let vcResponse: Response
 
         if (accessToken1) {
           setViewToken(accessToken1)
@@ -523,7 +604,9 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
 
           // If the stored token returns Unauthorized, fallback to the user's live session token
           if (vcResponse.status === 401 && accessToken && accessToken !== accessToken1) {
-            console.warn('Stored token was unauthorized. Retrying with active session token...')
+            console.warn(
+              'Stored token was unauthorized. Retrying with active session token...'
+            )
             accessToken1 = accessToken
             setViewToken(accessToken1)
 
@@ -538,13 +621,17 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
           }
         } else {
           // We have no valid token in hand. To support unauthenticated visits (e.g. public links),
-          // we try proxying via the Firebase API / serverless functions as a last resort fallback instead 
+          // we try proxying via the Firebase API / serverless functions as a last resort fallback instead
           // of immediately throwing an error.
-          console.warn('No active tokens found. Attempting to fall back to anonymous proxy fetch...')
+          console.warn(
+            'No active tokens found. Attempting to fall back to anonymous proxy fetch...'
+          )
           vcResponse = await fetch(`/api/drive/${fileID}`)
 
           if (!vcResponse.ok) {
-            setErrorMessage('Your Google session has expired. Please sign out and sign back in.')
+            setErrorMessage(
+              'Your Google session has expired. Please sign out and sign back in.'
+            )
             setLoading(false)
             return
           }
@@ -658,7 +745,6 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
     )
   }
 
-
   // Check if this is an external credential
   const isExternalCredential = () => {
     if (!claimDetail) return false
@@ -666,7 +752,8 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
     const subject = claimDetail.credentialSubject || {}
 
     // New ISkillClaimCredential format (hr-context): type includes 'SkillClaim' or has skill array
-    const isSkillClaim = Array.isArray(subject.type) && subject.type.includes('SkillClaim')
+    const isSkillClaim =
+      Array.isArray(subject.type) && subject.type.includes('SkillClaim')
     const hasSkillArray = Array.isArray(subject.skill)
     if (isSkillClaim || hasSkillArray) return false
 
@@ -681,7 +768,10 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
         </Box>
       ) : comments && comments.length > 0 ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography variant='h6' sx={{ mb: 2, color: '#000E40', fontFamily: 'Inter', fontWeight: 700 }}>
+          <Typography
+            variant='h6'
+            sx={{ mb: 2, color: '#000E40', fontFamily: 'Inter', fontWeight: 700 }}
+          >
             Recommendations ({comments.length})
           </Typography>
           {comments.map((comment: ClaimDetail, index: number) => {
@@ -691,19 +781,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
             return (
               <Box
                 key={uniqueKey}
-                sx={{
-                  border: '1px solid #EAECF0',
-                  borderRadius: '12px',
-                  mb: 2,
-                  bgcolor: '#FFFFFF',
-                  boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
-                  overflow: 'hidden',
-                  transition: 'all 0.2s',
-                  '&:hover': {
-                    borderColor: '#003FE0',
-                    boxShadow: '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)'
-                  }
-                }}
+                sx={recommendationListCardStyles}
               >
                 <Box
                   sx={{
@@ -726,7 +804,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                         fontWeight: 600
                       }}
                     >
-                      {comment.credentialSubject?.name   //Avatar of the recommender
+                      {comment.credentialSubject?.name //Avatar of the recommender
                         ? comment.credentialSubject.name
                           .split(' ')
                           .map((n: string) => n[0])
@@ -736,15 +814,20 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                         : 'U'}
                     </Avatar>
                     <Box>
-                      <Typography variant='subtitle1' sx={{ fontWeight: 600, color: '#101828', fontSize: '14px', lineHeight: '20px' }}>
+                      <Typography
+                        variant='subtitle1'
+                        sx={{
+                          fontWeight: 600,
+                          color: '#101828',
+                          fontSize: '14px',
+                          lineHeight: '20px'
+                        }}
+                      >
                         {comment.credentialSubject?.name || 'Unknown User'}
                       </Typography>
                     </Box>
                   </Box>
-                  <IconButton
-                    size="small"
-                    sx={{ color: '#98A2B3' }}
-                  >
+                  <IconButton size='small' sx={{ color: '#98A2B3' }}>
                     {isExpanded ? <ExpandLess /> : <ExpandMore />}
                   </IconButton>
                 </Box>
@@ -752,52 +835,67 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                 <Collapse in={isExpanded} timeout='auto' unmountOnExit>
                   <Divider />
                   <Box sx={{ p: 2 }}>
-
                     {/* How they know you */}
                     {comment.credentialSubject?.howKnow && (
                       <Box sx={{ mb: 2 }}>
-                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                        <Typography
+                          variant='subtitle2'
+                          sx={recommendationDetailLabelStyles}
+                        >
                           How {comment.credentialSubject.name || 'this person'} knows you:
                         </Typography>
-                        <Typography variant='body2' sx={{ color: '#475467', marginLeft: '10px' }}>
-                          <span dangerouslySetInnerHTML={{ __html: cleanHTML(comment.credentialSubject.howKnow) }} />
+                        <Typography
+                          variant='body2'
+                          sx={recommendationDetailValueStyles}
+                        >
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: cleanHTML(comment.credentialSubject.howKnow)
+                            }}
+                          />
                         </Typography>
                       </Box>
                     )}
 
                     {/* Skills Endorsed */}
-                    {comment.credentialSubject?.skillsEndorsed && comment.credentialSubject.skillsEndorsed.length > 0 && (
-                      <Box sx={{ mt: 2, mb: 2 }}>
-                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
-                          Skills Endorsed: ({comment.credentialSubject.skillsEndorsed.length})
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                          {comment.credentialSubject.skillsEndorsed.map((skill: any, skillIndex: number) => (
-                            <Chip
-                              key={`${skill.id ?? skill.uuid ?? 'skill'}-${skillIndex}`}
-                              label={skill.name ?? skill.targetName}
-                              size="small"
-                              sx={{
-                                backgroundColor: '#EFF8FF',
-                                color: '#175CD3',
-                                border: '1px solid #B2DDFF',
-                                py: 0.75,
-                                borderRadius: '8px',
-                                fontSize: '12px',
-                              }}
-                            />
-                          ))}
+                    {comment.credentialSubject?.skillsEndorsed &&
+                      comment.credentialSubject.skillsEndorsed.length > 0 && (
+                        <Box sx={{ mt: 2, mb: 2 }}>
+                          <Typography
+                            variant='subtitle2'
+                            sx={recommendationDetailLabelStyles}
+                          >
+                            Skills Endorsed: (
+                            {comment.credentialSubject.skillsEndorsed.length})
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            {comment.credentialSubject.skillsEndorsed.map(
+                              (skill: any, skillIndex: number) => (
+                                <Chip
+                                  key={`${skill.id ?? skill.uuid ?? 'skill'}-${skillIndex}`}
+                                  label={skill.name ?? skill.targetName}
+                                  size='small'
+                                  sx={recommendationSkillChipStyles}
+                                />
+                              )
+                            )}
+                          </Box>
                         </Box>
-                      </Box>
-                    )}
+                      )}
 
                     {/* Recommendation Text */}
                     {comment.credentialSubject?.recommendationText && (
                       <Box sx={{}}>
-                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                        <Typography
+                          variant='subtitle2'
+                          sx={recommendationDetailLabelStyles}
+                        >
                           Recommendation:
                         </Typography>
-                        <Typography variant='body2' sx={{ color: '#475467', marginLeft: '10px' }}>
+                        <Typography
+                          variant='body2'
+                          sx={recommendationDetailValueStyles}
+                        >
                           <span
                             dangerouslySetInnerHTML={{
                               __html: cleanHTML(
@@ -812,7 +910,10 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     {/* Your Qualifications */}
                     {comment.credentialSubject?.qualifications && (
                       <Box sx={{ mt: 2 }}>
-                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                        <Typography
+                          variant='subtitle2'
+                          sx={recommendationDetailLabelStyles}
+                        >
                           Qualifications:
                         </Typography>
                         <Typography variant='body2' sx={{ color: '#475467' }}>
@@ -827,7 +928,10 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     {/* Explain Your Answer */}
                     {comment.credentialSubject?.explainAnswer && (
                       <Box sx={{ mt: 2 }}>
-                        <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                        <Typography
+                          variant='subtitle2'
+                          sx={recommendationDetailLabelStyles}
+                        >
                           Additional Context:
                         </Typography>
                         <Typography variant='body2' sx={{ color: '#475467' }}>
@@ -841,11 +945,17 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     )}
                     {/* Supporting Evidence */}
                     {(() => {
-                      const evidenceItems = comment.credentialSubject?.evidence || (comment.credentialSubject as any)?.portfolio || comment.evidence
+                      const evidenceItems =
+                        comment.credentialSubject?.evidence ||
+                        (comment.credentialSubject as any)?.portfolio ||
+                        comment.evidence
                       if (Array.isArray(evidenceItems) && evidenceItems.length > 0) {
                         return (
                           <Box sx={{ mt: 2 }}>
-                            <Typography variant='subtitle2' sx={{ color: '#344054', fontWeight: 600, mb: 0.5 }}>
+                            <Typography
+                              variant='subtitle2'
+                              sx={recommendationDetailLabelStyles}
+                            >
                               Supporting Evidence:
                             </Typography>
                             {evidenceItems.map((item: any, idx: number) => {
@@ -853,22 +963,21 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                               if (!itemUrl) return null
                               return (
                                 <Box key={`comment-portfolio-${idx}`} sx={{ mt: 0.5 }}>
-                                  <MuiLink
+                                  <a
                                     href={ensureProtocol(itemUrl)}
-                                    underline='hover'
-                                    color='primary'
-                                    sx={{
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    style={{
                                       fontSize: '14px',
-                                      textDecoration: 'none',
-                                      color: '#003fe0',
+                                      color: '#003FE0',
+                                      textDecoration: 'underline',
                                       display: 'flex',
                                       alignItems: 'center',
                                       gap: 0.5
                                     }}
-                                    target='_blank'
                                   >
                                     • {item.name || itemUrl}
-                                  </MuiLink>
+                                  </a>
                                 </Box>
                               )
                             })}
@@ -885,20 +994,12 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     if (verificationResult.ok) {
                       return (
                         <Box
-                          sx={{
-                            mx: 3,
-                            mb: 2,
-                            p: 2,
-                            bgcolor: '#F6FEF9',
-                            border: '1px solid #D1FADF',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1.5
-                          }}
+                          sx={verificationBadgeBoxStyles}
                         >
                           <GreenCheckMark />
-                          <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>
+                          <Typography
+                            sx={verificationBadgeTextStyles}
+                          >
                             Has a valid digital signature
                           </Typography>
                         </Box>
@@ -906,7 +1007,6 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     }
                     return null
                   })()}
-
                 </Collapse>
               </Box>
             )
@@ -927,12 +1027,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
             <Link href={`/askforrecommendation/${fileID}`}>
               <Button
                 variant='contained'
-                sx={{
-                  backgroundColor: '#003FE0',
-                  textTransform: 'none',
-                  borderRadius: '100px',
-                  width: { xs: 'fit-content', sm: '300px', md: '300px' }
-                }}
+                sx={askRecommendationButtonStyles}
               >
                 Ask for Recommendation
               </Button>
@@ -972,22 +1067,24 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
             p: minimized ? '15px 20px' : '25px',
             border: minimized ? '1px solid #2563EB' : '1px solid #E2E8F0',
             borderRadius: minimized ? '12px' : '10px',
-            boxShadow: minimized ? '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)' : 'none'
+            boxShadow: minimized
+              ? '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)'
+              : 'none'
           }}
         >
           {minimized && !isExpanded ? (
             <Box
               onClick={() => setIsExpanded(true)}
-              sx={{
-                width: '100%',
-                backgroundColor: '#fff',
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-              }}
+              sx={minimizedCredentialCardStyles}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%'
+                }}
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Box
                     sx={{
@@ -995,19 +1092,13 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                       alignItems: 'center',
                       justifyContent: 'center',
                       width: '24px',
-                      height: '24px',
+                      height: '24px'
                     }}
                   >
                     <SVGRecommendBadge />
                   </Box>
                   <Typography
-                    sx={{
-                      fontFamily: 'Inter',
-                      fontSize: '24px',
-                      fontWeight: 800,
-                      lineHeight: '32px',
-                      color: '#000E40'
-                    }}
+                    sx={minimizedCredentialTitleStyles}
                   >
                     {credentialTitle || 'Skill'}
                   </Typography>
@@ -1028,26 +1119,15 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     overflow: 'hidden'
                   }}
                 >
-                  {credentialNarrative || credentialSubject?.recommendationText || ""}
+                  {credentialNarrative || credentialSubject?.recommendationText || ''}
                 </Typography>
                 {(credentialNarrative || credentialSubject?.recommendationText) && (
                   <Button
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation()
                       setIsDescriptionExpanded(!isDescriptionExpanded)
                     }}
-                    sx={{
-                      textTransform: 'none',
-                      p: 0,
-                      minWidth: 0,
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color: '#2563EB',
-                      '&:hover': {
-                        backgroundColor: 'transparent',
-                        textDecoration: 'underline'
-                      }
-                    }}
+                    sx={viewMoreButtonStyles}
                   >
                     {isDescriptionExpanded ? 'Read less' : 'Read more'}
                   </Button>
@@ -1057,21 +1137,11 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
               {credentialSubject?.skill && credentialSubject.skill.length > 0 && (
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
                   {credentialSubject.skill.map((skill: any, index: number) => (
-                    <Box
+                    <SkillBadgePill
                       key={`${(skill.id ?? skill.uuid) || 'skill'}-${index}`}
-                      sx={{
-                        color: '#FFFFFF',
-                        backgroundColor: '#2563EB',
-                        px: '12px',
-                        py: '4px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        fontFamily: 'Inter'
-                      }}
                     >
                       {skill.name ?? skill.targetName}
-                    </Box>
+                    </SkillBadgePill>
                   ))}
                 </Box>
               )}
@@ -1081,8 +1151,8 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
               {minimized && isExpanded && (
                 <ExpandLess
                   onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    setIsExpanded(false);
+                    e.stopPropagation()
+                    setIsExpanded(false)
                   }}
                   sx={{
                     position: 'absolute',
@@ -1101,34 +1171,41 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                 {/* Badge and Title */}
 
                 <Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                      <BadgePill>
-                        Self-issued
-                      </BadgePill>
+                      <BadgePill>Self-issued</BadgePill>
 
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          gap: 2
+                        }}
+                      >
                         <Box>
                           <CredentialTitle>
                             {credentialTitle || 'Credential'}
                           </CredentialTitle>
-                          <RecipientName sx={{ mt: 1 }}>
-                            {personName}
-                          </RecipientName>
+                          <RecipientName sx={{ mt: 1 }}>{personName}</RecipientName>
                           <ExperienceText sx={{ mt: 0.5 }}>
-                            {credentialSubject?.durationPerformed ? `${credentialSubject.durationPerformed} of experience` : ""}
+                            {credentialSubject?.durationPerformed
+                              ? `${credentialSubject.durationPerformed} of experience`
+                              : ''}
                           </ExperienceText>
                         </Box>
 
                         {/* QR Code */}
-                        <Box
-                          sx={qrCodeBoxStyles}
-                        >
-                          <div style={{ height: "100px", width: "100px" }}>
+                        <Box sx={qrCodeBoxStyles}>
+                          <div style={{ height: '100px', width: '100px' }}>
                             <QRCode
                               size={256}
-                              style={{ height: "100%", width: "100%" }}
-                              value={fileID ? `https://linkedcreds.allskillscount.org/view/${fileID}` : "https://linkedcreds.com"}
+                              style={{ height: '100%', width: '100%' }}
+                              value={
+                                fileID
+                                  ? `https://linkedcreds.allskillscount.org/view/${fileID}`
+                                  : 'https://linkedcreds.com'
+                              }
                               viewBox={`0 0 256 256`}
                             />
                           </div>
@@ -1139,22 +1216,33 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     {/* Public Link Section */}
                     {!minimized && (
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <Box
-                          sx={publicLinkBoxStyles}
-                        >
-                          <Typography sx={{ fontSize: '14px', fontWeight: 'semibold', color: '#364153', fontFamily: 'Inter', lineHeight: '20px', letterSpacing: '-0.15px' }}>
+                        <Box sx={publicLinkBoxStyles}>
+                          <Typography
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 'semibold',
+                              color: '#364153',
+                              fontFamily: 'Inter',
+                              lineHeight: '20px',
+                              letterSpacing: '-0.15px'
+                            }}
+                          >
                             Public Link
                           </Typography>
 
-                          <Stack direction="row" spacing={1} alignItems="center">
+                          <Stack direction='row' spacing={1} alignItems='center'>
                             <OutlinedInput
                               fullWidth
                               readOnly
-                              value={fileID ? `https://linkedcreds.allskillscount.org/view/${fileID}` : ''}
+                              value={
+                                fileID
+                                  ? `https://linkedcreds.allskillscount.org/view/${fileID}`
+                                  : ''
+                              }
                               sx={publicLinkInputStyles}
                             />
                             <Button
-                              variant="contained"
+                              variant='contained'
                               onClick={() => handleShareOption('CopyURL')}
                               startIcon={<ContentCopyIcon />}
                               sx={copyButtonStyles}
@@ -1163,15 +1251,29 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                             </Button>
                           </Stack>
 
-                          <Stack direction="column" spacing={0.5} >
-                            <Typography sx={{ fontSize: '13px', color: '#64748b', fontFamily: 'Inter' }}>
-                              Created: {claimDetail?.issuanceDate ? new Date(claimDetail.issuanceDate).toLocaleString() : new Date().toLocaleString()}
+                          <Stack direction='column' spacing={0.5}>
+                            <Typography
+                              sx={{
+                                fontSize: '13px',
+                                color: '#64748b',
+                                fontFamily: 'Inter'
+                              }}
+                            >
+                              Created:{' '}
+                              {claimDetail?.issuanceDate
+                                ? new Date(claimDetail.issuanceDate).toLocaleString()
+                                : new Date().toLocaleString()}
                             </Typography>
                           </Stack>
-
-
                         </Box>
-                        <Typography sx={{ fontSize: '13px', color: '#475569', fontFamily: 'Inter', lineHeight: 1.5 }}>
+                        <Typography
+                          sx={{
+                            fontSize: '13px',
+                            color: '#475569',
+                            fontFamily: 'Inter',
+                            lineHeight: 1.5
+                          }}
+                        >
                           Anyone with this link can view this credential.
                         </Typography>
                       </Box>
@@ -1179,11 +1281,11 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
 
                     {/* Skill Description */}
                     <Box>
-                      <SectionHeader sx={{ mb: 1 }}>
-                        Skill Description
-                      </SectionHeader>
-                      <DescriptionText as="div">
-                        {credentialNarrative || credentialSubject?.recommendationText || ""}
+                      <SectionHeader >Skill Description</SectionHeader>
+                      <DescriptionText as='div'>
+                        {credentialNarrative ||
+                          credentialSubject?.recommendationText ||
+                          ''}
                       </DescriptionText>
                     </Box>
 
@@ -1193,19 +1295,25 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                         <SectionHeader sx={{ mb: 1 }}>
                           {`How ${credentialSubject.name || 'they'} know you`}
                         </SectionHeader>
-                        <DescriptionText as="div">
-                          <span dangerouslySetInnerHTML={{ __html: cleanHTML(credentialSubject.howKnow) }} />
+                        <DescriptionText as='div'>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: cleanHTML(credentialSubject.howKnow)
+                            }}
+                          />
                         </DescriptionText>
                       </Box>
                     )}
 
                     {credentialSubject?.qualifications && (
                       <Box>
-                        <SectionHeader sx={{ mb: 1 }}>
-                          Qualifications
-                        </SectionHeader>
-                        <DescriptionText as="div">
-                          <span dangerouslySetInnerHTML={{ __html: cleanHTML(credentialSubject.qualifications) }} />
+                        <SectionHeader sx={{ mb: 1 }}>Qualifications</SectionHeader>
+                        <DescriptionText as='div'>
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: cleanHTML(credentialSubject.qualifications)
+                            }}
+                          />
                         </DescriptionText>
                       </Box>
                     )}
@@ -1219,7 +1327,9 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                         <Media hasImage={!!currentDisplayFile}>
                           {currentDisplayFile ? (
                             <>
-                              {isPDF(currentDisplayFile.name || currentDisplayFile.url) ? (
+                              {isPDF(
+                                currentDisplayFile.name || currentDisplayFile.url
+                              ) ? (
                                 <img
                                   src={
                                     pdfThumbnails[currentDisplayFile.id] ??
@@ -1233,10 +1343,13 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                                     objectFit: 'contain'
                                   }}
                                 />
-                              ) : isMP4(currentDisplayFile.name || currentDisplayFile.url) ? (
+                              ) : isMP4(
+                                currentDisplayFile.name || currentDisplayFile.url
+                              ) ? (
                                 <img
                                   src={
-                                    videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'
+                                    videoThumbnails[currentDisplayFile.id] ??
+                                    '/fallback-video.png'
                                   }
                                   alt='Video Thumbnail'
                                   style={{
@@ -1249,7 +1362,8 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                               ) : (
                                 <img
                                   src={
-                                    imageThumbnails[currentDisplayFile.id] ?? currentDisplayFile.url
+                                    imageThumbnails[currentDisplayFile.id] ??
+                                    currentDisplayFile.url
                                   }
                                   alt='Featured Media'
                                   style={{
@@ -1292,7 +1406,9 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                                       '&:hover': { bgcolor: 'white' }
                                     }}
                                   >
-                                    <Typography variant='h6' sx={{ lineHeight: 0.4 }}>‹</Typography>
+                                    <Typography variant='h6' sx={{ lineHeight: 0.4 }}>
+                                      ‹
+                                    </Typography>
                                   </Box>
                                   <Box
                                     onClick={handleNextImage}
@@ -1308,7 +1424,9 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                                       '&:hover': { bgcolor: 'white' }
                                     }}
                                   >
-                                    <Typography variant='h6' sx={{ lineHeight: 0.4, }}>›</Typography>
+                                    <Typography variant='h6' sx={{ lineHeight: 0.4 }}>
+                                      ›
+                                    </Typography>
                                   </Box>
                                 </>
                               )}
@@ -1326,24 +1444,17 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                       {credentialSubject?.skill && credentialSubject.skill.length > 0 ? (
                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                           {credentialSubject.skill.map((skill: any, index: number) => (
-                            <Box
+                            <SkillBadgePill
                               key={`${(skill.id ?? skill.uuid) || 'skill'}-${index}`}
-                              sx={{
-                                color: '#EFF6FF',
-                                backgroundColor: '#2563EB',
-                                px: '8px',
-                                py: '2px',
-                                borderRadius: '8px',
-                                fontSize: '12px',
-                                fontWeight: 'medium'
-                              }}
                             >
                               {skill.name ?? skill.targetName}
-                            </Box>
+                            </SkillBadgePill>
                           ))}
                         </Box>
                       ) : (
-                        <Typography sx={{ fontSize: '14px', color: '#6B7280', fontStyle: 'italic' }}>
+                        <Typography
+                          sx={{ fontSize: '14px', color: '#6B7280', fontStyle: 'italic' }}
+                        >
                           No specific skills listed.
                         </Typography>
                       )}
@@ -1352,17 +1463,17 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     {/* Supporting Evidence */}
                     {displayEvidence.length > 0 && (
                       <Box>
-                        <SectionHeader sx={{ mb: 1 }}>
-                          Supporting Evidence
-                        </SectionHeader>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <SectionHeader sx={{ mb: 1 }}>Supporting Evidence</SectionHeader>
+                        <Box
+                          sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+                        >
                           {displayEvidence.map((item, index) => (
                             <Box
                               key={index}
-                              component="a"
+                              component='a'
                               href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                              target='_blank'
+                              rel='noopener noreferrer'
                               sx={{
                                 textDecoration: 'none',
                                 display: 'flex',
@@ -1396,9 +1507,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     )}
                   </Box>
 
-
-                  {
-                    (pathname?.includes('/view') || !!propFileID) &&
+                  {(pathname?.includes('/view') || !!propFileID) &&
                     claimDetail &&
                     !isExternalCredential() && (
                       <Box sx={{ mt: 4 }}>
@@ -1417,36 +1526,69 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                             Credential Verification
                           </Typography>
 
-                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                          <Box
+                            sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}
+                          >
                             <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
                               <GreenCheckMark />
-                              <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has a valid digital signature</Typography>
+                              <Typography
+                                sx={{
+                                  color: '#344054',
+                                  fontSize: '14px',
+                                  textColor: '#000E40'
+                                }}
+                              >
+                                Has a valid digital signature
+                              </Typography>
                             </Box>
 
                             <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
                               <GreenCheckMark />
-                              <Typography sx={{ color: '#344054', fontSize: '14px', textColor: '#000E40', }}>Has not been revoked by issuer</Typography>
+                              <Typography
+                                sx={{
+                                  color: '#344054',
+                                  fontSize: '14px',
+                                  textColor: '#000E40'
+                                }}
+                              >
+                                Has not been revoked by issuer
+                              </Typography>
                             </Box>
                           </Box>
 
                           <Divider sx={{ my: 2, borderColor: '#D1FADF' }} />
 
-                          {(claimDetail?.proof?.created) && (
+                          {claimDetail?.proof?.created && (
                             <Typography sx={{ fontSize: '14px', color: '#667085' }}>
-                              Issued: {(() => {
-                                const dateStr = claimDetail?.proof?.created || claimDetail?.issuanceDate || claimDetail?.validFrom || new Date().toISOString();
-                                const date = new Date(dateStr);
-                                return isNaN(date.getTime()) ? 'Invalid date' : date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+                              Issued:{' '}
+                              {(() => {
+                                const dateStr =
+                                  claimDetail?.proof?.created ||
+                                  claimDetail?.issuanceDate ||
+                                  claimDetail?.validFrom ||
+                                  new Date().toISOString()
+                                const date = new Date(dateStr)
+                                return isNaN(date.getTime())
+                                  ? 'Invalid date'
+                                  : date.toLocaleDateString(undefined, {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  })
                               })()}
                             </Typography>
                           )}
                         </Box>
 
-                        <Box sx={{ display: 'flex-start', flexDirection: 'column', gap: 1 }}>
+                        <Box
+                          sx={{ display: 'flex-start', flexDirection: 'column', gap: 1 }}
+                        >
                           <Button
-                            onClick={() => window.open(`/api/credential-raw/${fileID}`, '_blank')}
+                            onClick={() =>
+                              window.open(`/api/credential-raw/${fileID}`, '_blank')
+                            }
                             disabled={!fileID}
-                            variant="contained"
+                            variant='contained'
                             startIcon={<DescriptionOutlinedIcon />}
                             endIcon={<OpenInNewIcon />}
                             sx={{
@@ -1479,8 +1621,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                           </Typography>
                         </Box>
                       </Box>
-                    )
-                  }
+                    )}
                 </Box>
               </MainContentContainer>
             </Box>

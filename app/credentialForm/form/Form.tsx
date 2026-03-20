@@ -9,7 +9,11 @@ import { Step0 } from './Steps/Step0_connectToGoogle'
 import { Buttons } from './buttons/Buttons'
 import { createDID, signCred } from '../../utils/credential'
 import { ISkillClaimCredential } from 'hr-context'
-import { GoogleDriveStorage, saveToGoogleDrive, CredentialEngine } from '@cooperation/vc-storage'
+import {
+  GoogleDriveStorage,
+  saveToGoogleDrive,
+  CredentialEngine
+} from '@cooperation/vc-storage'
 import { useSession, signIn } from 'next-auth/react'
 import { handleSign } from '../../utils/formUtils'
 import { saveSession } from '../../utils/saveSession'
@@ -49,7 +53,10 @@ const Form = ({ onStepChange }: any) => {
   const refreshToken = session?.refreshToken
 
   const { storage } = useGoogleDrive()
-  const engine = React.useMemo(() => (storage ? new CredentialEngine(storage) : null), [storage])
+  const engine = React.useMemo(
+    () => (storage ? new CredentialEngine(storage) : null),
+    [storage]
+  )
 
   const {
     register,
@@ -160,8 +167,8 @@ const Form = ({ onStepChange }: any) => {
           // Restore Skills
           if (savedSession.activeSkills) setActiveSkills(savedSession.activeSkills)
           if (savedSession.removedSkills) setRemovedSkills(savedSession.removedSkills)
-          if (savedSession.manuallyAddedSkills) setManuallyAddedSkills(savedSession.manuallyAddedSkills)
-
+          if (savedSession.manuallyAddedSkills)
+            setManuallyAddedSkills(savedSession.manuallyAddedSkills)
         } catch (error) {
           console.error('Failed to parse auto-saved session:', error)
         }
@@ -260,7 +267,7 @@ const Form = ({ onStepChange }: any) => {
         type: 'DID'
       })
 
-      const result = await signCred(
+      const result = (await signCred(
         accessToken,
         {
           ...data,
@@ -272,7 +279,7 @@ const Form = ({ onStepChange }: any) => {
         'VC',
         undefined,
         true
-      ) as { signedVC: ISkillClaimCredential; file: any }
+      )) as { signedVC: ISkillClaimCredential; file: any }
 
       const res = result.signedVC
       const file = result.file
@@ -303,7 +310,10 @@ const Form = ({ onStepChange }: any) => {
       return res
     } catch (error: any) {
       console.error('Error during signing process:', error)
-      if (error.message?.includes('invalid authentication credentials') || error.message?.includes('401')) {
+      if (
+        error.message?.includes('invalid authentication credentials') ||
+        error.message?.includes('401')
+      ) {
         setErrorMessage('Your Google session has expired. Please sign in again.')
       }
       throw error
@@ -348,7 +358,8 @@ const Form = ({ onStepChange }: any) => {
           Your Google Drive session has expired.
         </Typography>
         <Typography variant='body1'>
-          To sign and save your credentials, please sign in again to refresh your permissions.
+          To sign and save your credentials, please sign in again to refresh your
+          permissions.
         </Typography>
         <Button
           variant='contained'
@@ -379,7 +390,7 @@ const Form = ({ onStepChange }: any) => {
         alignItems: { xs: 'stretch', md: 'flex-start' },
         justifyContent: 'center',
         width: '100%',
-        maxWidth: { xs: '100%', md: '1280px' },
+        maxWidth: { xs: '100%', md: '1280px' }
       }}
     >
       <Box
@@ -390,7 +401,7 @@ const Form = ({ onStepChange }: any) => {
         }}
       >
         <Box
-          component="form"
+          component='form'
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -399,9 +410,10 @@ const Form = ({ onStepChange }: any) => {
             alignItems: 'stretch',
             overflow: 'visible',
             width: '100%',
-            padding: activeStep === 4 ? '0' : { xs: '20px 16px', sm: '32px 32px 32px 30px' },
+            padding:
+              activeStep === 4 ? '0' : { xs: '20px 16px', sm: '32px 32px 32px 30px' },
             backgroundColor: '#FFF',
-            boxShadow: '0 6px 6px rgba(0, 0, 0, 0.25)',
+            boxShadow: '0 6px 6px rgba(0, 0, 0, 0.25)'
           }}
           onSubmit={handleFormSubmit}
         >
@@ -455,8 +467,15 @@ const Form = ({ onStepChange }: any) => {
               )}
               {activeStep === 3 && (
                 <Slide in={true} direction={direction}>
-                  <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-
+                  <Box
+                    sx={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 2
+                    }}
+                  >
                     <CredentialTracker
                       formData={{
                         ...watch(),
@@ -489,33 +508,29 @@ const Form = ({ onStepChange }: any) => {
               )}
             </FormControl>
           </Box>
-          {
-            activeStep !== 4 && (
-              <Buttons
-                activeStep={activeStep}
-                handleNext={activeStep === 0 ? costumedHandleNextStep : () => handleNext()}
-                handleSkip={handleSkip}
-                handleSign={() => handleSign(activeStep, setActiveStep, handleFormSubmit)}
-                handleBack={costumedHandleBackStep}
-                isValid={isValid}
-                handleSaveSession={handleSaveSession}
-                loading={loading}
-              />
-            )
-          }
-          {
-            errorMessage && (
-              <div
-                style={{
-                  color: errorMessage.includes('MetaMask') ? 'red' : 'black',
-                  textAlign: 'center',
-                  marginTop: '20px'
-                }}
-              >
-                {errorMessage}
-              </div>
-            )
-          }
+          {activeStep !== 4 && (
+            <Buttons
+              activeStep={activeStep}
+              handleNext={activeStep === 0 ? costumedHandleNextStep : () => handleNext()}
+              handleSkip={handleSkip}
+              handleSign={() => handleSign(activeStep, setActiveStep, handleFormSubmit)}
+              handleBack={costumedHandleBackStep}
+              isValid={isValid}
+              handleSaveSession={handleSaveSession}
+              loading={loading}
+            />
+          )}
+          {errorMessage && (
+            <div
+              style={{
+                color: errorMessage.includes('MetaMask') ? 'red' : 'black',
+                textAlign: 'center',
+                marginTop: '20px'
+              }}
+            >
+              {errorMessage}
+            </div>
+          )}
           {snackMessage ? <SnackMessage message={snackMessage} /> : ''}
         </Box>
       </Box>
@@ -548,12 +563,12 @@ const Form = ({ onStepChange }: any) => {
                 removedSkills: removedSkills
               }}
               selectedFiles={selectedFiles}
-               onBack={costumedHandleBackStep}
+              onBack={costumedHandleBackStep}
             />
           )}
         </Box>
       )}
-    </Box >
+    </Box>
   )
 }
 export default Form

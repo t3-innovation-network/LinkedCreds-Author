@@ -60,17 +60,20 @@ export default function CredentialRawPage() {
         const actualFileId = extractGoogleDriveId(fullFileId)
 
         console.log('Using file ID:', actualFileId)
-        const fileData = await getFileViaFirebase(actualFileId, session?.accessToken as string)
+        const fileData = await getFileViaFirebase(
+          actualFileId,
+          session?.accessToken as string
+        )
         if (!fileData) {
-            throw new Error('File not found or unauthorized')
+          throw new Error('File not found or unauthorized')
         }
         console.log('🚀 ~ extractRawCredential ~ fileData:', fileData.body)
 
         let vcJSON = fileData
         if (fileData.body && typeof fileData.body === 'string') {
-            vcJSON = JSON.parse(fileData.body)
+          vcJSON = JSON.parse(fileData.body)
         } else if (typeof fileData === 'string') {
-            vcJSON = JSON.parse(fileData)
+          vcJSON = JSON.parse(fileData)
         }
         setRawCredential(vcJSON)
       } catch (err) {

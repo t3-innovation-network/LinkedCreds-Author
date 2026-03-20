@@ -19,10 +19,14 @@ export interface Achievement {
 }
 
 export interface CredentialSubject {
-  type: string[]
-  name: string
-  address?: Address
-  achievement: Achievement[]
+  type?: string[]
+  person?: {
+    name: string
+  }
+  name?: string
+  narrative?: string
+  description?: string
+  achievement?: Achievement[]
 }
 
 export interface Issuer {
