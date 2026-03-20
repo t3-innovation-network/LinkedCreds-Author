@@ -81,12 +81,12 @@ test.describe('Authentication', () => {
 
     const signInPrompt = page.getByText(/sign in|login|connect.*google/i).or(
       page.getByRole('button', { name: /sign in|login/i })
-    ).first();
+    );
 
-    // One of these should be present
-    const hasSignInPrompt = await signInPrompt.isVisible().catch(() => false);
-    const hasEmptyState = await page.getByText(/no credentials|get started/i).isVisible().catch(() => false);
+    const emptyState = page.getByText(/no credentials|get started/i);
 
-    expect(hasSignInPrompt || hasEmptyState).toBeTruthy();
+    // Wait for EITHER the sign-in prompt OR the empty state to be visible.
+    // We use Playwright's auto-retrying expect to avoid race conditions with loading spinners.
+    await expect(signInPrompt.or(emptyState).first()).toBeVisible({ timeout: 15000 });
   });
 });
