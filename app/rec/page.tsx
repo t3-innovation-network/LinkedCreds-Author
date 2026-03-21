@@ -10,7 +10,10 @@ import Box from '@mui/material/Box'
 import Link from '@mui/material/Link'
 import NextLink from 'next/link'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import { InsertLinkIcon, DescriptionOutlinedIcon } from '../Assets/SVGs'
 import { styled, useTheme } from '@mui/material/styles'
+import { recThumbnailContainerStyles, recThumbnailImageStyles, recEvidenceLinkRowStyles, recEvidenceLinkTextStyles } from '../components/Styles/appStyles'
 import {
   Button,
   CircularProgress,
@@ -27,7 +30,11 @@ const getDirectGoogleDriveUrl = (url: string): string => {
   try {
     const urlObject = new URL(url)
     if (urlObject.hostname === 'drive.google.com') {
-      const fileIdMatch = url.match(/id=([^&]+)/)
+      let fileIdMatch = url.match(/[?&]id=([^&]+)/)
+      if (fileIdMatch && fileIdMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}`
+      }
+      fileIdMatch = url.match(/\/file\/d\/([^\/]+)/)
       if (fileIdMatch && fileIdMatch[1]) {
         return `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}`
       }
@@ -40,63 +47,7 @@ const isImage = (fileName: string) => /\.(jpg|jpeg|png|gif)$/i.test(fileName)
 const isPDF = (fileName: string) => /\.pdf$/i.test(fileName)
 const isVideo = (fileName: string) => /\.(mp4|webm|ogg)$/i.test(fileName)
 
-const EvidencePreview = ({ url, name }: { url: string; name: string }) => {
-  if (isImage(name)) {
-    const imageUrl = getDirectGoogleDriveUrl(url)
-    return (
-      <img
-        src={imageUrl}
-        alt={name}
-        style={{
-          width: '100%',
-          maxWidth: '200px',
-          height: 'auto',
-          objectFit: 'cover',
-          borderRadius: '8px'
-        }}
-      />
-    )
-  }
-
-  if (isPDF(name)) {
-    return (
-      <Link href={url} target='_blank' rel='noopener noreferrer' underline='hover'>
-        <img
-          src={'/fallback-pdf-thumbnail.svg'}
-          alt='PDF thumbnail'
-          style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
-        />
-        <Typography variant='body2' sx={{ mt: 1 }}>
-          {name}
-        </Typography>
-      </Link>
-    )
-  }
-
-  if (isVideo(name)) {
-    return (
-      <div>
-        <video
-          controls
-          src={url}
-          style={{ width: '100%', maxWidth: '300px', borderRadius: '8px' }}
-          poster={'/fallback-video.png'}
-        >
-          Your browser does not support the video tag.
-        </video>
-        <Typography variant='body2' sx={{ mt: 1 }}>
-          {name}
-        </Typography>
-      </div>
-    )
-  }
-
-  return (
-    <Link href={url} target='_blank' rel='noopener noreferrer' underline='hover'>
-      {name}
-    </Link>
-  )
-}
+// EvidencePreview removed in favor of inline RecommenderPreview layout
 
 interface AlertState {
   open: boolean
@@ -643,17 +594,81 @@ const Page = () => {
             {(() => {
               const evidenceItems = recommendation?.evidence || (recommendation as any)?.portfolio || []
               if (evidenceItems.length > 0) {
+                const isFile = (url: string, name: string) => url.includes('drive.google.com') || isImage(name || url) || isPDF(name || url) || isVideo(name || url)
+                const mediaItems = evidenceItems.filter((e: any) => isFile(e.url || e.id || '', e.name || ''))
+
                 return (
                   <ContentSection sx={{ mb: 0 }}>
                     <SectionTitle>Supporting Evidence</SectionTitle>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      {evidenceItems.map((evidence: any, index: number) => (
-                        <EvidencePreview
-                          key={`evidence-${index}-${evidence.url}`}
-                          url={evidence.url}
-                          name={evidence.name}
-                        />
-                      ))}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {/* Card 2 Thumbnails for Uploaded Files */}
+                      {mediaItems.length > 0 && (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px', mt: '8px', mb: '8px' }}>
+                          {mediaItems.map((file: any, index: number) => {
+                            const rawUrl = file.url || file.id || ''
+                            const url = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`
+                            const isGoogleDrive = url.includes('drive.google.com')
+                            const isPdf = isPDF(file.name || url || '')
+                            const isVid = isVideo(file.name || url || '')
+                            
+                            let imageUrl = url
+                            if (isGoogleDrive) {
+                              imageUrl = getDirectGoogleDriveUrl(url)
+                            } else {
+                              if (isPdf) imageUrl = '/fallback-pdf-thumbnail.svg'
+                              else if (isVid) imageUrl = '/fallback-video.png'
+                            }
+                            
+                            return (
+                              <Box
+                                key={index}
+                                sx={recThumbnailContainerStyles}
+                                onClick={() => window.open(url, '_blank')}
+                              >
+                                <img
+                                  style={recThumbnailImageStyles}
+                                  src={imageUrl}
+                                  alt={file.name || 'Evidence thumbnail'}
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/Document.svg'
+                                  }}
+                                />
+                              </Box>
+                            )
+                          })}
+                        </Box>
+                      )}
+
+                      {/* Link Rows for ALL evidence */}
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mt: 1 }}>
+                        {evidenceItems.map((evidence: any, index: number) => {
+                          const itemUrl = evidence.url || evidence.id
+                          if (!itemUrl) return null
+                          const url = itemUrl.startsWith('http') ? itemUrl : `https://${itemUrl}`
+                          const isGoogleDriveLink = url.includes('drive.google.com')
+                          const isDoc = isImage(evidence.name || url || '') || isPDF(evidence.name || url || '') || isVideo(evidence.name || url || '') || isGoogleDriveLink
+                          return (
+                            <Box
+                              key={index}
+                              component="a"
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={recEvidenceLinkRowStyles}
+                            >
+                              {isDoc ? (
+                                <DescriptionOutlinedIcon />
+                              ) : (
+                                <InsertLinkIcon />
+                              )}
+                              <Typography sx={recEvidenceLinkTextStyles}>
+                                {evidence.name || evidence.url}
+                              </Typography>
+                              <OpenInNewIcon sx={{ fontSize: '14px' }} />
+                            </Box>
+                          )
+                        })}
+                      </Box>
                     </Box>
                   </ContentSection>
                 )

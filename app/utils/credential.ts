@@ -99,8 +99,6 @@ const signCred = async (
         unsignedCredential.evidence = evidenceItems
       }
 
-      console.log('VC BEFORE SIGNING (SkillClaim):', JSON.stringify(unsignedCredential, null, 2))
-
       const wrappedDocumentLoader = async (url: string) => {
         if (url === 'https://w3id.org/hr/v1' || url === 'https://w3id.org/hr/v1/') {
           return {
@@ -229,8 +227,30 @@ export const generateCredentialData = (data: FormData, issuerDid: string) => {
  * @returns { subject, evidence }
  */
 const generateRecommendationData = (data: any) => {
+  const evidence: any[] = []
+  const portfolio: any[] = []
+  
+  if (data.evidence && (data.evidence as any[]).length > 0) {
+    ; (data.evidence as any[]).forEach((p: any) => {
+      if (p.url || p.googleId || p.id) {
+        const url = p.url || p.googleId || p.id || ''
+        const name = p.name || 'Evidence'
+        evidence.push({
+          id: url,
+          name: name,
+          type: ['Evidence']
+        })
+        portfolio.push({
+          name: name,
+          url: url
+        })
+      }
+    })
+  }
+
   const subject: any = {
-    name: data.recommendationText || '',
+    fullName: data.fullName || '',
+    name: data.fullName || '',
     recipientName: data.recipientName || '',
     howKnow: data.howKnow || '',
     skillsEndorsed:
@@ -243,20 +263,8 @@ const generateRecommendationData = (data: any) => {
       })) || [],
     recommendationText: data.recommendationText || '',
     qualifications: data.qualifications || '',
-    explainAnswer: data.explainAnswer || ''
-  }
-
-  const evidence: any[] = []
-  if (data.evidence && (data.evidence as any[]).length > 0) {
-    ; (data.evidence as any[]).forEach((p: any) => {
-      if (p.url || p.googleId || p.id) {
-        evidence.push({
-          id: p.url || p.googleId || p.id || '',
-          name: p.name || 'Evidence',
-          type: ['Evidence']
-        })
-      }
-    })
+    explainAnswer: data.explainAnswer || '',
+    portfolio: portfolio
   }
 
   return { subject, evidence }

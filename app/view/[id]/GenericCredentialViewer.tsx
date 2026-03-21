@@ -1,11 +1,19 @@
 'use client'
 import React from 'react'
 import { Box, Typography, Paper, Divider, Link, Chip, Button } from '@mui/material'
-import { SVGBadge, CheckMarkSVG } from '../../Assets/SVGs'
+import { SVGBadge, CheckMarkSVG, InsertLinkIcon, DescriptionOutlinedIcon } from '../../Assets/SVGs'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import { 
+  recThumbnailContainerStyles, 
+  recThumbnailImageStyles, 
+  recEvidenceLinkRowStyles, 
+  recEvidenceLinkTextStyles 
+} from '../../components/Styles/appStyles'
 import { useSession } from 'next-auth/react'
 import { GoogleDriveStorage } from '@cooperation/vc-storage'
 import { getAccessToken, getFileViaFirebase } from '../../firebase/storage'
 import { verifyCredentialWithEngine } from '../../utils/verification'
+import { ensureProtocol } from '../../utils/urlValidation'
 
 interface GenericCredentialViewerProps {
   credential: any
@@ -18,6 +26,27 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
   qrCodeDataUrl,
   fileID
 }) => {
+  const isImage = (url: string) => url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) != null || url.startsWith('blob:')
+  const isPDF = (fileName: string) => fileName?.toLowerCase().endsWith('.pdf')
+  const isMP4 = (fileName: string) => fileName?.toLowerCase().endsWith('.mp4')
+
+  const getDirectGoogleDriveUrl = (url: string): string => {
+    try {
+      const urlObject = new URL(url)
+      if (urlObject.hostname === 'drive.google.com') {
+        let fileIdMatch = url.match(/[?&]id=([^&]+)/)
+        if (fileIdMatch && fileIdMatch[1]) {
+          return `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}`
+        }
+        fileIdMatch = url.match(/\/file\/d\/([^\/]+)/)
+        if (fileIdMatch && fileIdMatch[1]) {
+          return `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}`
+        }
+      }
+    } catch (e) { }
+    return url
+  }
+
   const { data: session } = useSession()
   const accessToken = session?.accessToken
   // Extract issuer information
@@ -387,8 +416,11 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
 
       {/* Supporting Evidence / Portfolio */}
       {(() => {
-        const evidence = subject.evidence || subject.portfolio || []
-        if (evidence.length === 0) return null
+        const evidenceItems = subject.evidence || subject.portfolio || []
+        if (evidenceItems.length === 0) return null
+
+        const isFile = (url: string, name: string) => url.includes('drive.google.com') || isImage(name || url) || isPDF(name || url) || isMP4(name || url)
+        const mediaItems = evidenceItems.filter((e: any) => isFile(e.url || e.id || '', e.name || ''))
 
         return (
           <Box sx={{ mb: 3 }}>
@@ -396,28 +428,77 @@ const GenericCredentialViewer: React.FC<GenericCredentialViewerProps> = ({
               Supporting Evidence
             </Typography>
 
-            {/* Bulleted List */}
-            <Box component='ul' sx={{ pl: 2, m: 0 }}>
-              {evidence.map((item: any, index: number) => (
-                <Box
-                  component='li'
-                  key={index}
-                  sx={{ color: '#003FE0', mb: 1, '::marker': { fontSize: '1.2em' } }}
-                >
-                  <a
-                    href={item.url || item.id}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    style={{
-                      fontSize: '14px',
-                      color: '#003FE0',
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    {item.name || item.url || 'Link'}
-                  </a>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* Thumbnails row */}
+              {mediaItems.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px', mt: '8px', mb: '8px' }}>
+                  {mediaItems.map((file: any, index: number) => {
+                    const rawUrl = file.url || file.id || ''
+                    const url = ensureProtocol(rawUrl)
+                    const isGoogleDrive = url.includes('drive.google.com')
+                    const isPdf = isPDF(file.name || url)
+                    const isVid = isMP4(file.name || url)
+                    
+                    let imageUrl = url
+                    if (isGoogleDrive) {
+                      imageUrl = getDirectGoogleDriveUrl(url)
+                    } else {
+                      if (isPdf) imageUrl = '/fallback-pdf-thumbnail.svg'
+                      else if (isVid) imageUrl = '/fallback-video.png'
+                    }
+                    
+                    return (
+                      <Box
+                        key={index}
+                        sx={recThumbnailContainerStyles}
+                        onClick={() => window.open(url, '_blank')}
+                      >
+                        <img
+                          style={recThumbnailImageStyles}
+                          src={imageUrl}
+                          alt={file.name || 'Evidence thumbnail'}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/Document.svg'
+                          }}
+                        />
+                      </Box>
+                    )
+                  })}
                 </Box>
-              ))}
+              )}
+
+              {/* Link Rows */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mt: 1 }}>
+                {evidenceItems.map((item: any, idx: number) => {
+                  const itemUrl = item.url || item.id
+                  if (!itemUrl) return null
+                  
+                  const url = ensureProtocol(itemUrl)
+                  const isGoogleDriveLink = url.includes('drive.google.com')
+                  const isDoc = isImage(item.name || url) || isPDF(item.name || url) || isMP4(item.name || url) || isGoogleDriveLink
+                  
+                  return (
+                    <Box
+                      key={`comment-portfolio-${idx}`}
+                      component="a"
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={recEvidenceLinkRowStyles}
+                    >
+                      {isDoc ? (
+                        <DescriptionOutlinedIcon />
+                      ) : (
+                        <InsertLinkIcon />
+                      )}
+                      <Typography sx={recEvidenceLinkTextStyles}>
+                        {item.name || itemUrl}
+                      </Typography>
+                      <OpenInNewIcon sx={{ fontSize: '14px' }} />
+                    </Box>
+                  )
+                })}
+              </Box>
             </Box>
           </Box>
         )

@@ -469,7 +469,7 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
           <Typography sx={sectionLabelStyles}>Skill Description</Typography>
           {/* Using dangerouslySetInnerHTML if description is HTML from rich text editor */}
           {formData?.credentialDescription &&
-          formData.credentialDescription !== '<p><br></p>' ? (
+            formData.credentialDescription !== '<p><br></p>' ? (
             <Box>
               <Typography
                 sx={{
@@ -541,6 +541,11 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                   />
                 )}
 
+                {selectedFiles.length > 1 && (
+                  <Box sx={{ ...carouselCounterStyles, fontSize: '10px' }}>
+                    {currentImageIndex + 1} / {selectedFiles.length}
+                  </Box>
+                )}
                 {isHoveringMedia && selectedFiles.length > 1 && (
                   <>
                     <Box
@@ -554,9 +559,6 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
                       sx={{ ...carouselNavButtonStyles, right: '8px' }}
                     >
                       ›
-                    </Box>
-                    <Box sx={carouselCounterStyles}>
-                      {currentImageIndex + 1} / {selectedFiles.length}
                     </Box>
                   </>
                 )}

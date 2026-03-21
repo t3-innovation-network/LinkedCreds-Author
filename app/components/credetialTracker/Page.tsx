@@ -25,7 +25,9 @@ import {
   SectionHeader,
   DescriptionText,
   MediaContainer,
-  EmptySkillsState
+  EmptySkillsState,
+  carouselNavButtonStyles,
+  carouselCounterStyles
 } from '../Styles/appStyles'
 // Set up PDF.js worker
 GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
@@ -314,26 +316,25 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
                     />
                   )}
 
+                  {/* Image Counter Overlay (Always Visible) */}
+                  {selectedFiles.length > 1 && (
+                    <Box sx={carouselCounterStyles}>
+                      {currentImageIndex + 1} / {selectedFiles.length}
+                    </Box>
+                  )}
+
                   {/* Media Navigation Controls (Simplified from previous) */}
                   {isHoveringMedia && selectedFiles.length > 1 && (
                     <>
                       <Button
                         onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
-                        sx={{
-                          position: 'absolute', left: 8, minWidth: '40px', height: '40px',
-                          borderRadius: '50%', bgcolor: 'rgba(0,0,0,0.5)', color: 'white',
-                          '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' }
-                        }}
+                        sx={{ ...carouselNavButtonStyles, left: 8 }}
                       >
                         ‹
                       </Button>
                       <Button
                         onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
-                        sx={{
-                          position: 'absolute', right: 8, minWidth: '40px', height: '40px',
-                          borderRadius: '50%', bgcolor: 'rgba(0,0,0,0.5)', color: 'white',
-                          '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' }
-                        }}
+                        sx={{ ...carouselNavButtonStyles, right: 8 }}
                       >
                         ›
                       </Button>

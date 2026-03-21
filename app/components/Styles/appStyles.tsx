@@ -458,7 +458,8 @@ export const DescriptionText = styled(Typography)(({ theme }) => ({
 
 export const MediaContainer = styled(Box)(({ theme }) => ({
   width: '100%',
-  maxWidth: '650px',
+  maxWidth: '700px',
+  minHeight: '400px',
   margin: '0 auto',
   borderRadius: '10px',
   overflow: 'hidden',
@@ -655,8 +656,7 @@ export const recommendationDetailLabelStyles = {
 }
 
 export const recommendationDetailValueStyles = {
-  color: '#475467',
-  marginLeft: '10px'
+  color: '#475467'
 }
 
 export const recommendationSkillChipStyles = {
@@ -752,10 +752,10 @@ export const carouselNavButtonStyles = {
   position: 'absolute' as const,
   top: '50%',
   transform: 'translateY(-50%)',
-  width: '32px',
-  height: '32px',
+  minWidth: '40px',
+  height: '40px',
   borderRadius: '50%',
-  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -765,7 +765,7 @@ export const carouselNavButtonStyles = {
   fontWeight: 'bold',
   zIndex: 10,
   '&:hover': {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   }
 }
 
@@ -778,7 +778,7 @@ export const carouselCounterStyles = {
   color: '#ffffff',
   padding: '4px 8px',
   borderRadius: '12px',
-  fontSize: '10px',
+  fontSize: '12px',
   fontWeight: 500,
   zIndex: 10
 }
@@ -1486,3 +1486,36 @@ export const hamburgerLogoutButtonStyles = {
   }
 }
 
+export const recThumbnailContainerStyles = {
+  width: '60px',
+  height: '60px',
+  borderRadius: '6px',
+  overflow: 'hidden',
+  cursor: 'pointer',
+  border: '1px solid #E2E8F0',
+  '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' }
+}
+
+export const recThumbnailImageStyles = {
+  width: '100%', 
+  height: '100%', 
+  objectFit: 'cover' as const
+}
+
+export const recEvidenceLinkRowStyles = {
+  textDecoration: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  color: '#2563EB',
+  '&:hover': {
+    textDecoration: 'underline'
+  }
+}
+
+export const recEvidenceLinkTextStyles = {
+  fontFamily: 'Inter',
+  fontSize: '13px',
+  fontWeight: 500,
+  color: 'inherit'
+}

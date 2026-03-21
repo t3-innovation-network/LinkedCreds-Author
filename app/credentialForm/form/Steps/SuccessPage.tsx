@@ -60,7 +60,9 @@ import {
   publicLinkInputStyles,
   copyButtonStyles,
   qrCodeBoxStyles,
-  credentialCardStyles
+  credentialCardStyles,
+  carouselNavButtonStyles,
+  carouselCounterStyles
 } from '../../../components/Styles/appStyles'
 import CheckIcon from '@mui/icons-material/Check'
 
@@ -729,111 +731,57 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
                 onMouseEnter={() => setIsHoveringMedia(true)}
                 onMouseLeave={() => setIsHoveringMedia(false)}
               >
-                <Media hasImage={!!currentDisplayFile}>
-                  {currentDisplayFile ? (
-                    <>
-                      {isPDF(currentDisplayFile.name || currentDisplayFile.url) ? (
-                        <img
-                          src={
-                            pdfThumbnails[currentDisplayFile.id] ??
-                            '/fallback-pdf-thumbnail.svg'
-                          }
-                          alt='PDF Preview'
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: '16px',
-                            objectFit: 'contain'
-                          }}
-                        />
-                      ) : isMP4(currentDisplayFile.name || currentDisplayFile.url) ? (
-                        <img
-                          src={
-                            videoThumbnails[currentDisplayFile.id] ??
-                            '/fallback-video.png'
-                          }
-                          alt='Video Thumbnail'
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: '16px',
-                            objectFit: 'contain'
-                          }}
-                        />
-                      ) : (
-                        <img
-                          src={
-                            imageThumbnails[currentDisplayFile.id] ??
-                            currentDisplayFile.url
-                          }
-                          alt='Featured Media'
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: '16px',
-                            objectFit: 'contain'
-                          }}
-                        />
-                      )}
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          bottom: '10px',
-                          right: '10px',
-                          bgcolor: 'rgba(0,0,0,0.6)',
-                          color: 'white',
-                          px: 1,
-                          borderRadius: 1,
-                          fontSize: '12px'
-                        }}
-                      >
+                {currentDisplayFile ? (
+                  <>
+                    {isPDF(currentDisplayFile.name || currentDisplayFile.url) ? (
+                      <Image
+                        src={pdfThumbnails[currentDisplayFile.id] ?? '/fallback-pdf-thumbnail.svg'}
+                        alt='PDF Preview'
+                        fill
+                        style={{ objectFit: 'contain' }}
+                      />
+                    ) : isMP4(currentDisplayFile.name || currentDisplayFile.url) ? (
+                      <Image
+                        src={videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'}
+                        alt='Video Thumbnail'
+                        fill
+                        style={{ objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <Image
+                        src={imageThumbnails[currentDisplayFile.id] ?? currentDisplayFile.url}
+                        alt='Featured Media'
+                        fill
+                        style={{ objectFit: 'contain' }}
+                      />
+                    )}
+
+                    {/* Image Counter Overlay (Always Visible) */}
+                    {displayFiles.length > 1 && (
+                      <Box sx={carouselCounterStyles}>
                         {currentImageIndex + 1} / {displayFiles.length}
                       </Box>
+                    )}
 
-                      {/* Navigation Buttons */}
-                      {displayFiles.length > 1 && isHoveringMedia && (
-                        <>
-                          <Box
-                            onClick={handlePrevImage}
-                            sx={{
-                              position: 'absolute',
-                              left: '10px',
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              bgcolor: 'rgba(170, 170, 170, 0.8)',
-                              borderRadius: '50%',
-                              p: 1,
-                              cursor: 'pointer',
-                              '&:hover': { bgcolor: 'white' }
-                            }}
-                          >
-                            <Typography variant='h6' sx={{ lineHeight: 0.4 }}>
-                              ‹
-                            </Typography>
-                          </Box>
-                          <Box
-                            onClick={handleNextImage}
-                            sx={{
-                              position: 'absolute',
-                              right: '10px',
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              bgcolor: 'rgba(170, 170, 170, 0.8)',
-                              borderRadius: '50%',
-                              p: 1,
-                              cursor: 'pointer',
-                              '&:hover': { bgcolor: 'white' }
-                            }}
-                          >
-                            <Typography variant='h6' sx={{ lineHeight: 0.4 }}>
-                              ›
-                            </Typography>
-                          </Box>
-                        </>
-                      )}
-                    </>
-                  ) : null}
-                </Media>
+                    {/* Navigation Buttons */}
+                    {isHoveringMedia && displayFiles.length > 1 && (
+                      <>
+                        <Button
+                          onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+                          sx={{ ...carouselNavButtonStyles, left: 8 }}
+                        >
+                          ‹
+                        </Button>
+                        <Button
+                          onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+                          sx={{ ...carouselNavButtonStyles, right: 8 }}
+                        >
+                          ›
+                        </Button>
+                      </>
+                    )}
+                  </>
+                ) : null}
               </MediaContainer>
             )}
 

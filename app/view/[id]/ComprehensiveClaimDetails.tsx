@@ -27,6 +27,7 @@ import {
 import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
+import Image from 'next/image'
 import {
   SVGSparklesBlue,
   SVGBadgeCheck,
@@ -64,7 +65,13 @@ import {
   askRecommendationButtonStyles,
   minimizedCredentialCardStyles,
   minimizedCredentialTitleStyles,
-  viewMoreButtonStyles
+  viewMoreButtonStyles,
+  carouselNavButtonStyles,
+  carouselCounterStyles,
+  recThumbnailContainerStyles,
+  recThumbnailImageStyles,
+  recEvidenceLinkRowStyles,
+  recEvidenceLinkTextStyles
 } from '../../components/Styles/appStyles'
 import dynamic from 'next/dynamic'
 import { getAccessToken, getFileViaFirebase } from '../../firebase/storage'
@@ -212,6 +219,23 @@ const isPDF = (fileName: string) => fileName?.toLowerCase().endsWith('.pdf')
 const isMP4 = (fileName: string) => fileName?.toLowerCase().endsWith('.mp4')
 const isGoogleDriveImageUrl = (url: string): boolean => {
   return /https:\/\/drive\.google\.com\/uc\?export=view&id=.+/.test(url)
+}
+
+const getDirectGoogleDriveUrl = (url: string): string => {
+  try {
+    const urlObject = new URL(url)
+    if (urlObject.hostname === 'drive.google.com') {
+      let fileIdMatch = url.match(/[?&]id=([^&]+)/)
+      if (fileIdMatch && fileIdMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}`
+      }
+      fileIdMatch = url.match(/\/file\/d\/([^\/]+)/)
+      if (fileIdMatch && fileIdMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}`
+      }
+    }
+  } catch (e) { }
+  return url
 }
 
 // Styled components
@@ -950,6 +974,9 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                         (comment.credentialSubject as any)?.portfolio ||
                         comment.evidence
                       if (Array.isArray(evidenceItems) && evidenceItems.length > 0) {
+                        const isFile = (url: string, name: string) => url.includes('drive.google.com') || isImage(name || url) || isPDF(name || url) || isMP4(name || url)
+                        const mediaItems = evidenceItems.filter((e: any) => isFile(e.url || e.id || '', e.name || ''))
+
                         return (
                           <Box sx={{ mt: 2 }}>
                             <Typography
@@ -958,29 +985,78 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                             >
                               Supporting Evidence:
                             </Typography>
-                            {evidenceItems.map((item: any, idx: number) => {
-                              const itemUrl = item.url || item.id
-                              if (!itemUrl) return null
-                              return (
-                                <Box key={`comment-portfolio-${idx}`} sx={{ mt: 0.5 }}>
-                                  <a
-                                    href={ensureProtocol(itemUrl)}
-                                    target='_blank'
-                                    rel='noopener noreferrer'
-                                    style={{
-                                      fontSize: '14px',
-                                      color: '#003FE0',
-                                      textDecoration: 'underline',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: 0.5
-                                    }}
-                                  >
-                                    • {item.name || itemUrl}
-                                  </a>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              {/* Thumbnails row */}
+                              {mediaItems.length > 0 && (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px', mt: '8px', mb: '8px' }}>
+                                  {mediaItems.map((file: any, index: number) => {
+                                    const rawUrl = file.url || file.id || ''
+                                    const url = ensureProtocol(rawUrl)
+                                    const isGoogleDrive = url.includes('drive.google.com')
+                                    const isPdf = isPDF(file.name || url)
+                                    const isVid = isMP4(file.name || url)
+                                    
+                                    let imageUrl = url
+                                    if (isGoogleDrive) {
+                                      imageUrl = getDirectGoogleDriveUrl(url)
+                                    } else {
+                                      if (isPdf) imageUrl = '/fallback-pdf-thumbnail.svg'
+                                      else if (isVid) imageUrl = '/fallback-video.png'
+                                    }
+                                    
+                                    return (
+                                      <Box
+                                        key={index}
+                                        sx={recThumbnailContainerStyles}
+                                        onClick={() => window.open(url, '_blank')}
+                                      >
+                                        <img
+                                          style={recThumbnailImageStyles}
+                                          src={imageUrl}
+                                          alt={file.name || 'Evidence thumbnail'}
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).src = '/Document.svg'
+                                          }}
+                                        />
+                                      </Box>
+                                    )
+                                  })}
                                 </Box>
-                              )
-                            })}
+                              )}
+
+                              {/* Link Rows */}
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mt: 1 }}>
+                                {evidenceItems.map((item: any, idx: number) => {
+                                  const itemUrl = item.url || item.id
+                                  if (!itemUrl) return null
+                                  
+                                  const url = ensureProtocol(itemUrl)
+                                  const isGoogleDriveLink = url.includes('drive.google.com')
+                                  const isDoc = isImage(item.name || url) || isPDF(item.name || url) || isMP4(item.name || url) || isGoogleDriveLink
+                                  
+                                  return (
+                                    <Box
+                                      key={`comment-portfolio-${idx}`}
+                                      component="a"
+                                      href={url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      sx={recEvidenceLinkRowStyles}
+                                    >
+                                      {isDoc ? (
+                                        <DescriptionOutlinedIcon />
+                                      ) : (
+                                        <InsertLinkIcon />
+                                      )}
+                                      <Typography sx={recEvidenceLinkTextStyles}>
+                                        {item.name || itemUrl}
+                                      </Typography>
+                                      <OpenInNewIcon sx={{ fontSize: '14px' }} />
+                                    </Box>
+                                  )
+                                })}
+                              </Box>
+                            </Box>
                           </Box>
                         )
                       }
@@ -1324,115 +1400,57 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                         onMouseEnter={() => setIsHoveringMedia(true)}
                         onMouseLeave={() => setIsHoveringMedia(false)}
                       >
-                        <Media hasImage={!!currentDisplayFile}>
-                          {currentDisplayFile ? (
-                            <>
-                              {isPDF(
-                                currentDisplayFile.name || currentDisplayFile.url
-                              ) ? (
-                                <img
-                                  src={
-                                    pdfThumbnails[currentDisplayFile.id] ??
-                                    '/fallback-pdf-thumbnail.svg'
-                                  }
-                                  alt='PDF Preview'
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '16px',
-                                    objectFit: 'contain'
-                                  }}
-                                />
-                              ) : isMP4(
-                                currentDisplayFile.name || currentDisplayFile.url
-                              ) ? (
-                                <img
-                                  src={
-                                    videoThumbnails[currentDisplayFile.id] ??
-                                    '/fallback-video.png'
-                                  }
-                                  alt='Video Thumbnail'
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '16px',
-                                    objectFit: 'contain'
-                                  }}
-                                />
-                              ) : (
-                                <img
-                                  src={
-                                    imageThumbnails[currentDisplayFile.id] ??
-                                    currentDisplayFile.url
-                                  }
-                                  alt='Featured Media'
-                                  style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '16px',
-                                    objectFit: 'contain'
-                                  }}
-                                />
-                              )}
-                              <Box
-                                sx={{
-                                  position: 'absolute',
-                                  bottom: '10px',
-                                  right: '10px',
-                                  bgcolor: 'rgba(0,0,0,0.6)',
-                                  color: 'white',
-                                  px: 1,
-                                  borderRadius: 1,
-                                  fontSize: '12px'
-                                }}
-                              >
+                        {currentDisplayFile ? (
+                          <>
+                            {isPDF(currentDisplayFile.name || currentDisplayFile.url) ? (
+                              <Image
+                                src={pdfThumbnails[currentDisplayFile.id] ?? '/fallback-pdf-thumbnail.svg'}
+                                alt='PDF Preview'
+                                fill
+                                style={{ objectFit: 'contain' }}
+                              />
+                            ) : isMP4(currentDisplayFile.name || currentDisplayFile.url) ? (
+                              <Image
+                                src={videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'}
+                                alt='Video Thumbnail'
+                                fill
+                                style={{ objectFit: 'contain' }}
+                              />
+                            ) : (
+                              <Image
+                                src={imageThumbnails[currentDisplayFile.id] ?? currentDisplayFile.url}
+                                alt='Featured Media'
+                                fill
+                                style={{ objectFit: 'contain' }}
+                              />
+                            )}
+
+                            {/* Image Counter Overlay (Always Visible) */}
+                            {displayFiles.length > 1 && (
+                              <Box sx={carouselCounterStyles}>
                                 {currentImageIndex + 1} / {displayFiles.length}
                               </Box>
+                            )}
 
-                              {/* Navigation Buttons */}
-                              {displayFiles.length > 1 && isHoveringMedia && (
-                                <>
-                                  <Box
-                                    onClick={handlePrevImage}
-                                    sx={{
-                                      position: 'absolute',
-                                      left: '10px',
-                                      top: '50%',
-                                      transform: 'translateY(-50%)',
-                                      bgcolor: 'rgba(170, 170, 170, 0.8)',
-                                      borderRadius: '50%',
-                                      p: 1,
-                                      cursor: 'pointer',
-                                      '&:hover': { bgcolor: 'white' }
-                                    }}
-                                  >
-                                    <Typography variant='h6' sx={{ lineHeight: 0.4 }}>
-                                      ‹
-                                    </Typography>
-                                  </Box>
-                                  <Box
-                                    onClick={handleNextImage}
-                                    sx={{
-                                      position: 'absolute',
-                                      right: '10px',
-                                      top: '50%',
-                                      transform: 'translateY(-50%)',
-                                      bgcolor: 'rgba(170, 170, 170, 0.8)',
-                                      borderRadius: '50%',
-                                      p: 1,
-                                      cursor: 'pointer',
-                                      '&:hover': { bgcolor: 'white' }
-                                    }}
-                                  >
-                                    <Typography variant='h6' sx={{ lineHeight: 0.4 }}>
-                                      ›
-                                    </Typography>
-                                  </Box>
-                                </>
-                              )}
-                            </>
-                          ) : null}
-                        </Media>
+                            {/* Navigation Buttons */}
+                            {isHoveringMedia && displayFiles.length > 1 && (
+                              <>
+                                <Button
+                                  onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+                                  sx={{ ...carouselNavButtonStyles, left: 8 }}
+                                >
+                                  ‹
+                                </Button>
+                                <Button
+                                  onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+                                  sx={{ ...carouselNavButtonStyles, right: 8 }}
+                                >
+                                  ›
+                                </Button>
+                              </>
+                            )}
+                          </>
+                        ) : null}
                       </MediaContainer>
                     )}
 
@@ -1589,7 +1607,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                             }
                             disabled={!fileID}
                             variant='contained'
-                            startIcon={<DescriptionOutlinedIcon />}
+                            startIcon={<DescriptionOutlinedIcon sx={{ color: '#FFFFFF' }} />}
                             endIcon={<OpenInNewIcon />}
                             sx={{
                               borderRadius: '8px',

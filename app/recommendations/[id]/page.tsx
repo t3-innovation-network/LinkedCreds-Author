@@ -90,7 +90,6 @@ const CredentialData = () => {
         const credentialSubject = vcData?.credentialSubject
         setCredentialSubject(credentialSubject)
         const topLevelEvidence = vcData?.evidence || []
-        console.log('VC Top-level Evidence:', topLevelEvidence)
         setCredentialEvidence(topLevelEvidence)
 
         const personName = credentialSubject?.person?.name || credentialSubject?.name
