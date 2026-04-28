@@ -12,7 +12,6 @@ import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020
 // @ts-ignore
 import { customDocumentLoader } from '@cooperation/vc-storage/dist/utils/digitalbazaar.js'
 import { v4 as uuidv4 } from 'uuid'
-import * as hrContextObj from 'hr-context'
 
 function getCredentialEngine(accessToken: string): CredentialEngine {
   if (!accessToken) {
@@ -99,24 +98,7 @@ const signCred = async (
         unsignedCredential.evidence = evidenceItems
       }
 
-      const wrappedDocumentLoader = async (url: string) => {
-        if (url === 'https://w3id.org/hr/v1' || url === 'https://w3id.org/hr/v1/') {
-          return {
-            contextUrl: null,
-            documentUrl: url,
-            document: (hrContextObj as any).CONTEXT_V1 || (hrContextObj as any).contexts?.get(url)
-          }
-        }
-        if (url === 'https://www.w3.org/ns/credentials/v2' || url === 'https://www.w3.org/ns/credentials/v2/') {
-          const v1Doc = await customDocumentLoader('https://www.w3.org/2018/credentials/v1')
-          return {
-            contextUrl: null,
-            documentUrl: url,
-            document: v1Doc.document
-          }
-        }
-        return customDocumentLoader(url)
-      }
+      const wrappedDocumentLoader = customDocumentLoader
 
       const suite = new Ed25519Signature2020({ key: keyPair, verificationMethod: keyPair.id })
       signedVC = await dbVc.issue({ credential: unsignedCredential, suite, documentLoader: wrappedDocumentLoader })
