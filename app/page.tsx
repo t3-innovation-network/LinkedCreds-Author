@@ -216,14 +216,16 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
             network.
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex', mb: 3, gap: '16px', flexWrap: 'wrap' }}>
             <Link href='/credentialForm' passHref style={{ textDecoration: 'none' }}>
               <Button
                 variant='contained'
                 endIcon={<KeyboardArrowRightIcon />}
                 sx={{
                   ...primaryButtonStyles,
-                  borderRadius: '8px' // Maintain 8px radius for hero as per original design, or use 100px for pill?
+                  backgroundColor: '#155DFC',
+                  color: '#FFFFFF',
+                  borderColor: '#155DFC',
                 }}
               >
                 Build your first skill
@@ -234,10 +236,9 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
                 variant='outlined'
                 sx={{
                   ...secondaryButtonStyles,
-                  color: '#344054',
-                  borderColor: '#D0D5DD',
+                  color: '#0A0A0A',
+                  borderColor: '#D1D5DC',
                   backgroundColor: '#FFFFFF',
-                  borderRadius: '8px',
                   '&:hover': {
                     backgroundColor: '#F9FAFB',
                     borderColor: '#D0D5DD'
@@ -562,7 +563,7 @@ const Page = () => {
       }}
     >
       <HeroSection showCards={true} theme={theme} />
-      <JobSeekersSection />
+      <JobSeekersSection showCreatedByLine />
       <FeaturesGridSection />
       <StepsSection theme={theme} />
       <CallToActionSection />

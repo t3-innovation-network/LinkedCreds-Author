@@ -34,7 +34,7 @@ import {
   evidenceTipBoxTextStyles
 } from '../Styles/appStyles'
 import { FormData } from '../../credentialForm/form/types/Types'
-import { SkillMatch, extractRawSkillsApi, searchSkillsApi } from '../../utils/skillsApi'
+import { SkillMatch, extractRawSkillsApi, searchSkillsApi, warmupSkillsApi } from '../../utils/skillsApi'
 import Image from 'next/image'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import { ensureProtocol } from '../../utils/urlValidation'
@@ -173,6 +173,11 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
 
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
 
+  // Warmup the LLM as soon as the preview component mounts
+  useEffect(() => {
+    warmupSkillsApi()
+  }, [])
+
   // Combined evidence (files + manual links) for the Supporting Documentation section
   const uniqueLinks = useMemo(() => {
     const links: { name: string; url: string; hasId?: boolean }[] = []
@@ -228,48 +233,120 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
     }
   }, [initialManuallyAddedSkills])
 
-  // Step 1: Description changes → /extract → detectedSkillNames (raw names, shown immediately)
+  // Refs for "1 running + 1 queued" extract pattern
+  const isExtractingRef = useRef(false)
+  const pendingExtractTextRef = useRef<string | null>(null)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchRequestIdRef = useRef(0)
+
+  // Step 1: Description changes → /extract → detectedSkillNames
+  // Pattern: at most 1 running request + 1 queued (latest text only).
+  // The running request is never aborted. When it finishes, the queued text fires immediately.
   useEffect(() => {
     if (currentStep && currentStep >= 4) return
 
     const text = formData?.credentialDescription || ''
 
-    // Clear names no longer present in text
-    setDetectedSkillNames(prev =>
-      prev.filter(name => text.toLowerCase().includes(name.toLowerCase()))
-    )
+    // Clear names no longer present in text (only update if something actually changed
+    // to avoid triggering downstream search effect on every keystroke)
+    setDetectedSkillNames(prev => {
+      const filtered = prev.filter(name => text.toLowerCase().includes(name.toLowerCase()))
+      return filtered.length === prev.length ? prev : filtered
+    })
 
-    const timer = setTimeout(async () => {
-      if (text.length > 3) {
+    if (text.length <= 3) {
+      setHasFetched(true)
+      return
+    }
+
+    // If a request is currently in-flight, just queue the latest text (replaces any older queued text)
+    if (isExtractingRef.current) {
+      pendingExtractTextRef.current = text
+      return
+    }
+
+    // Debounce: wait 1s after last keystroke before firing
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      // Inline async runner that handles the queue
+      const runExtract = async (extractText: string) => {
+        isExtractingRef.current = true
+        pendingExtractTextRef.current = null
+
         try {
-          const rawNames = await extractRawSkillsApi(text)
+          const rawNames = await extractRawSkillsApi(extractText)
           setDetectedSkillNames(prev => {
             const existing = new Set(prev.map(n => n.toLowerCase()))
             const newNames = rawNames.filter(n => !existing.has(n.toLowerCase()))
-            return [...prev, ...newNames]
+            return newNames.length > 0 ? [...prev, ...newNames] : prev
           })
-        } catch (error) {
+        } catch (error: any) {
           console.error('Failed to extract skills:', error)
         } finally {
+          isExtractingRef.current = false
           setHasFetched(true)
-        }
-      } else {
-        setHasFetched(true)
-      }
-    }, 200)
 
-    return () => clearTimeout(timer)
+          // If text was queued while we were extracting, fire it immediately
+          const pending = pendingExtractTextRef.current
+          if (pending) {
+            pendingExtractTextRef.current = null
+            runExtract(pending)
+          }
+        }
+      }
+
+      runExtract(text)
+    }, 500)
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+        debounceTimerRef.current = null
+      }
+    }
   }, [formData?.credentialDescription, currentStep])
 
+  const isSearchingRef = useRef(false)
+  const pendingSearchNamesRef = useRef<string[] | null>(null)
+
   // Step 2: detectedSkillNames changes → /search → detectedSkills (full O*NET SkillMatch[])
+  // Pattern: at most 1 running /search request + 1 queued.
+  // Prevents multiple concurrent pending /search API calls.
   useEffect(() => {
     if (!detectedSkillNames.length) {
       setDetectedSkills([])
       return
     }
-    searchSkillsApi(detectedSkillNames).then(mapped => {
-      setDetectedSkills(mapped)
-    })
+
+    if (isSearchingRef.current) {
+      pendingSearchNamesRef.current = detectedSkillNames
+      return
+    }
+
+    const runSearch = async (names: string[]) => {
+      isSearchingRef.current = true
+      pendingSearchNamesRef.current = null
+
+      try {
+        const mapped = await searchSkillsApi(names)
+        setDetectedSkills(mapped)
+      } catch (error: any) {
+        console.error('Failed to search skills:', error)
+      } finally {
+        isSearchingRef.current = false
+
+        const pending = pendingSearchNamesRef.current
+        if (pending) {
+          pendingSearchNamesRef.current = null
+          runSearch(pending)
+        }
+      }
+    }
+
+    runSearch(detectedSkillNames)
   }, [detectedSkillNames])
 
   const onSkillsChangeRef = useRef(onSkillsChange)
@@ -277,30 +354,61 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
     onSkillsChangeRef.current = onSkillsChange
   })
 
-  // Sync selectedSkills from detectedSkills
+  // Show raw skill names as pills immediately after /extract (before /search completes).
+  // Creates placeholder SkillMatch objects from detectedSkillNames so pills appear fast.
   useEffect(() => {
     if ((currentStep && currentStep >= 4) || (!hasFetched && selectedSkills.length > 0))
       return
 
-    const detectedNames = detectedSkills.map(s => s.name)
-
     setSelectedSkills(prev => {
-      if (prev.length === 0 && detectedSkills.length > 0) return detectedSkills
+      // Build a set of all known names (from raw extract + enriched search)
+      const allNames = new Set([
+        ...detectedSkillNames.map(n => n.toLowerCase()),
+        ...detectedSkills.map(s => s.name.toLowerCase())
+      ])
+
+      // For each name, prefer the enriched SkillMatch from search if available,
+      // otherwise create a placeholder from the raw name
+      const enrichedMap = new Map(detectedSkills.map(s => [s.name.toLowerCase(), s]))
+
+      const fromDetection: SkillMatch[] = [...allNames].map(name => {
+        if (enrichedMap.has(name)) return enrichedMap.get(name)!
+        return {
+          id: name,
+          name,
+          source: 'extract',
+          frameworkMatch: []
+        }
+      })
+
       // Keep manual skills + still-detected skills, add newly detected
+      const allDetectedNames = fromDetection.map(s => s.name)
       const stillValid = prev.filter(
         skill =>
           manuallyAddedSkills.some(m => m.name === skill.name) ||
-          detectedNames.includes(skill.name)
+          allDetectedNames.includes(skill.name)
       )
-      const newDetected = detectedSkills.filter(
+      const newDetected = fromDetection.filter(
         skill =>
           !prev.some(p => p.name === skill.name) &&
           !removedSkills.some(r => r.name === skill.name)
       )
-      const next = [...stillValid, ...newDetected]
+      let next = [...stillValid, ...newDetected]
+
+      // Merge in enriched data for any placeholder pills
+      next = next.map(skill => enrichedMap.get(skill.name.toLowerCase()) || skill)
+
+      next.sort((a, b) => {
+        const indexA = allDetectedNames.indexOf(a.name)
+        const indexB = allDetectedNames.indexOf(b.name)
+        const weightA = indexA === -1 ? 999 : indexA
+        const weightB = indexB === -1 ? 999 : indexB
+        return weightA - weightB
+      })
+
       return next
     })
-  }, [detectedSkills, hasFetched, currentStep, manuallyAddedSkills])
+  }, [detectedSkillNames, detectedSkills, hasFetched, currentStep, manuallyAddedSkills])
 
   // Notify parent whenever selected skills change
   useEffect(() => {
@@ -498,91 +606,116 @@ const CredentialPreview: React.FC<CredentialPreviewProps> = ({
       )}
       {currentStep == 2 && <Divider sx={previewDividerStyles} />}
 
-      {/* Media Carousel (restored) */}
+      {/* Media Files */}
       {currentStep >= 2 && (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <Box
-            onMouseEnter={() => setIsHoveringMedia(true)}
-            onMouseLeave={() => setIsHoveringMedia(false)}
-            sx={previewMediaContainerStyles}
-          >
-            {currentDisplayFile ? (
-              <>
-                {isPDF(currentDisplayFile.name) ? (
-                  <Image
-                    src={
-                      pdfThumbnails[currentDisplayFile.id] ??
-                      '/fallback-pdf-thumbnail.svg'
-                    }
-                    alt='PDF Preview'
-                    fill
-                    style={{ objectFit: 'contain' }}
-                  />
-                ) : isMP4(currentDisplayFile.name) ? (
-                  <Image
-                    src={videoThumbnails[currentDisplayFile.id] ?? '/fallback-video.png'}
-                    alt='Video Thumbnail'
-                    fill
-                    style={{ objectFit: 'contain' }}
-                  />
-                ) : (
-                  <Image
-                    src={currentDisplayFile.url}
-                    alt='Featured Media'
-                    fill
-                    style={{ objectFit: 'contain' }}
-                  />
-                )}
-
-                {selectedFiles.length > 1 && (
-                  <Box sx={{ ...carouselCounterStyles, fontSize: '10px' }}>
-                    {currentImageIndex + 1} / {selectedFiles.length}
+        <Box>
+          <Typography sx={sectionLabelStyles}>Media</Typography>
+          {selectedFiles && selectedFiles.length > 0 ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mt: '8px' }}>
+              {selectedFiles.map((file, idx) => (
+                <Box
+                  key={file.id || idx}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '12px',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #E2E8F0',
+                    backgroundColor: '#F8FAFC',
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      ...sectionValueStyles,
+                      fontSize: '14px',
+                      color: '#334155',
+                      fontWeight: 500,
+                      wordBreak: 'break-word',
+                      flex: 1,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {file.name || 'View File'}
+                  </Typography>
+                  <Box
+                    sx={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '6px',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: '#fff'
+                    }}
+                  >
+                    <Image
+                      src={pdfThumbnails[file.id] || videoThumbnails[file.id] || file.url}
+                      alt={file.name || 'Media'}
+                      width={48}
+                      height={48}
+                      style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                      unoptimized={!!(pdfThumbnails[file.id] || videoThumbnails[file.id] || file.url?.startsWith('blob:') || file.url?.startsWith('data:'))}
+                    />
                   </Box>
-                )}
-                {isHoveringMedia && selectedFiles.length > 1 && (
-                  <>
-                    <Box
-                      onClick={handlePrevImage}
-                      sx={{ ...carouselNavButtonStyles, left: '8px' }}
-                    >
-                      ‹
-                    </Box>
-                    <Box
-                      onClick={handleNextImage}
-                      sx={{ ...carouselNavButtonStyles, right: '8px' }}
-                    >
-                      ›
-                    </Box>
-                  </>
-                )}
-              </>
-            ) : formData?.evidenceLink ? (
-              <Image
-                src={formData.evidenceLink}
-                alt='Evidence Link'
-                fill
-                style={{ objectFit: 'contain' }}
-              />
-            ) : (
-              <Image
-                src='/images/SkillMedia.svg'
-                alt='Media placeholder'
-                width={64}
-                height={64}
-                style={{ width: 'auto', height: 'auto' }}
-              />
-            )}
-          </Box>
-          <Typography sx={sectionLabelStyles}>
-            {currentDisplayFile || formData?.evidenceLink ? '' : 'Media (optional)'}
-          </Typography>
+                </Box>
+              ))}
+            </Box>
+          ) : formData?.evidenceLink ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #E2E8F0',
+                backgroundColor: '#F8FAFC',
+                mt: '8px'
+              }}
+            >
+              <Typography
+                sx={{
+                  ...sectionValueStyles,
+                  fontSize: '14px',
+                  color: '#334155',
+                  fontWeight: 500,
+                  flex: 1
+                }}
+              >
+                Evidence Link
+              </Typography>
+              <Box
+                sx={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  border: '1px solid #E2E8F0',
+                  backgroundColor: '#fff'
+                }}
+              >
+                <Image
+                  src={formData.evidenceLink}
+                  alt='Evidence Link'
+                  width={48}
+                  height={48}
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                />
+              </Box>
+            </Box>
+          ) : (
+            <Typography sx={{ ...placeholderTextStyles, mt: '4px' }}>
+              Media (optional)
+            </Typography>
+          )}
         </Box>
       )}
 

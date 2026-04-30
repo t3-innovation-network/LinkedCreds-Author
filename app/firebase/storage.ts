@@ -23,8 +23,8 @@ export const getFileViaFirebase = async (fileId: string, sessionToken?: string) 
     // 1- getAccessToken   2- fetch file
     let accessToken = sessionToken || await getAccessToken(fileId)
     if (!accessToken) {
-        console.warn(`No access token available for file ${fileId} (Firestore or session)`)
-        return null
+      console.warn(`No access token available for file ${fileId} (Firestore or session)`)
+      return null
     }
     let response = await fetch(
       `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
@@ -161,8 +161,8 @@ const refreshAccessToken = async (tokens: any) => {
 
     const data = await response.json()
     if (!response.ok) {
-        console.error('Google token refresh failed:', data)
-        throw new Error(`Token refresh failed: ${JSON.stringify(data)}`)
+      console.error('Google token refresh failed:', data)
+      throw new Error(`Token refresh failed: ${JSON.stringify(data)}`)
     }
     const newAccessToken = data.access_token
 

@@ -16,7 +16,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
 import { storeFileTokens } from '../firebase/storage'
-import { saveRaw } from '../utils/googleDrive'
+import { saveRaw, ensureCredentialsFolderCached } from '../utils/googleDrive'
 import {
   analyzeCredential,
   convertToNativeFormat,
@@ -195,6 +195,7 @@ function SimpleCredentialForm() {
 
       // Save normalized credential to Google Drive
       const storage = new GoogleDriveStorage(accessToken!)
+      await ensureCredentialsFolderCached(storage)
 
       // 1) Save original external credential (as-is)
       const originalFile = await saveToGoogleDrive({
@@ -469,6 +470,7 @@ function SimpleCredentialForm() {
 
             console.log('trying to save ext credential: ', credentialToSave)
             const storage = new GoogleDriveStorage(accessToken)
+            await ensureCredentialsFolderCached(storage)
             const savedFile = await saveToGoogleDrive({
               storage,
               data: credentialToSave,
@@ -534,6 +536,7 @@ function SimpleCredentialForm() {
         if (accessToken) {
           try {
             const storage = new GoogleDriveStorage(accessToken)
+            await ensureCredentialsFolderCached(storage)
             const savedFile = await saveToGoogleDrive({
               storage,
               data: vcData,

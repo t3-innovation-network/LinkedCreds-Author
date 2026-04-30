@@ -2,7 +2,7 @@ import { useTheme } from '@mui/material/styles'
 import React from 'react'
 import { Box, Typography, Container, Stack } from '@mui/material'
 import Link from 'next/link'
-import { LogoWhite, InfoIcon, PrivacyPolicyIcon } from '../../Assets/SVGs'
+import { LogoWhite, InfoIcon, PrivacyPolicyIcon, MailFooterSVG } from '../../Assets/SVGs'
 
 interface FooterItemProps {
   icon: React.ReactNode
@@ -122,7 +122,7 @@ const Footer = () => {
 
             <Link href='mailto:support@lc.allskillscount.org' style={{ textDecoration: 'none' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <EmailIcon />
+                <MailFooterSVG />
                 <Typography sx={{ color: '#E2E8F0', fontSize: '14px', fontFamily: 'Inter' }}>
                   support@lc.allskillscount.org
                 </Typography>

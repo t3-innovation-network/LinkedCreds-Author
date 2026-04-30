@@ -97,10 +97,10 @@ export const JobSeekersSection: React.FC<{ showCreatedByLine?: boolean }> = ({ s
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <Typography
               sx={{
-                fontSize: { xs: '20px', md: '48px' },
+                fontSize: '48px',
                 fontWeight: 'bold',
                 fontFamily: 'Poppins',
-                color: '#101828',
+                color: '#202E5B',
                 lineHeight: '52px'
               }}
             >

@@ -15,6 +15,7 @@ import useLocalStorage from '../../../hooks/useLocalStorage'
 import { useStepContext } from '../../../credentialForm/form/StepContext'
 import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
 import { createDID, signCred } from '../../../utils/credential'
+import { ensureCredentialsFolderCached } from '../../../utils/googleDrive'
 import { useSession } from 'next-auth/react'
 import { Logo } from '../../../Assets/SVGs'
 import useGoogleDrive from '../../../hooks/useGoogleDrive'
@@ -130,6 +131,10 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills, cre
       // Step 1: Create DID
       const newDid = await createDID(accessToken)
       const { didDocument, keyPair, issuerId } = newDid
+
+      // Ensure the Credentials folder is found (not duplicated) before any Drive save.
+      if (!storage) throw new Error('Google Drive storage is not initialised yet.')
+      await ensureCredentialsFolderCached(storage)
 
       // Save the DID document and keyPair to Google Drive
       const file = await saveToGoogleDrive({

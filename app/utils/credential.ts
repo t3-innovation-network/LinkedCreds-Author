@@ -211,7 +211,7 @@ export const generateCredentialData = (data: FormData, issuerDid: string) => {
 const generateRecommendationData = (data: any) => {
   const evidence: any[] = []
   const portfolio: any[] = []
-  
+
   if (data.evidence && (data.evidence as any[]).length > 0) {
     ; (data.evidence as any[]).forEach((p: any) => {
       if (p.url || p.googleId || p.id) {

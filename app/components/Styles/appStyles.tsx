@@ -426,6 +426,7 @@ export const CredentialTitle = styled(Typography)(({ theme }) => ({
 
 export const RecipientName = styled(Typography)(({ theme }) => ({
   fontFamily: 'Inter',
+  fontWeight: 'regular',
   fontSize: '20px',
   color: '#4A5565',
 }))
@@ -1139,15 +1140,17 @@ export const recGrayTextFieldStyles = {
 }
 
 export const primaryButtonStyles = {
-  backgroundColor: '#2563EB',
+  backgroundColor: '#155DFC',
   color: '#FFFFFF',
-  borderRadius: '100px',
-  px: 4,
+  borderRadius: '8px',
+  px: 3,
   py: 1.5,
   textTransform: 'none',
-  fontSize: '16px',
-  fontWeight: 600,
+  fontSize: '14px',
+  fontWeight: 'Medium',
   fontFamily: 'Inter',
+  lineHeight: '20px',
+  letterSpacing: '-0.15px',
   '&:hover': {
     backgroundColor: '#1D4ED8'
   },
@@ -1159,16 +1162,18 @@ export const primaryButtonStyles = {
 }
 
 export const secondaryButtonStyles = {
-  backgroundColor: '#EFF6FF',
-  color: '#2563EB',
-  border: '1.5px solid #2563EB',
-  borderRadius: '100px',
-  px: 4,
+  backgroundColor: '#FFFFFF',
+  color: '#OAOAOA',
+  border: '1px solid #D1D5DC',
+  borderRadius: '8px',
+  px: 3,
   py: 1.5,
   textTransform: 'none',
-  fontSize: '16px',
-  fontWeight: 600,
+  fontSize: '14px',
+  fontWeight: 'Medium',
   fontFamily: 'Inter',
+  letterSpacing: '-0.15px',
+  lineHeight: '20px',
   '&:hover': {
     backgroundColor: '#DBEAFE',
     borderColor: '#1D4ED8'
@@ -1211,6 +1216,7 @@ export const navBarContainerStyles = {
   height: { xs: '27px', md: '100px' },
   display: 'flex',
   position: 'sticky',
+  top: 0,
   alignItems: 'center',
   backgroundColor: 'white',
   justifyContent: 'space-between',
@@ -1497,8 +1503,8 @@ export const recThumbnailContainerStyles = {
 }
 
 export const recThumbnailImageStyles = {
-  width: '100%', 
-  height: '100%', 
+  width: '100%',
+  height: '100%',
   objectFit: 'cover' as const
 }
 

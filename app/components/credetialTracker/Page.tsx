@@ -38,59 +38,59 @@ const isMP4 = (fileName: string) => fileName?.toLowerCase().endsWith('.mp4')
 
 // PDF thumbnail generation
 const renderPDFThumbnail = async (fileUrl: string): Promise<string> => {
-    try {
-        const loadingTask = getDocument({ url: fileUrl })
-        const pdf = await loadingTask.promise
-        const page = await pdf.getPage(1)
-        const viewport = page.getViewport({ scale: 1 })
-        const canvas = document.createElement('canvas')
-        const context = canvas.getContext('2d')
-        if (!context) throw new Error('Could not get 2D context')
+  try {
+    const loadingTask = getDocument({ url: fileUrl })
+    const pdf = await loadingTask.promise
+    const page = await pdf.getPage(1)
+    const viewport = page.getViewport({ scale: 1 })
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    if (!context) throw new Error('Could not get 2D context')
 
-        canvas.height = viewport.height
-        canvas.width = viewport.width
-        await page.render({ canvasContext: context, viewport }).promise
-        return canvas.toDataURL()
-    } catch (error) {
-        console.error('Error rendering PDF thumbnail:', error)
-        return '/fallback-pdf-thumbnail.svg'
-    }
+    canvas.height = viewport.height
+    canvas.width = viewport.width
+    await page.render({ canvasContext: context, viewport }).promise
+    return canvas.toDataURL()
+  } catch (error) {
+    console.error('Error rendering PDF thumbnail:', error)
+    return '/fallback-pdf-thumbnail.svg'
+  }
 }
 
 // Video thumbnail generation
 const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const video = document.createElement('video')
-        video.src = videoUrl
-        video.addEventListener(
-            'loadeddata',
-            () => {
-                video.currentTime = 1
-            },
-            { once: true }
-        )
-        video.addEventListener(
-            'seeked',
-            () => {
-                const canvas = document.createElement('canvas')
-                canvas.width = video.videoWidth
-                canvas.height = video.videoHeight
-                const ctx = canvas.getContext('2d')
-                if (!ctx) {
-                    reject(new Error('Could not get 2D canvas context'))
-                    return
-                }
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-                const dataURL = canvas.toDataURL('image/png')
-                resolve(dataURL)
-            },
-            { once: true }
-        )
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video')
+    video.src = videoUrl
+    video.addEventListener(
+      'loadeddata',
+      () => {
+        video.currentTime = 1
+      },
+      { once: true }
+    )
+    video.addEventListener(
+      'seeked',
+      () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          reject(new Error('Could not get 2D canvas context'))
+          return
+        }
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        const dataURL = canvas.toDataURL('image/png')
+        resolve(dataURL)
+      },
+      { once: true }
+    )
 
-        video.addEventListener('error', e => {
-            reject(e)
-        })
+    video.addEventListener('error', e => {
+      reject(e)
     })
+  })
 }
 
 interface CredentialTrackerProps {
@@ -248,23 +248,20 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
         <Divider sx={{ mb: 2 }} />
         <CredentialContent>
           {/* Content */}
-          <Box>
-            <BadgePill>
-              Self-issued
-            </BadgePill>
-
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '15px' }}>
-              <Box sx={{ maxWidth: '75%', gap: '12px' }}>
-                <CredentialTitle>
-                  {formData?.credentialName || "Credential Name"}
-                </CredentialTitle>
-                <RecipientName>
-                  Issued to: {formData?.fullName || "Your Name"}
-                </RecipientName>
-                <ExperienceText>
-                  {formData?.credentialDuration ? `${formData.credentialDuration} of experience` : "No experience listed"}
-                </ExperienceText>
-              </Box>
+          <Box >
+            <Box sx={{ mb: '15px', gap: '8px', display: 'flex', flexDirection: 'column' }}>
+              <BadgePill>
+                Self-Issued
+              </BadgePill>
+              <CredentialTitle>
+                {formData?.credentialName || "Credential Name"}
+              </CredentialTitle>
+              <RecipientName>
+                {formData?.fullName || "Your Name"}
+              </RecipientName>
+              <ExperienceText>
+                {formData?.credentialDuration ? `${formData.credentialDuration} of experience` : "No experience listed"}
+              </ExperienceText>
             </Box>
             <Divider />
           </Box>
@@ -394,33 +391,7 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
               <SectionHeader>
                 Supporting Documentation
               </SectionHeader>
-              {/* Thumbnails for Images */}
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px', mt: '8px', mb: '8px' }}>
-                {selectedFiles.map((file, idx) => (
-                  <Box
-                    key={file.id || idx}
-                    sx={{
-                      width: '60px',
-                      height: '60px',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      border: '1px solid #E2E8F0',
-                      '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' }
-                    }}
-                    onClick={() => window.open(file.url, '_blank')}
-                  >
-                    <Image
-                      src={pdfThumbnails[file.id] || videoThumbnails[file.id] || file.url}
-                      alt={file.name}
-                      width={60}
-                      height={60}
-                      style={{ objectFit: 'cover' }}
-                      unoptimized={!!(pdfThumbnails[file.id] || videoThumbnails[file.id] || file.url.startsWith('blob:') || file.url.startsWith('data:'))}
-                    />
-                  </Box>
-                ))}
-              </Box>
+
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', mt: 1 }}>
                 {uniqueLinks.map((item, index) => {
                   const isDocOrImage = (url: string) => {

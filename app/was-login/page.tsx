@@ -19,62 +19,57 @@ export default function WasLoginPage() {
     const exchangeUrl = `${APP_BASE_URL}/api/exchanges/${sessionId}`
     let intervalId: NodeJS.Timeout
 
-    ;(async () => {
-      try {
-        // Create / load appInstanceDid for this client
-        const appInstanceDid = localStorage.getItem('AppInstanceDID')
-        if (!appInstanceDid) {
-          setError('Failed to connect to the wallet: missing AppInstanceDID')
+      ; (async () => {
+        try {
+          const appInstanceDid = localStorage.getItem('AppInstanceDID')
+          if (!appInstanceDid) {
+            setError('Failed to connect to the wallet: missing AppInstanceDID')
+            setIsLoading(false)
+            return
+          }
+          const res = await fetch(exchangeUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ appInstanceDid })
+          })
+
+          if (!res.ok) {
+            setError('Failed to connect to the wallet')
+            setIsLoading(false)
+            return
+          }
+
+
+          const chapiRequest = {
+            credentialRequestOrigin: APP_BASE_URL,
+            protocols: { vcapi: exchangeUrl }
+          }
+          const encodedRequest = encodeURIComponent(JSON.stringify(chapiRequest))
+          const lcwRequestUrl = `${LCW_DEEP_LINK}?request=${encodedRequest}`
+
+          setQrData(lcwRequestUrl)
           setIsLoading(false)
-          return
-        }
-        // Initialize exchange session with appInstanceDid
-        const res = await fetch(exchangeUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ appInstanceDid })
-        })
 
-        if (!res.ok) {
-          setError('Failed to connect to the wallet')
+          setTimeout(() => {
+            intervalId = setInterval(() => {
+              pollExchange({
+                exchangeUrl,
+                onFetchVP: (vp: any) => {
+                  if (vp.zcap && vp.appInstanceDid) {
+                    console.log('🚀 ~ WasLoginPage ~ vp:', vp)
+                    clearInterval(intervalId)
+                  }
+                },
+                stopPolling: () => clearInterval(intervalId)
+              })
+            }, 2000)
+          }, 1000)
+        } catch (err) {
+          console.error(err)
+          setError('Unexpected error while connecting to wallet')
           setIsLoading(false)
-          return
         }
-
-        // Prepare LCW deep link
-        const chapiRequest = {
-          credentialRequestOrigin: APP_BASE_URL,
-          protocols: { vcapi: exchangeUrl }
-        }
-        const encodedRequest = encodeURIComponent(JSON.stringify(chapiRequest))
-        const lcwRequestUrl = `${LCW_DEEP_LINK}?request=${encodedRequest}`
-
-        setQrData(lcwRequestUrl)
-        setIsLoading(false)
-
-        // Start polling until zcap arrives (with initial delay)
-        setTimeout(() => {
-          intervalId = setInterval(() => {
-            pollExchange({
-              exchangeUrl,
-            onFetchVP: (vp: any) => {
-              if (vp.zcap && vp.appInstanceDid) {
-                console.log('🚀 ~ WasLoginPage ~ vp:', vp)
-                clearInterval(intervalId)
-                // TODO: navigate to dashboard if needed
-                // router.push('/dashboard')
-              }
-            },
-              stopPolling: () => clearInterval(intervalId)
-            })
-          }, 2000) // Reduced polling interval to 2 seconds
-        }, 1000) // Initial 1 second delay before starting to poll
-      } catch (err) {
-        console.error(err)
-        setError('Unexpected error while connecting to wallet')
-        setIsLoading(false)
-      }
-    })()
+      })()
 
     return () => clearInterval(intervalId)
   }, [])
