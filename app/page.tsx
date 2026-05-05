@@ -231,23 +231,27 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
                 Build your first skill
               </Button>
             </Link>
-            <Link href='/help' passHref style={{ textDecoration: 'none' }}>
-              <Button
-                variant='outlined'
-                sx={{
-                  ...secondaryButtonStyles,
-                  color: '#0A0A0A',
-                  borderColor: '#D1D5DC',
-                  backgroundColor: '#FFFFFF',
-                  '&:hover': {
-                    backgroundColor: '#F9FAFB',
-                    borderColor: '#D0D5DD'
-                  }
-                }}
-              >
-                Request a demo
-              </Button>
-            </Link>
+            <Button
+              variant='outlined'
+              onClick={() => {
+                const u = 'awinters';
+                const d = 'us';
+                const f = 'chambers'
+                window.location.href = `mailto:${u}@${d}.${f}.com`;
+              }}
+              sx={{
+                ...secondaryButtonStyles,
+                color: '#0A0A0A',
+                borderColor: '#D1D5DC',
+                backgroundColor: '#FFFFFF',
+                '&:hover': {
+                  backgroundColor: '#F9FAFB',
+                  borderColor: '#D0D5DD'
+                }
+              }}
+            >
+              Request a demo
+            </Button>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
