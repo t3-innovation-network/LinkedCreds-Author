@@ -12,13 +12,8 @@ const FormComponent = () => {
   const formRef = useRef<HTMLDivElement>(null)
 
   const handleScrollToTop = useCallback(() => {
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth' })
-      setTimeout(() => {
-        formRef.current?.scrollIntoView({ behavior: 'smooth' })
-      }, 10)
-    }
-  }, [formRef])
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   return (
     <Box

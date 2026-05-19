@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { warmupSkillsApi } from '../../../utils/skillsApi'
 import { Box, Button, Typography, Tooltip } from '@mui/material'
 import { signIn, useSession } from 'next-auth/react'
 import { SVGFolder, SVGSinfo } from '../../../Assets/SVGs'
@@ -18,6 +19,7 @@ export function Step0() {
     }
 
     try {
+      warmupSkillsApi()
       // Initiate Google sign-in
       await signIn('google', {
         callbackUrl: `${window.location.origin}/credentialForm#step1`

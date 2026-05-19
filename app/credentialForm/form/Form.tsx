@@ -25,7 +25,7 @@ import { Step2 } from './Steps/Step2_descreptionFields'
 import { storeFileTokens } from '../../firebase/storage'
 import CredentialTracker from '../../components/credetialTracker/Page'
 import { StepTrackShape } from './fromTexts & stepTrack/StepTrackShape'
-import { SkillMatch } from '../../utils/skillsApi'
+import { SkillMatch, warmupSkillsApi } from '../../utils/skillsApi'
 import useGoogleDrive from '../../hooks/useGoogleDrive'
 import { signSkillClaim } from '../../utils/signSkillClaim'
 import CredentialPreview from '../../components/credetialTracker/CredentialPreview'
@@ -215,6 +215,7 @@ const Form = ({ onStepChange }: any) => {
       !accessToken &&
       !hasSignedIn
     ) {
+      warmupSkillsApi()
       const signInSuccess = await signIn('google')
       if (!signInSuccess || !accessToken) return
       setHasSignedIn(true)
@@ -363,7 +364,10 @@ const Form = ({ onStepChange }: any) => {
         </Typography>
         <Button
           variant='contained'
-          onClick={() => signIn('google')}
+          onClick={() => {
+            warmupSkillsApi()
+            signIn('google')
+          }}
           sx={{
             mt: 2,
             backgroundColor: '#2563EB',

@@ -6,6 +6,7 @@ import { UseFormWatch, UseFormSetValue } from 'react-hook-form'
 import { FormData } from '../../../../credentialForm/form/types/Types'
 import { SVGFolder, SVGSinfo } from '../../../../Assets/SVGs'
 import { signIn, useSession } from 'next-auth/react'
+import { warmupSkillsApi } from '../../../../utils/skillsApi'
 import LoadingOverlay from '../../../../components/Loading/LoadingOverlay'
 import { recSectionContainerStyles } from '../../../../components/Styles/appStyles'
 
@@ -31,6 +32,7 @@ const Step1: React.FC<Step1Props> = ({ handleNext, fullName }) => {
     }
 
     try {
+      warmupSkillsApi()
       await signIn('google', {
         callbackUrl: `${window.location.origin}${window.location.pathname}?step=1`
       })

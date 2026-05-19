@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
+import { warmupSkillsApi } from '../utils/skillsApi'
 import '../utils/promise-polyfill'
 import {
   Typography,
@@ -399,7 +400,10 @@ const ClaimsPageClient: React.FC = () => {
           <Button
             fullWidth
             variant='nextButton'
-            onClick={() => router.push('/credentialForm')}
+            onClick={() => {
+              warmupSkillsApi()
+              router.push('/credentialForm')
+            }}
           >
             Add a new skill
           </Button>
@@ -428,7 +432,10 @@ const ClaimsPageClient: React.FC = () => {
           <Button
             variant='nextButton'
             sx={{ textTransform: 'none' }}
-            onClick={() => router.push('/credentialForm')}
+            onClick={() => {
+              warmupSkillsApi()
+              router.push('/credentialForm')
+            }}
           >
             Add a new skill
           </Button>

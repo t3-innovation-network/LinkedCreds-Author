@@ -23,6 +23,7 @@ import {
   useMediaQuery
 } from '@mui/material'
 import { useSession, signIn } from 'next-auth/react'
+import { warmupSkillsApi } from '../utils/skillsApi'
 import { getFileViaFirebase } from '../firebase/storage'
 import QRCode from 'qrcode'
 
@@ -432,7 +433,10 @@ const Page = () => {
         <Button
           variant='contained'
           color='primary'
-          onClick={() => signIn('google')}
+          onClick={() => {
+            warmupSkillsApi()
+            signIn('google')
+          }}
           sx={{ borderRadius: '100px', textTransform: 'none', px: 4 }}
         >
           Sign In with Google

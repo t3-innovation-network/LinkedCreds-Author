@@ -280,7 +280,7 @@ const Footer = () => {
               </Link>
               <Link href='mailto:support@lc.allskillscount.org' style={{ textDecoration: 'none' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <EmailIcon />
+                  <MailFooterSVG />
                   <Typography sx={{ color: '#E2E8F0', fontSize: '14px', fontFamily: 'Inter', '&:hover': { textDecoration: 'underline' } }}>
                     support@lc.allskillscount.org
                   </Typography>

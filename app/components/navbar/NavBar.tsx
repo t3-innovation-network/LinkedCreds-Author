@@ -1,5 +1,6 @@
 import { useTheme } from '@mui/material/styles'
 import React from 'react'
+import { warmupSkillsApi } from '../../utils/skillsApi'
 import {
   Box,
   Typography,
@@ -74,7 +75,7 @@ const NavBar = () => {
       <Box sx={navLinksContainerStyles}>
         {session && (
           <>
-            <Link href='/credentialForm#step1' passHref>
+            <Link href='/credentialForm#step1' passHref onClick={() => warmupSkillsApi()}>
               <Box sx={navLinkItemStyles}>
                 <Typography
                   sx={navLinkTypographyStyles(theme, isActive('/credentialForm'))}
@@ -190,7 +191,7 @@ const NavBar = () => {
                 justifyContent: 'center'
               }}
               variant='actionButton'
-              onClick={() => signIn('google')}
+              onClick={() => { warmupSkillsApi(); signIn('google'); }}
             >
               Sign In
             </Button>

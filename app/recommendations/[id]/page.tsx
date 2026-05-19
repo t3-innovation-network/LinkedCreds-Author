@@ -13,6 +13,7 @@ import ComprehensiveClaimDetails from '../../view/[id]/ComprehensiveClaimDetails
 import RecommenderPreview from './RecommandationForm/Steps/RecommenderPreview'
 import { getFileViaFirebase } from '../../firebase/storage'
 import { SelectedSkill } from '../../credentialForm/form/types/Types'
+import { warmupSkillsApi } from '../../utils/skillsApi'
 
 const CredentialData = () => {
   const { activeStep, setActiveStep } = useStepContext()
@@ -192,7 +193,10 @@ const CredentialData = () => {
         <Button
           variant='contained'
           color='primary'
-          onClick={() => signIn('google')}
+          onClick={() => {
+            warmupSkillsApi()
+            signIn('google')
+          }}
           sx={{ borderRadius: '100px', textTransform: 'none', px: 4 }}
         >
           Sign In with Google

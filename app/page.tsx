@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { warmupSkillsApi } from './utils/skillsApi'
 import { Box, Button, Typography, useTheme, useMediaQuery, Theme, Link as MuiLink } from '@mui/material'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import Link from 'next/link'
@@ -227,6 +228,7 @@ const HeroSection: React.FC<SectionProps & { showCards: boolean }> = ({ showCard
                   color: '#FFFFFF',
                   borderColor: '#155DFC',
                 }}
+                onClick={() => warmupSkillsApi()}
               >
                 Build your first skill
               </Button>
@@ -418,6 +420,7 @@ const StepsSection: React.FC<SectionProps> = ({ theme }) => (
           width: { xs: '100%', md: 'auto' },
           maxWidth: '360px'
         }}
+        onClick={() => warmupSkillsApi()}
       >
         Start building your first skill
       </Button>
@@ -509,6 +512,7 @@ const CallToActionSection: React.FC = () => {
               <Button
                 sx={{ ...secondaryButtonStyles, borderRadius: '8px' }}
                 endIcon={<KeyboardArrowRightIcon />}
+                onClick={() => warmupSkillsApi()}
               >
                 Build your first skill
               </Button>

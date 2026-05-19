@@ -1,4 +1,5 @@
 import React from 'react'
+import { warmupSkillsApi } from '../../utils/skillsApi'
 import { Box, Typography, Button, Drawer, IconButton, Divider } from '@mui/material'
 import { SVGCheckMarks, HamburgerMenuSVG, CloseIcon } from '../../Assets/SVGs'
 import { useSession, signIn, signOut } from 'next-auth/react'
@@ -81,7 +82,7 @@ const HamburgerMenu = () => {
             {session ? (
               <>
                 {/* Links with underline effect */}
-                <Link href='/credentialForm' passHref style={{ width: '100%' }}>
+                <Link href='/credentialForm#step1' passHref style={{ width: '100%' }} onClick={() => warmupSkillsApi()}>
                   <Box sx={hamburgerNavLinkBoxStyles}>
                     <Box sx={hamburgerNavLinkInnerBoxStyles}>
                       <Typography sx={hamburgerNavLinkTypographyStyles(isActive('/credentialForm'))}>
@@ -162,6 +163,7 @@ const HamburgerMenu = () => {
                 <Button
                   sx={hamburgerLoginButtonStyles}
                   onClick={() => {
+                    warmupSkillsApi()
                     signIn()
                     toggleDrawer()
                   }}
