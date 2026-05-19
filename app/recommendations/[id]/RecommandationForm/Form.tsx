@@ -15,11 +15,15 @@ import useLocalStorage from '../../../hooks/useLocalStorage'
 import { useStepContext } from '../../../credentialForm/form/StepContext'
 import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
 import { createDID, signCred } from '../../../utils/credential'
-import { ensureCredentialsFolderCached } from '../../../utils/googleDrive'
+import {
+  ensureCredentialsFolderCached,
+  linkRecommendationToClaimOnDrive
+} from '../../../utils/googleDrive'
 import { useSession } from 'next-auth/react'
 import { Logo } from '../../../Assets/SVGs'
 import useGoogleDrive from '../../../hooks/useGoogleDrive'
 import { storeFileTokens } from '../../../firebase/storage'
+import { addEndorsementToCredential } from '../../../utils/credentialMetadata'
 import { leftColumnStyles } from '../../../components/Styles/appStyles'
 interface FormProps {
   fullName: string  // This is the recipient's name
@@ -85,7 +89,7 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills, cre
 
   const formData = watch()
   const params = useParams()
-  const VSFileId = params?.id as string
+  const VCFileId = params?.id as string // VC = Verifiable Credential
 
   useEffect(() => {
     if (JSON.stringify(formData) !== JSON.stringify(storedValue)) {
@@ -159,23 +163,62 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills, cre
         issuerId,
         keyPair,
         'RECOMMENDATION',
-        VSFileId
+        VCFileId
       )
 
-      // Step 4: Save the signed recommendation to Google Drive
+      // Step 4: Save the signed recommendation to Google Drive and link to the claim
+      // Save on recommender's Drive; do not pass vcId (saveToGoogleDrive would use recommender token on claim file).
       const savedRecommendation = await saveToGoogleDrive({
         storage: storage as GoogleDriveStorage,
         data: signedCred,
         type: 'RECOMMENDATION'
       })
+
+      const recommendationFileId =
+        typeof savedRecommendation?.id === 'string'
+          ? savedRecommendation.id
+          : savedRecommendation?.id?.id
+
+      if (!recommendationFileId) {
+        throw new Error('Failed to get Google Drive file id for the saved recommendation')
+      }
+
+      if (recommendationFileId === VCFileId) {
+        throw new Error(
+          'Recommendation file id matches claim file id; refusing to overwrite claim Firebase doc'
+        )
+      }
+
+      // Store recommender tokens only on the NEW recommendation file — never on the claim file doc.
       await storeFileTokens({
-        googleFileId: savedRecommendation.id,
+        googleFileId: recommendationFileId,
         tokens: {
           accessToken,
           refreshToken: refreshToken as string
-        }
+        },
+        protectClaimFileId: VCFileId
       })
-      setRecId(savedRecommendation.id)
+
+      // Link on claim owner's Drive (Firestore tokens) and in Firebase metadata.
+      try {
+        await linkRecommendationToClaimOnDrive(VCFileId, recommendationFileId)
+      } catch (driveLinkError) {
+        console.warn(
+          'Could not add recommendation to claim RELATIONS on Drive:',
+          driveLinkError
+        )
+      }
+
+      try {
+        await addEndorsementToCredential(VCFileId, recommendationFileId)
+      } catch (linkError) {
+        console.warn(
+          'Could not add endorsement to claim Firebase doc (claim tokens unchanged):',
+          linkError
+        )
+      }
+
+      setRecId(recommendationFileId)
       return signedCred
     } catch (error: any) {
       console.error('Error during signing process:', error.message)

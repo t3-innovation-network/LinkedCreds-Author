@@ -230,7 +230,7 @@ const Page = () => {
           return
         }
         // const recommendation = await storage?.retrieve(recId as string)
-        const recommendation = await getFileViaFirebase(recId, session?.accessToken as string)
+        const recommendation = await getFileViaFirebase(recId)
 
         if (!recommendation) {
           console.log('No recommendation file')

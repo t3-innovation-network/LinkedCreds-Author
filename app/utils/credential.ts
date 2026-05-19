@@ -5,6 +5,37 @@ import {
 } from '@cooperation/vc-storage'
 import type { ISkill, IFrameworkMatch } from 'hr-context'
 import { FormData } from '../credentialForm/form/types/Types'
+import { getFileViaFirebase } from '../firebase/storage'
+
+function parseVcPayloadFromDrive(fileData: unknown): Record<string, unknown> | null {
+  if (!fileData) return null
+  let vcData: unknown = fileData
+  if (typeof vcData === 'string') {
+    vcData = JSON.parse(vcData)
+  }
+  const envelope = vcData as { body?: string }
+  if (envelope?.body && typeof envelope.body === 'string') {
+    vcData = JSON.parse(envelope.body)
+  }
+  return vcData as Record<string, unknown>
+}
+
+/** Resolve claim VC `id` (urn/did) using claim-owner tokens in Firestore — not the recommender session. */
+async function resolveTargetVcUri(vcFileId: string): Promise<string> {
+  if (vcFileId.startsWith('urn:') || vcFileId.startsWith('did:')) {
+    return vcFileId
+  }
+  const fileData = await getFileViaFirebase(vcFileId)
+  if (!fileData) {
+    throw new Error(`Unable to resolve VC from file id: ${vcFileId}`)
+  }
+  const payload = parseVcPayloadFromDrive(fileData)
+  const resolvedId = payload?.id
+  if (!resolvedId || typeof resolvedId !== 'string') {
+    throw new Error(`Resolved VC is missing an 'id' (from file id: ${vcFileId})`)
+  }
+  return resolvedId
+}
 
 function getCredentialEngine(accessToken: string): CredentialEngine {
   if (!accessToken) {
@@ -56,6 +87,10 @@ const signCred = async (
       const { subject, evidence } = generateRecommendationData(data)
       evidenceItems = evidence
 
+      // vc-storage would call storage.retrieve(claimFileId) with the recommender token and 404.
+      // Resolve the target VC URI via Firestore (claim owner tokens) first.
+      const targetVcUri = await resolveTargetVcUri(vcFileId)
+
       signedVC = await credentialEngine.signVC({
         data: {
           fullName: subject.fullName || subject.name,
@@ -71,7 +106,7 @@ const signCred = async (
         type: 'RECOMMENDATION',
         keyPair,
         issuerId: issuerDid,
-        vcFileId
+        vcFileId: targetVcUri
       })
       credentialSubject = signedVC.credentialSubject
     } else {

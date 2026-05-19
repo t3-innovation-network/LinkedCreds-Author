@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore'
 import { db } from './config/firebase'
 
 interface FileTokens {
@@ -20,8 +20,9 @@ export const getFileViaFirebase = async (fileId: string, sessionToken?: string) 
       return null
     }
 
-    // 1- getAccessToken   2- fetch file
-    let accessToken = sessionToken || await getAccessToken(fileId)
+    // Prefer Firestore tokens (claim owner / file owner) so recommenders and public viewers
+    // can read files they do not own in their Google session. Session is fallback only.
+    let accessToken = (await getAccessToken(fileId)) || sessionToken
     if (!accessToken) {
       console.warn(`No access token available for file ${fileId} (Firestore or session)`)
       return null
@@ -71,14 +72,27 @@ export const getFileViaFirebase = async (fileId: string, sessionToken?: string) 
  */
 export const storeFileTokens = async ({
   googleFileId,
-  tokens
+  tokens,
+  /** When set, refuse to write tokens onto this claim file (avoids overwriting the claim owner's tokens). */
+  protectClaimFileId
 }: {
   googleFileId: string
   tokens: FileTokens
+  protectClaimFileId?: string
 }): Promise<void> => {
   try {
     if (!db) {
       throw new Error('Firebase is not configured')
+    }
+
+    if (!googleFileId) {
+      throw new Error('googleFileId is required')
+    }
+
+    if (protectClaimFileId && googleFileId === protectClaimFileId) {
+      throw new Error(
+        `Refusing to store tokens on claim file ${protectClaimFileId}; use the new recommendation Drive file id instead.`
+      )
     }
 
     if (!tokens.accessToken || !tokens.refreshToken) {
@@ -89,7 +103,8 @@ export const storeFileTokens = async ({
       {
         createdAt: Date.now(),
         expiresAt: Date.now() + 3600 * 1000, // 1 hour from now,
-        ...tokens
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
       },
       {
         merge: true
@@ -275,7 +290,8 @@ export const deleteFileTokens = async ({
       throw new Error('Firebase is not configured')
     }
 
-    await setDoc(doc(db, 'files', googleFileId), {})
+    await deleteDoc(doc(db, 'files', googleFileId))
+    console.log(`Deleted Firestore tokens doc for file ${googleFileId}`)
   } catch (error) {
     console.error('Error deleting file tokens:', error)
     throw error

@@ -707,7 +707,7 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
             const recommendations = await Promise.all(
               recommendationIds.map(async (recId: string) => {
                 try {
-                  const recFile = await getFileViaFirebase(recId, accessToken as string)
+                  const recFile = await getFileViaFirebase(recId)
                   if (!recFile) return null
 
                   let parsed = recFile

@@ -11,7 +11,7 @@ import { useParams, useSearchParams, usePathname } from 'next/navigation'
 import Form from './RecommandationForm/Form'
 import ComprehensiveClaimDetails from '../../view/[id]/ComprehensiveClaimDetails'
 import RecommenderPreview from './RecommandationForm/Steps/RecommenderPreview'
-import { getFileViaFirebase } from '../../firebase/storage'
+import { getAccessToken, getFileViaFirebase } from '../../firebase/storage'
 import { SelectedSkill } from '../../credentialForm/form/types/Types'
 import { warmupSkillsApi } from '../../utils/skillsApi'
 
@@ -75,7 +75,7 @@ const CredentialData = () => {
       }
 
       try {
-        let vcData = await getFileViaFirebase(id, session?.accessToken as string)
+        let vcData = await getFileViaFirebase(id)
         if (!vcData) {
           throw new Error('No data found for this credential.')
         }
@@ -100,7 +100,8 @@ const CredentialData = () => {
           setFullName('the credential holder')
         }
 
-        const metadataResult = await fetchFileMetadata(id)
+        const claimOwnerToken = await getAccessToken(id)
+        const metadataResult = await fetchFileMetadata(id, '', claimOwnerToken ?? undefined)
         if (metadataResult && !metadataResult.success) {
           console.warn('Could not fetch file metadata:', metadataResult.error)
           // Don't fail completely, just use default email

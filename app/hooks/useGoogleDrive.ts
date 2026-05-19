@@ -77,8 +77,9 @@ const useGoogleDrive = () => {
   }
 
   const fetchFileMetadata = useCallback(
-    async (fileID: string, resourceKey: string = '') => {
-      if (!fileID || !accessToken) {
+    async (fileID: string, resourceKey: string = '', tokenOverride?: string) => {
+      const authToken = tokenOverride || accessToken
+      if (!fileID || !authToken) {
         console.error('FileId or Access token is missing or invalid')
         return {
           success: false,
@@ -92,7 +93,7 @@ const useGoogleDrive = () => {
           {
             method: 'GET',
             headers: {
-              Authorization: `Bearer ${accessToken}`
+              Authorization: `Bearer ${authToken}`
             }
           }
         )
