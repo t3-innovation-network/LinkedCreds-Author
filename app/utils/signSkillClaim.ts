@@ -50,15 +50,22 @@ export async function signSkillClaim(
       'https://w3id.org/security/suites/ed25519-2020/v1'
     ]
 
-    let signedVC = (await engine.signVC({
-      data: {
-        '@context': contextArray,
-        ...subject
-      },
-      type: 'VC',
+    let signedVC = (await engine.signSkillClaimVC(
+      {
+        personId: issuerId,
+        personName: subject.person.name,
+        skills: subject.skill.map((s: any) => ({
+          name: s.name,
+          description: s.description,
+          durationPerformed: s.durationPerformed,
+          narrative: s.narrative,
+          image: s.image
+        })),
+        evidence
+      } as any,
       keyPair,
       issuerId
-    })) as any
+    )) as any
 
     delete signedVC.expirationDate
     delete signedVC.issuanceDate

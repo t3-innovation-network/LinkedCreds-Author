@@ -5,13 +5,6 @@ import {
 } from '@cooperation/vc-storage'
 import type { ISkill, IFrameworkMatch } from 'hr-context'
 import { FormData } from '../credentialForm/form/types/Types'
-// @ts-ignore
-import * as dbVc from '@digitalcredentials/vc'
-// @ts-ignore
-import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020'
-// @ts-ignore
-import { customDocumentLoader } from '@cooperation/vc-storage/dist/utils/digitalbazaar.js'
-import { v4 as uuidv4 } from 'uuid'
 
 function getCredentialEngine(accessToken: string): CredentialEngine {
   if (!accessToken) {
@@ -53,63 +46,67 @@ const signCred = async (
   if (!accessToken) throw new Error('Access token is not provided')
   let signedVC
   try {
-    const credentialEngine = getCredentialEngine(accessToken)
-
-    const contextArray = [
-      'https://www.w3.org/ns/credentials/v2',
-      'https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json',
-      'https://w3id.org/hr/v1',
-      'https://w3id.org/security/suites/ed25519-2020/v1'
-    ]
-
     let credentialSubject: any
     let evidenceItems: any[] = []
+    const credentialEngine = getCredentialEngine(accessToken)
 
     if (type === 'RECOMMENDATION') {
+      if (!vcFileId) throw new Error('vcFileId is required for recommendation')
+
       const { subject, evidence } = generateRecommendationData(data)
-      credentialSubject = subject
       evidenceItems = evidence
 
       signedVC = await credentialEngine.signVC({
         data: {
-          '@context': contextArray,
-          ...credentialSubject
+          fullName: subject.fullName || subject.name,
+          recipientName: subject.recipientName,
+          howKnow: subject.howKnow,
+          recommendationText: subject.recommendationText,
+          qualifications: subject.qualifications,
+          explainAnswer: subject.explainAnswer,
+          portfolio: subject.portfolio,
+          skillsEndorsed: subject.skillsEndorsed,
+          evidence
         },
         type: 'RECOMMENDATION',
         keyPair,
         issuerId: issuerDid,
         vcFileId
       })
+      credentialSubject = signedVC.credentialSubject
     } else {
       const { subject, evidence } = generateCredentialData(data, issuerDid)
       credentialSubject = subject
       evidenceItems = evidence
 
-      const unsignedCredential: any = {
-        '@context': contextArray,
-        id: `urn:uuid:${uuidv4()}`,
-        type: ['VerifiableCredential', 'SkillClaimCredential', 'SelfIssuedCredential'],
-        issuer: { id: issuerDid, type: ['Profile'] },
-        issuanceDate: new Date().toISOString(),
-        credentialSubject: credentialSubject
-      }
-
-      if (evidenceItems && evidenceItems.length > 0) {
-        unsignedCredential.evidence = evidenceItems
-      }
-
-      const wrappedDocumentLoader = customDocumentLoader
-
-      const suite = new Ed25519Signature2020({ key: keyPair, verificationMethod: keyPair.id })
-      signedVC = await dbVc.issue({ credential: unsignedCredential, suite, documentLoader: wrappedDocumentLoader })
+      signedVC = await credentialEngine.signSkillClaimVC(
+        {
+          personId: issuerDid,
+          personName: subject.person.name,
+          skills: subject.skill.map((s: ISkill) => ({
+            name: s.name,
+            description: s.description,
+            durationPerformed: s.durationPerformed,
+            frameworkMatch: s.frameworkMatch
+          })),
+          evidence: evidence.map((e: { id: string; name: string; type?: string | string[] }) => ({
+            id: e.id,
+            name: e.name,
+            type: Array.isArray(e.type) ? e.type[0] : e.type || 'Evidence'
+          }))
+        } as any,
+        keyPair,
+        issuerDid
+      )
     }
 
     const finalVC: any = {
-      '@context': signedVC['@context'] || contextArray,
+      '@context': signedVC['@context'],
       id: signedVC.id,
       type: signedVC.type,
       issuer: signedVC.issuer,
-      issuanceDate: signedVC.issuanceDate,
+      validFrom: signedVC.validFrom,
+      issuanceDate: signedVC.validFrom,
       credentialSubject: signedVC.credentialSubject,
       proof: signedVC.proof
     }
