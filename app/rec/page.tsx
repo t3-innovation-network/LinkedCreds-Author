@@ -25,6 +25,7 @@ import {
 import { useSession, signIn } from 'next-auth/react'
 import { warmupSkillsApi } from '../utils/skillsApi'
 import { getFileViaFirebase } from '../firebase/storage'
+import { linkRecommendationToClaimOnDrive } from '../utils/googleDrive'
 import QRCode from 'qrcode'
 
 const getDirectGoogleDriveUrl = (url: string): string => {
@@ -103,6 +104,7 @@ const Page = () => {
   }))
 
   const cleanHTML = (htmlContent: string) => {
+    if (typeof htmlContent !== 'string') return ''
     return htmlContent
       .replace(/<p><br><\/p>/g, '')
       .replace(/<p><\/p>/g, '')
@@ -186,11 +188,12 @@ const Page = () => {
 
         if (relationsFile) {
           try {
-            const relations = await (storage as any).getRelationsFile(relationsFile.id)
-
-            const alreadyProcessed = relations.some(
-              (relation: any) => relation.recommendationFileId === recId
-            )
+            const relationsContent = await storage.retrieve(relationsFile.id)
+            const relationsData = relationsContent?.data?.body
+              ? JSON.parse(relationsContent.data.body)
+              : relationsContent?.data
+            const alreadyProcessed = Array.isArray(relationsData?.recommendations)
+              && relationsData.recommendations.includes(recId)
 
             if (alreadyProcessed) {
               setIsApproved(true)
@@ -222,14 +225,11 @@ const Page = () => {
   }, [recId, vcId, storage])
 
   useEffect(() => {
+    if (!recId) return
+
     const fetchRecommendation = async () => {
       setLoading(true)
       try {
-        if (!recId) {
-          console.log('No recommendation file recId')
-          return
-        }
-        // const recommendation = await storage?.retrieve(recId as string)
         const recommendation = await getFileViaFirebase(recId)
 
         if (!recommendation) {
@@ -295,8 +295,7 @@ const Page = () => {
 
     setApproveLoading(true)
     try {
-      if (!vcId || !storage || !recId) {
-        console.log('No recommendation file id')
+      if (!vcId || !recId) {
         setAlertState({
           open: true,
           message: 'Error: Missing recommendation file ID',
@@ -304,14 +303,8 @@ const Page = () => {
         })
         return
       }
-      const vcFolderId = await storage.getFileParents(vcId)
-      const files = await storage.findFolderFiles(vcFolderId)
-      const relationsFile = files.find((f: any) => f.name === 'RELATIONS')
 
-      await storage.updateRelationsFile({
-        relationsFileId: relationsFile.id,
-        recommendationFileId: recId
-      })
+      await linkRecommendationToClaimOnDrive(vcId, recId)
 
       if (typeof window !== 'undefined') {
         const localApprovedRecs = JSON.parse(
@@ -459,6 +452,7 @@ const Page = () => {
       </Box>
     )
   }
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography
