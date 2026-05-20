@@ -25,8 +25,10 @@ import {
 import { useSession, signIn } from 'next-auth/react'
 import { warmupSkillsApi } from '../utils/skillsApi'
 import { getFileViaFirebase } from '../firebase/storage'
-import { linkRecommendationToClaimOnDrive } from '../utils/googleDrive'
+import { getCredentialMetadata } from '../utils/credentialMetadata'
 import QRCode from 'qrcode'
+
+type IssuerAccess = 'checking' | 'signin' | 'denied' | 'allowed'
 
 const getDirectGoogleDriveUrl = (url: string): string => {
   try {
@@ -72,9 +74,10 @@ interface RecommendationData {
 }
 
 const Page = () => {
-  const { storage } = useGoogleDrive()
+  const { storage, fetchFileMetadata } = useGoogleDrive()
   const [recommendation, setRecommendation] = useState<RecommendationData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [issuerAccess, setIssuerAccess] = useState<IssuerAccess>('checking')
   const [isApproved, setIsApproved] = useState(false)
   const [isRejected, setIsRejected] = useState(false)
   const [alertState, setAlertState] = useState<AlertState>({
@@ -90,7 +93,7 @@ const Page = () => {
   const [qrCodeDataUrlMobile, setQrCodeDataUrlMobile] = useState<string>('')
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
 
   const SectionTitle = styled(Typography)(({ theme }) => ({
     fontSize: '0.875rem',
@@ -158,6 +161,54 @@ const Page = () => {
         })
     }
   }, [])
+
+  useEffect(() => {
+    if (!vcId) {
+      setIssuerAccess('denied')
+      setLoading(false)
+      return
+    }
+    if (sessionStatus === 'loading') return
+    if (sessionStatus !== 'authenticated' || !session?.user?.email) {
+      setIssuerAccess('signin')
+      setLoading(false)
+      return
+    }
+
+    let cancelled = false
+    const verifyClaimOwner = async () => {
+      setIssuerAccess('checking')
+      const userEmail = session.user!.email!.toLowerCase()
+
+      try {
+        const meta = await getCredentialMetadata(vcId)
+        if (meta?.owner?.toLowerCase() === userEmail) {
+          if (!cancelled) setIssuerAccess('allowed')
+          return
+        }
+
+        const result = await fetchFileMetadata(vcId)
+        const driveOwner = result.metadata?.owners?.[0]?.emailAddress?.toLowerCase()
+        if (result.success && driveOwner === userEmail) {
+          if (!cancelled) setIssuerAccess('allowed')
+          return
+        }
+      } catch (error) {
+        console.error('Claim owner verification failed:', error)
+      }
+
+      if (!cancelled) {
+        setIssuerAccess('denied')
+        setLoading(false)
+      }
+    }
+
+    verifyClaimOwner()
+    return () => {
+      cancelled = true
+    }
+  }, [vcId, sessionStatus, session, fetchFileMetadata])
+
   useEffect(() => {
     if (typeof window !== 'undefined' && recId) {
       const hiddenRecs = JSON.parse(localStorage.getItem('hiddenRecommendations') ?? '[]')
@@ -219,13 +270,13 @@ const Page = () => {
       }
     }
 
-    if (recId && vcId) {
+    if (recId && vcId && issuerAccess === 'allowed') {
       checkProcessingStatus()
     }
-  }, [recId, vcId, storage])
+  }, [recId, vcId, storage, issuerAccess])
 
   useEffect(() => {
-    if (!recId) return
+    if (!recId || issuerAccess !== 'allowed') return
 
     const fetchRecommendation = async () => {
       setLoading(true)
@@ -253,7 +304,7 @@ const Page = () => {
       }
     }
     fetchRecommendation()
-  }, [recId, storage])
+  }, [recId, issuerAccess])
 
   const handleUnhide = async () => {
     if (isRejected && recId) {
@@ -295,16 +346,26 @@ const Page = () => {
 
     setApproveLoading(true)
     try {
-      if (!vcId || !recId) {
+      if (!vcId || !storage || !recId) {
         setAlertState({
           open: true,
-          message: 'Error: Missing recommendation file ID',
+          message: 'Please sign in with Google to approve this recommendation.',
           severity: 'error'
         })
         return
       }
 
-      await linkRecommendationToClaimOnDrive(vcId, recId)
+      const vcFolderId = await storage.getFileParents(vcId)
+      const files = await storage.findFolderFiles(vcFolderId)
+      let relationsFile = files.find((f: { name?: string }) => f.name === 'RELATIONS')
+      if (!relationsFile) {
+        relationsFile = await storage.createRelationsFile({ vcFolderId })
+      }
+
+      await storage.updateRelationsFile({
+        relationsFileId: relationsFile.id,
+        recommendationFileId: recId
+      })
 
       if (typeof window !== 'undefined') {
         const localApprovedRecs = JSON.parse(
@@ -401,6 +462,78 @@ const Page = () => {
       return completeText
     }
     return initialText
+  }
+
+  if (issuerAccess === 'checking' || sessionStatus === 'loading') {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (issuerAccess === 'signin') {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          gap: 2,
+          px: 4,
+          textAlign: 'center'
+        }}
+      >
+        <Typography variant='h6'>Sign in to review this recommendation</Typography>
+        <Typography variant='body1' color='text.secondary'>
+          Only the credential owner can approve or hide recommendations for their claim.
+        </Typography>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={() => {
+            warmupSkillsApi()
+            signIn('google')
+          }}
+          sx={{ borderRadius: '100px', textTransform: 'none', px: 4 }}
+        >
+          Sign In with Google
+        </Button>
+      </Box>
+    )
+  }
+
+  if (issuerAccess === 'denied') {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          gap: 2,
+          px: 4,
+          textAlign: 'center'
+        }}
+      >
+        <Typography variant='h6' color='error'>
+          Access denied
+        </Typography>
+        <Typography variant='body1' color='text.secondary'>
+          This page is only available to the owner of the skill credential.
+        </Typography>
+      </Box>
+    )
   }
 
   if ((session as any)?.error === 'RefreshAccessTokenError') {

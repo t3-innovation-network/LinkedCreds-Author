@@ -3,9 +3,10 @@ import {
   GoogleDriveStorage,
   saveToGoogleDrive
 } from '@cooperation/vc-storage'
-import type { ISkill, IFrameworkMatch } from 'hr-context'
+import type { ISkill } from 'hr-context'
 import { FormData } from '../credentialForm/form/types/Types'
 import { getFileViaFirebase } from '../firebase/storage'
+import { buildSkillClaimSkillsFromForm } from './normalization/hrContextSkillClaim'
 
 function parseVcPayloadFromDrive(fileData: unknown): Record<string, unknown> | null {
   if (!fileData) return null
@@ -121,6 +122,7 @@ const signCred = async (
           skills: subject.skill.map((s: ISkill) => ({
             name: s.name,
             description: s.description,
+            narrative: s.narrative,
             durationPerformed: s.durationPerformed,
             frameworkMatch: s.frameworkMatch
           })),
@@ -174,31 +176,8 @@ const signCred = async (
  * @returns { subject, evidence }
  */
 export const generateCredentialData = (data: FormData, issuerDid: string) => {
-  const skills: ISkill[] = (data.skills ?? []).map(skill => {
-    const align = {
-      targetName: skill.name,
-      targetDescription: skill.description || skill.frameworkMatch?.[0]?.name,
-      soc: skill.frameworkMatch?.[0]?.socCode,
-      uuid: skill.id,
-      score: skill.frameworkMatch?.[0]?.similarityScore
-    }
-    return {
-      id: align.uuid ?? `urn:uuid:${align.targetName}`,
-      name: align.targetName,
-      ...(align.targetDescription ? { description: align.targetDescription } : {}),
-      source: 'ollama',
-      frameworkMatch: align.soc?.length
-        ? [
-          {
-            name: align.targetDescription ?? align.targetName,
-            socCode: align.soc,
-            framework: 'O*Net',
-            similarityScore: align.score ?? 0
-          } satisfies IFrameworkMatch
-        ]
-        : []
-    }
-  })
+  const claimName = (data.credentialName ?? '').trim()
+  const skills = buildSkillClaimSkillsFromForm(data)
 
   const subject = {
     type: ['SkillClaim'],
@@ -206,7 +185,7 @@ export const generateCredentialData = (data: FormData, issuerDid: string) => {
       id: issuerDid,
       name: data.fullName || ''
     },
-    name: data.credentialName || '',
+    name: claimName,
     ...(data.credentialDescription ? { description: data.credentialDescription } : {}),
     ...(data.credentialDuration ? { durationPerformed: data.credentialDuration } : {}),
     skill: skills

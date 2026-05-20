@@ -68,88 +68,67 @@ export const getTimeDifference = (claim: any): string => {
   return `${diffInSeconds} ${diffInSeconds === 1 ? 'second' : 'seconds'}`
 }
 
+// VC subtypes from @cooperation/vc-storage (SkillClaimCredential | RecommendationCredential)
+const hasVcType = (claim: any, subtype: string) =>
+  Array.isArray(claim?.type) && claim.type.some((t: string) => t.includes(subtype))
+
+export const isSkillClaimCredential = (claim: any): boolean =>
+  hasVcType(claim, 'SkillClaimCredential')
+
+export const isRecommendationCredential = (claim: any): boolean =>
+  hasVcType(claim, 'RecommendationCredential')
+
 export const getDuration = (claim: any): string => {
   try {
     const subject = claim?.credentialSubject
     if (!subject) return ''
-
-    // New SkillClaim format
-    if (subject.durationPerformed) return subject.durationPerformed
-
-    // Support for other fields
-    if (subject.duration) return subject.duration
-
-    // Fallback to time since issuance if no experience duration is found
+    if (isSkillClaimCredential(claim)) {
+      return subject.skill?.[0]?.durationPerformed || ''
+    }
     return getTimeDifference(claim)
   } catch (error) {
     return ''
   }
 }
 
-// Credential helper functions
 export const getCredentialName = (claim: any): string => {
-  try {
-    // Safety check for claim object
-    if (!claim || typeof claim !== 'object') {
-      console.warn('Invalid claim object:', claim)
-      return 'Invalid Credential'
-    }
-
-    // Safety check for credentialSubject
-    if (!claim.credentialSubject || typeof claim.credentialSubject !== 'object') {
-      console.warn('Invalid credentialSubject:', claim.credentialSubject)
-      return 'Unknown Credential'
-    }
-
-    const { credentialSubject } = claim
-
-    // Handle new credential format (direct access)
-    if (credentialSubject.employeeName) {
-      return `Performance Review: ${credentialSubject.employeeJobTitle || 'Unknown Position'}`
-    }
-    if (credentialSubject.volunteerWork) {
-      return `Volunteer: ${credentialSubject.volunteerWork}`
-    }
-    if (credentialSubject.role) {
-      return `Employment: ${credentialSubject.role}`
-    }
-    if (credentialSubject.credentialName) {
-      return credentialSubject.credentialName
-    }
-
-    // Handle new ISkillClaimCredential format (hr-context) — name at VC top-level
-    if (claim.name) {
-      return claim.name
-    }
-
-    if (credentialSubject.name && typeof credentialSubject.name === 'string') {
-      return credentialSubject.name
-    }
-    if (
-      credentialSubject.skill &&
-      Array.isArray(credentialSubject.skill) &&
-      credentialSubject.skill.length > 0
-    ) {
-      return credentialSubject.skill[0].name || 'Skill Credential'
-    }
-
-    // Handle old credential format (achievement array)
-    if (
-      credentialSubject.achievement &&
-      Array.isArray(credentialSubject.achievement) &&
-      credentialSubject.achievement.length > 0 &&
-      credentialSubject.achievement[0] &&
-      credentialSubject.achievement[0].name
-    ) {
-      return credentialSubject.achievement[0].name
-    }
-
-    // Fallback
-    return 'Unknown Credential'
-  } catch (error) {
-    console.error('Error in getCredentialName:', error, claim)
-    return 'Error Loading Credential'
+  const subject = claim?.credentialSubject
+  if (!subject) return ''
+  if (isRecommendationCredential(claim)) return subject.name || ''
+  if (isSkillClaimCredential(claim)) {
+    return subject.skill?.[0]?.name || subject.name || ''
   }
+  return ''
+}
+
+export const getCredentialDescription = (claim: any): string => {
+  const subject = claim?.credentialSubject
+  if (!subject) return ''
+  if (isRecommendationCredential(claim)) return subject.recommendationText || ''
+  if (isSkillClaimCredential(claim)) {
+    const skill = subject.skill?.[0]
+    return skill?.narrative || skill?.description || subject.description || ''
+  }
+  return ''
+}
+
+/** AI-suggested skills on a SkillClaim (skill[1..], not the claim title). */
+export const getSkillClaimAlignments = (claim: any): string[] => {
+  const subject = claim?.credentialSubject
+  if (!subject || !isSkillClaimCredential(claim)) return []
+  const title = getCredentialName(claim)
+  return (subject.skill ?? [])
+    .slice(1)
+    .map((s: { name?: string }) => s.name)
+    .filter((name: string) => name && name !== title)
+}
+
+export const getCredentialPersonName = (claim: any): string => {
+  const subject = claim?.credentialSubject
+  if (!subject) return ''
+  if (isSkillClaimCredential(claim)) return subject.person?.name || ''
+  if (isRecommendationCredential(claim)) return subject.recipientName || ''
+  return ''
 }
 
 export const getCredentialType = (claim: any): string => {
@@ -197,33 +176,8 @@ export const getClaimId = (claim: any): string => {
   }
 }
 
-// Helper function to check if a credential is a skill credential
-export const isSkillCredential = (claim: any): boolean => {
-  try {
-    if (!isValidClaim(claim)) return false
-
-    const subject = claim.credentialSubject
-
-    // New ISkillClaimCredential format (hr-context): credentialSubject.type includes 'SkillClaim'
-    // OR credentialSubject.skill is an array
-    if (
-      (Array.isArray(subject?.type) && subject.type.includes('SkillClaim')) ||
-      Array.isArray(subject?.skill)
-    ) {
-      return true
-    }
-
-    // Old OBv3 format: achievement array
-    return (
-      subject?.achievement &&
-      Array.isArray(subject.achievement) &&
-      subject.achievement.length > 0
-    )
-  } catch (error) {
-    console.error('Error in isSkillCredential:', error, claim)
-    return false
-  }
-}
+/** @deprecated Use isSkillClaimCredential */
+export const isSkillCredential = isSkillClaimCredential
 
 // LinkedIn URL generation
 export const generateLinkedInUrl = (claim: any): string => {

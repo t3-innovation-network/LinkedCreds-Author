@@ -15,10 +15,7 @@ import useLocalStorage from '../../../hooks/useLocalStorage'
 import { useStepContext } from '../../../credentialForm/form/StepContext'
 import { GoogleDriveStorage, saveToGoogleDrive } from '@cooperation/vc-storage'
 import { createDID, signCred } from '../../../utils/credential'
-import {
-  ensureCredentialsFolderCached,
-  linkRecommendationToClaimOnDrive
-} from '../../../utils/googleDrive'
+import { ensureCredentialsFolderCached } from '../../../utils/googleDrive'
 import { useSession } from 'next-auth/react'
 import { Logo } from '../../../Assets/SVGs'
 import useGoogleDrive from '../../../hooks/useGoogleDrive'
@@ -198,16 +195,6 @@ const Form: React.FC<FormProps> = ({ fullName: recipientName, email, skills, cre
         },
         protectClaimFileId: VCFileId
       })
-
-      // Link on claim owner's Drive (Firestore tokens) and in Firebase metadata.
-      try {
-        await linkRecommendationToClaimOnDrive(VCFileId, recommendationFileId)
-      } catch (driveLinkError) {
-        console.warn(
-          'Could not add recommendation to claim RELATIONS on Drive:',
-          driveLinkError
-        )
-      }
 
       try {
         await addEndorsementToCredential(VCFileId, recommendationFileId)

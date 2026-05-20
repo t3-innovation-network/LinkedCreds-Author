@@ -80,7 +80,15 @@ import GenericCredentialViewer from './GenericCredentialViewer'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
 import { verifyCredential } from '../../utils/verification'
 import { ensureProtocol } from '../../utils/urlValidation'
-import { generateLinkedInUrl } from '../../utils/claimsHelpers'
+import {
+  generateLinkedInUrl,
+  getCredentialName,
+  getCredentialDescription,
+  getCredentialPersonName,
+  getDuration,
+  getSkillClaimAlignments,
+  isSkillClaimCredential
+} from '../../utils/claimsHelpers'
 import { copyFormValuesToClipboard } from '../../utils/formUtils'
 
 // Set up PDF.js worker
@@ -403,9 +411,11 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
     }
   }
 
-  const credentialTitle = claimDetail?.name || credentialSubject?.name || ''
-  const personName = credentialSubject?.person?.name || ''
-  const credentialNarrative = credentialSubject?.description || credentialSubject?.narrative || ''
+  const credentialTitle = claimDetail ? getCredentialName(claimDetail) : ''
+  const personName = claimDetail ? getCredentialPersonName(claimDetail) : ''
+  const credentialNarrative = claimDetail ? getCredentialDescription(claimDetail) : ''
+  const experienceDuration = claimDetail ? getDuration(claimDetail) : ''
+  const skillAlignments = claimDetail ? getSkillClaimAlignments(claimDetail) : []
 
   useEffect(() => {
     if (onAchievementLoad && credentialTitle) {
@@ -770,19 +780,8 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
   }
 
   // Check if this is an external credential
-  const isExternalCredential = () => {
-    if (!claimDetail) return false
-
-    const subject = claimDetail.credentialSubject || {}
-
-    // New ISkillClaimCredential format (hr-context): type includes 'SkillClaim' or has skill array
-    const isSkillClaim =
-      Array.isArray(subject.type) && subject.type.includes('SkillClaim')
-    const hasSkillArray = Array.isArray(subject.skill)
-    if (isSkillClaim || hasSkillArray) return false
-
-    return true
-  }
+  const isExternalCredential = () =>
+    claimDetail ? !isSkillClaimCredential(claimDetail) : false
 
   const recommendations = (
     <Box sx={{}}>
@@ -1210,14 +1209,10 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                 )}
               </Box>
 
-              {credentialSubject?.skill && credentialSubject.skill.length > 0 && (
+              {skillAlignments.length > 0 && (
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
-                  {credentialSubject.skill.map((skill: any, index: number) => (
-                    <SkillBadgePill
-                      key={`${(skill.id ?? skill.uuid) || 'skill'}-${index}`}
-                    >
-                      {skill.name ?? skill.targetName}
-                    </SkillBadgePill>
+                  {skillAlignments.map((name: string, index: number) => (
+                    <SkillBadgePill key={`${name}-${index}`}>{name}</SkillBadgePill>
                   ))}
                 </Box>
               )}
@@ -1265,8 +1260,8 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                           </CredentialTitle>
                           <RecipientName sx={{ mt: 1 }}>{personName}</RecipientName>
                           <ExperienceText sx={{ mt: 0.5 }}>
-                            {credentialSubject?.durationPerformed
-                              ? `${credentialSubject.durationPerformed} of experience`
+                            {experienceDuration
+                              ? `${experienceDuration} of experience`
                               : ''}
                           </ExperienceText>
                         </Box>
@@ -1457,16 +1452,12 @@ const ComprehensiveClaimDetails: React.FC<ComprehensiveClaimDetailsProps> = ({
                     {/* Skills */}
                     <Box>
                       <SectionHeader sx={{ mb: 1 }}>
-                        {`Skills (${(credentialSubject?.skill ?? []).length})`}
+                        {`Skills (${skillAlignments.length})`}
                       </SectionHeader>
-                      {credentialSubject?.skill && credentialSubject.skill.length > 0 ? (
+                      {skillAlignments.length > 0 ? (
                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                          {credentialSubject.skill.map((skill: any, index: number) => (
-                            <SkillBadgePill
-                              key={`${(skill.id ?? skill.uuid) || 'skill'}-${index}`}
-                            >
-                              {skill.name ?? skill.targetName}
-                            </SkillBadgePill>
+                          {skillAlignments.map((name: string, index: number) => (
+                            <SkillBadgePill key={`${name}-${index}`}>{name}</SkillBadgePill>
                           ))}
                         </Box>
                       ) : (

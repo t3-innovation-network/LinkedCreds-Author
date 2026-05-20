@@ -33,6 +33,11 @@ import {
 import LoadingOverlay from '../../../components/Loading/LoadingOverlay'
 import { FormData } from '../../../credentialForm/form/types/Types'
 import { copyFormValuesToClipboard } from '../../../utils/formUtils'
+import {
+  getCredentialName,
+  getCredentialDescription,
+  getCredentialPersonName
+} from '../../../utils/claimsHelpers'
 import { useStepContext } from '../StepContext'
 import { useRouter } from 'next/navigation'
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload'
@@ -441,9 +446,9 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
 
   // Data extraction
   const selectedSkills = credentialSubject?.skill ?? []
-  const credentialTitle = claimDetail?.name || credentialSubject?.name || ''
-  const personName = credentialSubject?.person?.name || ''
-  const credentialNarrative = credentialSubject?.description || credentialSubject?.narrative || ''
+  const credentialTitle = claimDetail ? getCredentialName(claimDetail) : ''
+  const personName = claimDetail ? getCredentialPersonName(claimDetail) : ''
+  const credentialNarrative = claimDetail ? getCredentialDescription(claimDetail) : ''
   const evidenceItems =
     claimDetail?.evidence?.map(e => {
       let googleId = undefined
