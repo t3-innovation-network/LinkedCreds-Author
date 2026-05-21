@@ -416,6 +416,20 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
     return `${baseLinkedInUrl}?${params.toString()}`
   }
 
+  const handleViewSourceJson = () => {
+    if (res) {
+      const payload = typeof res === 'string' ? JSON.parse(res) : res
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: 'application/json'
+      })
+      window.open(URL.createObjectURL(blob), '_blank')
+      return
+    }
+    if (fileId) {
+      window.open(`/api/credential-raw/${fileId}`, '_blank')
+    }
+  }
+
   const handleShareOption = (
     option: 'LinkedIn' | 'Email' | 'CopyURL' | 'View' | 'LinkedTrust'
   ) => {
@@ -907,8 +921,8 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
             {/* View Source Button */}
             <Box sx={{ display: 'flex-start', flexDirection: 'column', gap: 1 }}>
               <Button
-                onClick={() => window.open(`/api/credential-raw/${fileId}`, '_blank')}
-                disabled={!fileId}
+                onClick={handleViewSourceJson}
+                disabled={!fileId && !res}
                 variant='contained'
                 startIcon={<DescriptionOutlinedIcon />}
                 endIcon={<OpenInNewIcon />}

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 import { getFileViaFirebase } from '../../../firebase/storage'
+import { parseVcPayloadFromDrive } from '../../../utils/parseVcPayload'
 
 export const dynamic = 'force-dynamic' // Makes the route dynamic instead of statically optimized
 
@@ -35,8 +37,15 @@ export async function GET(
 
     console.log(`Processing download request for file: ${actualFileId}`)
 
-    // Get the file data from Firebase
-    const fileData = await getFileViaFirebase(actualFileId)
+    const jwt = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET
+    })
+    const sessionAccessToken =
+      typeof jwt?.accessToken === 'string' ? jwt.accessToken : undefined
+
+    // Prefer Firestore file-owner tokens; fall back to the signed-in user's Drive token
+    const fileData = await getFileViaFirebase(actualFileId, sessionAccessToken)
 
     if (!fileData) {
       return NextResponse.json(
@@ -50,31 +59,20 @@ export async function GET(
       )
     }
 
-    // Parse body as JSON if it exists
-    if (fileData.body) {
-      try {
-        const parsedBody = JSON.parse(fileData.body)
-        return NextResponse.json(parsedBody, {
+    const payload = parseVcPayloadFromDrive(fileData)
+    if (!payload) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid credential file format' },
+        {
+          status: 400,
           headers: {
             'Content-Type': 'application/json'
           }
-        })
-      } catch (error) {
-        console.error('Error parsing JSON body:', error)
-        return NextResponse.json(
-          { success: false, error: 'Invalid JSON body in file' },
-          { 
-            status: 400,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        )
-      }
+        }
+      )
     }
 
-    // Return the fileData if no body exists
-    return NextResponse.json(fileData, {
+    return NextResponse.json(payload, {
       headers: {
         'Content-Type': 'application/json'
       }

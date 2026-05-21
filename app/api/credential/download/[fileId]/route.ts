@@ -1,6 +1,8 @@
 // app/api/download/[fileId]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 import { getFileViaFirebase } from '../../../../firebase/storage'
+import { parseVcPayloadFromDrive } from '../../../../utils/parseVcPayload'
 
 export const dynamic = 'force-dynamic' // Makes the route dynamic instead of statically optimized
 
@@ -28,18 +30,23 @@ export async function GET(
 
     console.log(`Processing download request for file: ${actualFileId}`)
 
-    // Get the file data from Firebase
-    const fileData = await getFileViaFirebase(actualFileId)
+    const jwt = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET
+    })
+    const sessionAccessToken =
+      typeof jwt?.accessToken === 'string' ? jwt.accessToken : undefined
+
+    const fileData = await getFileViaFirebase(actualFileId, sessionAccessToken)
 
     if (!fileData) {
       return NextResponse.json({ error: 'File not found' }, { status: 404 })
     }
 
-    // Set filename in headers for download
+    const payload = parseVcPayloadFromDrive(fileData) ?? fileData
     const filename = `credential-${actualFileId}.json`
 
-    // Return the file data as JSON with appropriate headers
-    return NextResponse.json(fileData, {
+    return NextResponse.json(payload, {
       headers: {
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Content-Type': 'application/json'

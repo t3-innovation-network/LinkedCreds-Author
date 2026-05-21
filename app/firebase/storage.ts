@@ -168,7 +168,14 @@ export const getAccessToken = async (fileId: string, forceRefresh: boolean = fal
 const refreshAccessToken = async (tokens: any) => {
   try {
 
-    const response = await fetch('/api/google-token-refresh', {
+    const apiBase =
+      typeof window !== 'undefined'
+        ? ''
+        : process.env.NEXTAUTH_URL ||
+          process.env.NEXT_PUBLIC_APP_BASE_URL ||
+          'http://localhost:3000'
+
+    const response = await fetch(`${apiBase}/api/google-token-refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: tokens.refreshToken })
