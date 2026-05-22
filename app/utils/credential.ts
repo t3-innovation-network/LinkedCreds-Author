@@ -124,6 +124,7 @@ const signCred = async (
             description: s.description,
             narrative: s.narrative,
             durationPerformed: s.durationPerformed,
+            source: s.source,
             frameworkMatch: s.frameworkMatch
           })),
           evidence: evidence.map((e: { id: string; name: string; type?: string | string[] }) => ({
