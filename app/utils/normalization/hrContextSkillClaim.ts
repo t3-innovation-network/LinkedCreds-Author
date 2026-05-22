@@ -36,7 +36,8 @@ export function buildSkillClaimSkillsFromForm(data: FormData): ISkill[] {
   const alignedSkills: ISkill[] = (data.skills ?? []).map(skill => ({
     id: skillId(skill.id),
     name: skill.name,
-    source: skill.source || 'ollama'
+    source: skill.source || 'ollama',
+    ...(skill.frameworkMatch?.length ? { frameworkMatch: skill.frameworkMatch } : {})
   }))
 
   return [primarySkill, ...alignedSkills]
