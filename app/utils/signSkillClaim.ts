@@ -59,7 +59,9 @@ export async function signSkillClaim(
           description: s.description,
           durationPerformed: s.durationPerformed,
           narrative: s.narrative,
-          image: s.image
+          image: s.image,
+          source: s.source,
+          frameworkMatch: s.frameworkMatch
         })),
         evidence
       } as any,
