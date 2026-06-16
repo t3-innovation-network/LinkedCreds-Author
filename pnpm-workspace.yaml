@@ -1,0 +1,9 @@
+allowBuilds:
+  '@firebase/util': set this to true or false
+  canvas: set this to true or false
+  protobufjs: set this to true or false
+  sharp: set this to true or false
+  unrs-resolver: set this to true or false
+minimumReleaseAgeExclude:
+  - '@cooperation/vc-storage@1.0.48'
+  - hr-context@0.2.0

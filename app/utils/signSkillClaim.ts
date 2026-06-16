@@ -50,6 +50,8 @@ export async function signSkillClaim(
       'https://w3id.org/security/suites/ed25519-2020/v1'
     ]
 
+    // The `as any` cast can be dropped once @cooperation/vc-storage exporting
+    // SkillClaimFormDataI is published and the dependency is bumped.
     let signedVC = (await engine.signSkillClaimVC(
       {
         personId: issuerId,
@@ -58,9 +60,13 @@ export async function signSkillClaim(
           name: s.name,
           description: s.description,
           durationPerformed: s.durationPerformed,
-          narrative: s.narrative,
           image: s.image,
+          source: s.source
+        })),
+        inferredSkills: (subject.inferredSkill ?? []).map(s => ({
+          name: s.name,
           source: s.source,
+          model: s.model,
           frameworkMatch: s.frameworkMatch
         })),
         evidence

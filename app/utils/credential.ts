@@ -122,9 +122,13 @@ const signCred = async (
           skills: subject.skill.map((s: ISkill) => ({
             name: s.name,
             description: s.description,
-            narrative: s.narrative,
             durationPerformed: s.durationPerformed,
+            source: s.source
+          })),
+          inferredSkills: (subject.inferredSkill ?? []).map(s => ({
+            name: s.name,
             source: s.source,
+            model: s.model,
             frameworkMatch: s.frameworkMatch
           })),
           evidence: evidence.map((e: { id: string; name: string; type?: string | string[] }) => ({
@@ -178,7 +182,7 @@ const signCred = async (
  */
 export const generateCredentialData = (data: FormData, issuerDid: string) => {
   const claimName = (data.credentialName ?? '').trim()
-  const skills = buildSkillClaimSkillsFromForm(data)
+  const { skills, inferredSkills } = buildSkillClaimSkillsFromForm(data)
 
   const subject = {
     type: ['SkillClaim'],
@@ -189,7 +193,8 @@ export const generateCredentialData = (data: FormData, issuerDid: string) => {
     name: claimName,
     ...(data.credentialDescription ? { description: data.credentialDescription } : {}),
     ...(data.credentialDuration ? { durationPerformed: data.credentialDuration } : {}),
-    skill: skills
+    skill: skills,
+    ...(inferredSkills.length ? { inferredSkill: inferredSkills } : {})
   }
 
   const evidence: any[] = []

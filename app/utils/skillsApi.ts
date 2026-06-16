@@ -11,12 +11,18 @@ export interface SkillMatch {
     name: string
     description?: string
     source: string
+    /** LLM model used for extraction, e.g. 'qwen2.5:7b'. Absent for user-entered skills. */
+    model?: string
     frameworkMatch: FrameworkMatch[]
 }
+
+/** Fallback when the extraction backend does not report which model it used. */
+export const DEFAULT_EXTRACTION_MODEL = 'qwen2.5:7b'
 
 interface ExtractedSkill {
     name: string
     source: string
+    model?: string
 }
 
 interface SkillAlignment {
@@ -30,6 +36,7 @@ interface SkillAlignment {
 interface SearchSkillResult {
     name: string
     source: string
+    model?: string
     alignment: SkillAlignment[]
 }
 
@@ -79,8 +86,16 @@ export const extractRawSkillsApi = async (text: string, signal?: AbortSignal): P
     }
 }
 
-/** Step 2: Map skill names to O*NET skills (calls /search) */
-export const searchSkillsApi = async (skillNames: string[], signal?: AbortSignal): Promise<SkillMatch[]> => {
+/**
+ * Step 2: Map skill names to O*NET skills (calls /search).
+ * `sourcesByName` (keyed by lowercased name) marks where each skill came from:
+ * 'user' for manual UI additions, 'ollama' (default) for LLM-extracted names.
+ */
+export const searchSkillsApi = async (
+    skillNames: string[],
+    signal?: AbortSignal,
+    sourcesByName?: Record<string, string>
+): Promise<SkillMatch[]> => {
     if (!skillNames.length) return []
 
     const uncachedNames: string[] = []
@@ -99,7 +114,10 @@ export const searchSkillsApi = async (skillNames: string[], signal?: AbortSignal
 
     if (uncachedNames.length > 0) {
         try {
-            const payload: ExtractedSkill[] = uncachedNames.map(name => ({ name, source: 'user' }))
+            const payload: ExtractedSkill[] = uncachedNames.map(name => ({
+                name,
+                source: sourcesByName?.[name.toLowerCase()] ?? 'ollama'
+            }))
             const baseUrl = process.env.NEXT_PUBLIC_SKILLS_API_URL
             const res = await fetch(`${baseUrl}/search`, {
                 method: 'POST',
@@ -114,10 +132,14 @@ export const searchSkillsApi = async (skillNames: string[], signal?: AbortSignal
             fetchedResults = skillResults.map(skillResult => {
                 const isAbbreviation = skillResult.name === skillResult.name.toUpperCase()
                 const finalName = isAbbreviation ? skillResult.name : skillResult.name.toLowerCase()
+                const source = skillResult.source ?? 'ollama'
                 return {
                     id: skillResult.alignment?.[0]?.id ?? `urn:uuid:${skillResult.name}`,
                     name: finalName,
-                    source: skillResult.source ?? 'ollama',
+                    source,
+                    ...(source !== 'user'
+                        ? { model: skillResult.model ?? DEFAULT_EXTRACTION_MODEL }
+                        : {}),
                     frameworkMatch: skillResult.alignment?.map(a => ({
                         framework: 'O*Net',
                         socCode: a.targetCode ?? [],
