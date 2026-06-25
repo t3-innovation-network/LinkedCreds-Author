@@ -23,21 +23,29 @@ jobs:
       NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: '24'
+
+      # Provision pnpm via Corepack (bundled with Node) from the
+      # `packageManager` pin in package.json, avoiding the flaky
+      # pnpm/action-setup self-installer.
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Build application
-        run: npm run build
+        run: pnpm run build
 
       - name: Run tests
-        run: npx playwright test
+        run: pnpm exec playwright test
