@@ -8,8 +8,6 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write 'app/**/*.{js,ts,tsx,jsx,json}'",
-    "test:normalize": "node scripts/test-runner.js",
-    "test:workflow": "node app/utils/__tests__/e2e-workflow.test.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
