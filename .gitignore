@@ -54,3 +54,14 @@ venv
 *.pyc
 
 ecosystem.config.js
+
+
+# Terraform Specific
+.terraform/
+*.tfstate*
+crash.*.log
+*.override.tf
+*_override.tf
+*.tfplan
+*.tfvars
+.terraformrc
