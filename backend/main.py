@@ -270,12 +270,54 @@ def extract_skills(request: TextRequest):
     for s in result["results"].get("ngram_scored", []):
         skills.add(s["doc_node_value"])
 
+    
+    extracted_skills = [
+        {"name": name, "source": "skillner"}
+        for name in skills
+    ]
+
+    # 2. Map to O*NET skills
+    skills_response = []
+    
+    # Handle the case where the frontend sends a list of string vs list of dicts
+    for skill_item in extracted_skills:
+        skill_name = skill_item["name"] if isinstance(skill_item, dict) else skill_item
+        skill_source = skill_item.get("source", "ollama") if isinstance(skill_item, dict) else "ollama"
+        
+        related = retrieve_top_k_skills(onet_index, skill_name, onet_skills, k=2)
+        
+        alignments = []
+        skills_added = set()
+        for name, score in related:
+            meta = onet_metadata.get(name, {})
+            soc_codes_list = meta.get("soc_codes", [])
+            uuid_val = meta.get("uuid", "")
+            
+            # Deduplicate based on title-cased name
+            normalized_name = name.title()
+            if normalized_name not in skills_added:
+                skills_added.add(normalized_name)
+                alignments.append({
+                    "type": ["Alignment"],
+                    "targetFramework": "O*NET",
+                    "similarity score": round(float(score), 2),
+                    "targetCode": soc_codes_list[:5],
+                    "targetName": normalized_name,
+                    "id": uuid_val
+                })
+        
+        skills_response.append({
+            "name": skill_name,
+            "source": skill_source,
+            "alignment": alignments
+        })
+        
+    return {
+        "extracted_skills": skills_response
+    }
+
     # Return format matching what the frontend skillsApi.ts expects
     return {
-        "extracted_skills": [
-            {"name": name, "source": "skillner"}
-            for name in skills
-        ]
     }
 
 
