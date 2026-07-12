@@ -538,7 +538,7 @@ const ClaimsPageClient: React.FC = () => {
                         </Box>
                         <Typography sx={{ color: 'text.secondary' }}>
                           {claim.credentialSubject?.name} - {getCredentialType(claim)} -{' '}
-                          {getTimeDifference(claim)}
+                          {/*getTimeDifference(claim)*/}
                         </Typography>
                       </Box>
                     )}
@@ -579,8 +579,13 @@ const ClaimsPageClient: React.FC = () => {
                               borderColor: '#eff6ff',
                               '&:hover': { bgcolor: 'primary.100' },
                               p: '2px 20px',
+                              "& div":{
+                                display: "flex",
+                                flexDirection: "column"
+                              },
                               backgroundColor: '#f0f6ff',
                               fontSize: '12px',
+                              justifyContent: 'flex-start',
                               fontWeight: 'medium',
                               color: '#2563EB'
                             }}
