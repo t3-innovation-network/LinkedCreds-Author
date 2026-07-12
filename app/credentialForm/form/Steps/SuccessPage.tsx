@@ -91,6 +91,14 @@ interface CredentialSubject {
   name?: string
   durationPerformed?: string
   skill?: { id: string; name: string; description?: string; source?: string; frameworkMatch?: { framework?: string; socCode?: string[]; name?: string; similarityScore?: number }[] }[]
+  
+  inferredSkill?: { 
+    id: string
+    name: string
+    source: string
+    model?: string
+    frameworkMatch?: FrameworkMatch[]
+  }[]
   narrative?: string
   description?: string
   person?: { type: string[]; id?: string; name?: string; email?: string }
@@ -134,6 +142,7 @@ interface SnackbarState {
 }
 import { ensureProtocol } from '../../../utils/urlValidation'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
+import { FrameworkMatch } from '../../../utils/skillsApi'
 
 // Set up PDF.js worker
 if (typeof window !== 'undefined') {
@@ -459,7 +468,10 @@ const SuccessPage: React.FC<SuccessPageProps> = ({
   }
 
   // Data extraction
-  const selectedSkills = credentialSubject?.skill ?? []
+  const selectedSkills = [
+                          ...(credentialSubject?.skill ?? []),
+                          ...(credentialSubject?.inferredSkill ?? []),
+                        ] 
   const credentialTitle = claimDetail ? getCredentialName(claimDetail) : ''
   const personName = claimDetail ? getCredentialPersonName(claimDetail) : ''
   const credentialNarrative = claimDetail ? getCredentialDescription(claimDetail) : ''

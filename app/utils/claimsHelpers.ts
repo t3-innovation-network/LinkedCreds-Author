@@ -117,10 +117,16 @@ export const getSkillClaimAlignments = (claim: any): string[] => {
   const subject = claim?.credentialSubject
   if (!subject || !isSkillClaimCredential(claim)) return []
   const title = getCredentialName(claim)
-  return (subject.skill ?? [])
+  const skillClaimNames  = ( 
+      [
+        ...(subject.skill ?? []),
+        ...(subject.inferredSkill ?? []),
+      ]
     .slice(1)
     .map((s: { name?: string }) => s.name)
-    .filter((name: string) => name && name !== title)
+    .filter((name?: string ) => name && name !== title)) as string[]  
+
+  return skillClaimNames
 }
 
 export const getCredentialPersonName = (claim: any): string => {
