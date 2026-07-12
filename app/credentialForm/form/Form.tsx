@@ -25,7 +25,7 @@ import { Step2 } from './Steps/Step2_descreptionFields'
 import { storeFileTokens } from '../../firebase/storage'
 import CredentialTracker from '../../components/credetialTracker/Page'
 import { StepTrackShape } from './fromTexts & stepTrack/StepTrackShape'
-import { SkillMatch, warmupSkillsApi } from '../../utils/skillsApi'
+import { searchSkillsApi, SkillMatch, warmupSkillsApi } from '../../utils/skillsApi'
 import useGoogleDrive from '../../hooks/useGoogleDrive'
 import { signSkillClaim } from '../../utils/signSkillClaim'
 import CredentialPreview from '../../components/credetialTracker/CredentialPreview'
@@ -77,7 +77,8 @@ const Form = ({ onStepChange }: any) => {
       credentialDescription: '',
       evidence: [],
       evidenceLink: '',
-      description: ''
+      description: '',
+      skills:[]
     },
     mode: 'onChange'
   })
@@ -234,7 +235,14 @@ const Form = ({ onStepChange }: any) => {
 
   const handleFormSubmit = handleSubmit(async (data: FormData) => {
     try {
+
+      //Validation step for Active Skills
+      const validatedActiveSkills = await searchSkillsApi(activeSkills.map(s => s.name));
+      //console.log(validatedActiveSkills);
+      
+      await setActiveSkills(validatedActiveSkills);
       await sign(data)
+
     } catch (error: any) {
       if (error.message === 'MetaMask address could not be retrieved') {
         setErrorMessage('Please make sure you have MetaMask installed and connected.')

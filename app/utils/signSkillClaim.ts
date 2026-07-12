@@ -39,7 +39,7 @@ export async function signSkillClaim(
   }
 
   if (!issuerId) throw new Error('Issuer DID is required.')
-
+  //console.log(formData);
   const { subject, evidence } = normalizeSkillClaimFormData(formData, issuerId)
 
   try {
@@ -56,18 +56,19 @@ export async function signSkillClaim(
       {
         personId: issuerId,
         personName: subject.person.name,
-        skills: subject.skill.map((s: any) => ({
+        skill: subject.skill.map((s: any) => ({
           name: s.name,
           description: s.description,
           durationPerformed: s.durationPerformed,
           image: s.image,
-          source: s.source
+          source: s.source,
+          frameworkMatch: s.frameworkMatch?? []
         })),
-        inferredSkills: (subject.inferredSkill ?? []).map(s => ({
+        inferredSkill: (subject.inferredSkill ?? []).map(s => ({
           name: s.name,
           source: s.source,
           model: s.model,
-          frameworkMatch: s.frameworkMatch
+          frameworkMatch: s.frameworkMatch ?? []
         })),
         evidence
       } as any,

@@ -114,7 +114,7 @@ const signCred = async (
       const { subject, evidence } = generateCredentialData(data, issuerDid)
       credentialSubject = subject
       evidenceItems = evidence
-
+      //console.log(subject);
       signedVC = await credentialEngine.signSkillClaimVC(
         {
           personId: issuerDid,
@@ -123,7 +123,8 @@ const signCred = async (
             name: s.name,
             description: s.description,
             durationPerformed: s.durationPerformed,
-            source: s.source
+            source: s.source,
+            frameworkMatch: s.frameworkMatch
           })),
           inferredSkills: (subject.inferredSkill ?? []).map(s => ({
             name: s.name,
@@ -157,6 +158,11 @@ const signCred = async (
       finalVC.evidence = signedVC.evidence
     }
 
+    //TODO: better fix for integrating inferredskill to Google Drive
+    if (!finalVC.credentialSubject.inferredSkill){
+      finalVC.credentialSubject.inferredSkill = credentialSubject.inferredSkill ?? []
+    }
+    //console.log(finalVC);
     if (saveToDrive) {
       const storage = new GoogleDriveStorage(accessToken)
       const file = await saveToGoogleDrive({
@@ -183,7 +189,7 @@ const signCred = async (
 export const generateCredentialData = (data: FormData, issuerDid: string) => {
   const claimName = (data.credentialName ?? '').trim()
   const { skills, inferredSkills } = buildSkillClaimSkillsFromForm(data)
-
+  //console.log(skills, inferredSkills);
   const subject = {
     type: ['SkillClaim'],
     person: {

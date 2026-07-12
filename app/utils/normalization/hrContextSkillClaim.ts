@@ -53,10 +53,12 @@ export function buildSkillClaimSkillsFromForm(data: FormData): {
 
   for (const skill of data.skills ?? []) {
     if (skill.source === 'user') {
+      //console.log(skill);
       skills.push({
         id: skillId(skill.id),
         name: skill.name,
-        source: 'user'
+        source: 'user',
+        ...(skill.frameworkMatch?.length ? { frameworkMatch: skill.frameworkMatch } : {})
       })
     } else {
       inferredSkills.push({
