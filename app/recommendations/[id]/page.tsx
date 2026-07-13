@@ -117,14 +117,25 @@ const CredentialData = () => {
         let alignedSkills: SelectedSkill[] = []
 
         if (Array.isArray(credentialSubject?.skill) && credentialSubject.skill.length > 0) {
-          // New format
-          alignedSkills = credentialSubject.skill.map((skill: any, index: number) => ({
-            id: skill.id || `temp-${index}-${Date.now()}`,
-            name: skill.name,
-            description: skill.description,
-            source: skill.source,
-            frameworkMatch: skill.frameworkMatch || []
-          }))
+          // New format + inferredSkill
+          alignedSkills = 
+          [ 
+            ...credentialSubject.skill.map((skill: any, index: number) => ({
+                id: skill.id || `temp-${index}-${Date.now()}`,
+                name: skill.name,
+                description: skill.description,
+                source: skill.source,
+                frameworkMatch: skill.frameworkMatch || []
+            })),
+            ...(
+              credentialSubject.inferredSkill.map((skill: any, index: number) => ({
+                id: skill.id || `temp-i-${index}-${Date.now()}`,
+                name: skill.name,
+                source: skill.source,
+                frameworkMatch: skill.frameworkMatch || []
+            })) || [] )
+          ]
+          
         } else if (achievement?.alignment?.length) {
           // Old OBv3 format
           alignedSkills = achievement.alignment.map((align: any, index: number) => ({

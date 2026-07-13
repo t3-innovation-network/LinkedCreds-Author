@@ -711,16 +711,22 @@ const Page = () => {
                 />
               </Typography>
             </ContentSection>
-            <ContentSection>
-              <SectionTitle>The qualifications</SectionTitle>
-              <Typography color='text.primary'>
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: cleanHTML(recommendation?.qualifications)
-                  }}
-                />
-              </Typography>
-            </ContentSection>
+            {
+              recommendation?.qualifications ?
+              <ContentSection>
+                <SectionTitle>The qualifications</SectionTitle>
+                <Typography color='text.primary'>
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: cleanHTML(recommendation?.qualifications)
+                    }}
+                  />
+                </Typography>
+              </ContentSection>
+              :
+              <></>
+            }
+            
 
             {(() => {
               const evidenceItems = recommendation?.evidence || (recommendation as any)?.portfolio || []
