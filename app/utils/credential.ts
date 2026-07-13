@@ -158,6 +158,16 @@ const signCred = async (
       finalVC.evidence = signedVC.evidence
     }
 
+
+    //TODO: better fix for validating skills before writing to Google Drive
+    for (let userSkillIndex = 0; userSkillIndex < finalVC.credentialSubject.skill.length; userSkillIndex++){
+      if(!finalVC.credentialSubject.skill[userSkillIndex].frameworkMatch){
+        //There's possibly an error due to mismatched indices. Consider this a temp fix while the credential engine is being updated
+         finalVC.credentialSubject.skill[userSkillIndex].frameworkMatch = credentialSubject.skill[userSkillIndex].frameworkMatch;
+      }
+    }
+    
+
     //TODO: better fix for integrating inferredskill to Google Drive
     if (!finalVC.credentialSubject.inferredSkill){
       finalVC.credentialSubject.inferredSkill = credentialSubject.inferredSkill ?? []

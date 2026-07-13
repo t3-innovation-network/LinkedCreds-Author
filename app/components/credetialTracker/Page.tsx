@@ -201,6 +201,11 @@ const CredentialTracker: React.FC<CredentialTrackerProps> = ({
     setCurrentImageIndex(0)
   }, [selectedFiles.length])
 
+  //One time Effect to look at the form
+  useEffect(() => {
+    //console.log(formData);
+  }, [])
+
   // Get current display image (use index if multiple files, otherwise use featured or first)
   const currentDisplayFile = selectedFiles.length > 0
     ? selectedFiles[currentImageIndex]

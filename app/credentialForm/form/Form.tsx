@@ -241,6 +241,10 @@ const Form = ({ onStepChange }: any) => {
       //console.log(validatedActiveSkills);
       
       await setActiveSkills(validatedActiveSkills);
+      
+      data.skills = [ ...data.skills ?? [], ...validatedActiveSkills ]
+      //console.log(data, activeSkills, validatedActiveSkills);
+
       await sign(data)
 
     } catch (error: any) {
