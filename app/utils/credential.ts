@@ -160,10 +160,12 @@ const signCred = async (
 
 
     //TODO: better fix for validating skills before writing to Google Drive
-    for (let userSkillIndex = 0; userSkillIndex < finalVC.credentialSubject.skill.length; userSkillIndex++){
-      if(!finalVC.credentialSubject.skill[userSkillIndex].frameworkMatch){
-        //There's possibly an error due to mismatched indices. Consider this a temp fix while the credential engine is being updated
-         finalVC.credentialSubject.skill[userSkillIndex].frameworkMatch = credentialSubject.skill[userSkillIndex].frameworkMatch;
+    if(finalVC.credentialSubject?.skill){
+      for (let userSkillIndex = 0; userSkillIndex < finalVC.credentialSubject?.skill?.length; userSkillIndex++){
+        if(!finalVC.credentialSubject.skill[userSkillIndex].frameworkMatch){
+          //There's possibly an error due to mismatched indices. Consider this a temp fix while the credential engine is being updated
+          finalVC.credentialSubject.skill[userSkillIndex].frameworkMatch = credentialSubject.skill[userSkillIndex].frameworkMatch;
+        }
       }
     }
     
